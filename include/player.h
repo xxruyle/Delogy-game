@@ -7,26 +7,35 @@
 
 #include "atlas.h"
 
+enum animationDir {RIGHT, LEFT, UP, DOWN, numberOfAnimations};   
+enum stateType {MOVING, IDLE};
+
+struct PlayerState 
+{
+    enum stateType curState = IDLE;
+};
 
 struct PlayerPhysics
 {
     Vector2 pos; 
+    float velocity;
+    float acceleration;
+
+    PlayerPhysics(Vector2 spawnPos) : pos(spawnPos) {};
     void update(); 
 };  
 
-enum animationDir {RIGHT, LEFT, UP, DOWN, numberOfAnimations};   
 
 struct PlayerAnimation 
 {
     enum animationDir animationCount = numberOfAnimations; // the number of animations in animationDir
-    enum animationDir curAnimation = RIGHT; 
+    enum animationDir curAnimation = DOWN; 
     Rectangle animationSrcs[4]; // right, left, up, down 
+    int curFrames[4]; // the curFrames of each animation rec 
 
+    Rectangle curRec = animationSrcs[DOWN];
     int frameAmount;   
-    int curFrame = 0;
-    int frameDelay = 0;
-
-
+    
     float animationSpeed = 5.0f;
     float animationUpdateTime = 1.0f / animationSpeed;
     float timeSinceLastFrameSwap = 0.0f;
@@ -34,13 +43,30 @@ struct PlayerAnimation
 
     PlayerAnimation(Rectangle src, int animationFrames);   
 
-    void update();
+    void update(PlayerState& state);
+    void changeAnimation(PlayerState& state);
 };
+
+
+struct PlayerInput 
+{
+    void update(PlayerPhysics& physics, PlayerAnimation& animation, PlayerState& state); 
+    void getInput(PlayerPhysics& physics, PlayerAnimation& animation, PlayerState& state);
+    void resetInput(PlayerAnimation& animation, PlayerState& state);
+};
+
+
+
+
 
 struct Player  
 {
-    Player(Rectangle src, int animationFrames); 
+    bool isMoving;
+    Player(Vector2 spawnPos, Rectangle src, int animationFrames); 
     PlayerAnimation animation_;
+    PlayerPhysics physics_;
+    PlayerInput input_;
+    PlayerState state_;
 
     void update(Atlas& atlas);
 
