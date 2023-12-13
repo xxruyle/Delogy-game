@@ -12,24 +12,21 @@ int main()
 { 
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "RGFXInProd");  
 
-    SetTargetFPS(60);
+    // SetTargetFPS(60); 
 
     Atlas atlas("res/default_atlas.png");
     PlayerCamera camera(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    Player player(Vector2{0,50}, Rectangle{0, 0}, 5);
-
+    Player player(Vector2{0,0}, Rectangle{0, 0}, 5);
 
     while (!WindowShouldClose())   
     {  
         BeginDrawing();  
             BeginMode2D(camera.cam);
-
                 ClearBackground(GRAY);          
-                camera.update(Vector2{0, 0});
                 player.update(atlas);
+                camera.update(Vector2{0,0});
                 DrawText("RGFXInProd", WINDOW_WIDTH / 2, WINDOW_HEIGHT /2, 11, GRAY);
-
             EndMode2D();
             DrawFPS(0, 0); 
             
