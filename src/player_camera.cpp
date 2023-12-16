@@ -30,6 +30,7 @@ void PlayerCamera::update(Vector2 target)
         updateFreeCam(); 
 
     updateZoom();  
+    updateWindowSize();
 } 
 
 void PlayerCamera::updateFreeCam() 
@@ -70,4 +71,10 @@ void PlayerCamera::updateZoom()
 
     if (cam.zoom < 1.062f) 
         cam.zoom = 1.062f;
+}
+
+void PlayerCamera::updateWindowSize()
+{
+    windowWidth = GetScreenWidth();
+    windowHeight = GetScreenHeight();
 }

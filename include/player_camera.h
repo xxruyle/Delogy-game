@@ -15,6 +15,7 @@ struct PlayerCamera
     PlayerCamera(int window_width, int window_height); 
 
     void update(Vector2 target);
+    void updateWindowSize();
     void updateTarget(Vector2 target);
     void updateZoom();
     void updateFreeCam();  

@@ -1,15 +1,15 @@
-#include "player.h"
+#include "player.h" 
 
 
 
-void PlayerPhysics::update()
-{
+void PlayerPhysics::update() 
+{ 
 
-}
+} 
 
 
-void PlayerInput::getInput(PlayerPhysics& physics, PlayerAnimation& animation, PlayerState& state)
-{
+void PlayerInput::getInput(PlayerPhysics& physics, PlayerAnimation& animation, PlayerState& state)  
+{ 
     if (IsKeyDown(KEY_A)) // left
     {
         state.curState = MOVING;
@@ -17,7 +17,7 @@ void PlayerInput::getInput(PlayerPhysics& physics, PlayerAnimation& animation, P
         physics.pos.x -= 40.0f * GetFrameTime();
     }
 
-    if (IsKeyDown(KEY_D)) // right
+    if (IsKeyDown(KEY_D)) // right  
     {
         state.curState = MOVING;
         animation.curAnimation = RIGHT;
@@ -82,7 +82,7 @@ void PlayerInput::update(PlayerPhysics& physics, PlayerAnimation& animation, Pla
 PlayerAnimation::PlayerAnimation(Rectangle src, int animationFrames) 
     : frameAmount(animationFrames)
 {
-    for (unsigned int i = 0; i < animationFrames - 1; i++) {  
+    for (int i = 0; i < animationFrames - 1; i++) {  
         animationSrcs[i] = (Rectangle{(float)(src.x), (float)(src.y + i * 16), (float)16, (float)16});           
     }
 

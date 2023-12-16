@@ -9,36 +9,36 @@
 enum animationDir {RIGHT, LEFT, UP, DOWN};   
 enum stateType {MOVING, IDLE};
 
-struct PlayerState 
+struct PlayerState
 {
     enum stateType curState = IDLE;
 };
 
-struct PlayerPhysics
+struct PlayerPhysics   
 {
-    Vector2 pos; 
+    Vector2 pos;  
     float velocity;
     float acceleration;
 
-    PlayerPhysics(Vector2 spawnPos) : pos(spawnPos) {};
+    PlayerPhysics(Vector2 spawnPos) : pos(spawnPos) {}; 
     void update(); 
-};  
+ };  
 
 
-struct PlayerAnimation 
+struct PlayerAnimation  
 {
-    enum animationDir curAnimation = DOWN; 
+    enum animationDir curAnimation = DOWN;  
 
     Rectangle curRec;
     Rectangle animationSrcs[4]; // right, left, up, down 
-    int curFrames[4]; // the curFrames of each animation rec 
+    int curFrames[4]; // the curFrames of each animation rec  
     int frameAmount;   
     
     float animationSpeed = 5.0f;
     float animationUpdateTime = 1.0f / animationSpeed;
     float timeSinceLastFrameSwap = 0.0f;
 
-    PlayerAnimation(Rectangle src, int animationFrames);   
+    PlayerAnimation(Rectangle src, int animationFrames);    
 
     void update(PlayerState& state);
     void changeAnimation(PlayerState& state); 
@@ -56,12 +56,12 @@ struct PlayerInput
 
 struct Player  
 {
-    bool isMoving;
-    Player(Vector2 spawnPos, Rectangle src, int animationFrames); 
-    PlayerAnimation animation_;
-    PlayerPhysics physics_;
-    PlayerInput input_;
-    PlayerState state_;
+    bool isMoving; 
+    Player(Vector2 spawnPos, Rectangle src, int animationFrames);  
+    PlayerAnimation animation_; 
+    PlayerPhysics physics_; 
+    PlayerInput input_; 
+    PlayerState state_; 
 
-    void update(Atlas& atlas);
+    void update(Atlas& atlas); 
 };
