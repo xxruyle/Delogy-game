@@ -9,7 +9,7 @@
 enum animationDir {RIGHT, LEFT, UP, DOWN};   
 enum stateType {MOVING, IDLE};
 
-struct PlayerState
+struct PlayerState 
 {
     enum stateType curState = IDLE;
 };
@@ -62,6 +62,8 @@ struct Player
     PlayerPhysics physics_; 
     PlayerInput input_; 
     PlayerState state_; 
+
+    Rectangle boundingRec = Rectangle{2, 1, 12, 15};
 
     void update(Atlas& atlas); 
 };

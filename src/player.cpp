@@ -1,7 +1,5 @@
 #include "player.h" 
 
-
-
 void PlayerPhysics::update() 
 { 
 
@@ -95,7 +93,6 @@ increment the current animation's rectangle along the atlas
 */
 void PlayerAnimation::changeAnimation(PlayerState& state)
 {
-
     switch(state.curState) 
     {
         case MOVING: 

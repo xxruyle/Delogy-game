@@ -17,7 +17,7 @@ void PlayerCamera::update(Vector2 target)
             freeCam = false; 
             updateTarget(target); 
         } else { 
-            freeCam = true; 
+            freeCam = true;    
         }
     } 
 
