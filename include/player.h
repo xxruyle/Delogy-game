@@ -5,7 +5,7 @@
 #include "raymath.h" 
 
 #include "atlas.h"
-#include "tile_edit.h"
+#include "dev_util.h"
 
 enum animationDir {RIGHT, LEFT, UP, DOWN};   
 enum stateType {MOVING, IDLE};
@@ -22,7 +22,7 @@ struct PlayerPhysics
     Vector2 velocity = {0,0};
     float acceleration = 300.0f;
     float decel = 300.0f;
-    float maxSpeed = 60.0f;
+    float maxSpeed = 120.0f;
 
 
     PlayerPhysics(Vector2 spawnPos) : pos(spawnPos) {}; 

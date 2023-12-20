@@ -160,9 +160,43 @@ void TileChunk::draw(Atlas& atlas)
 }
 
 
-TileManager::TileManager()
+
+void TileManager::generateChunks()
 {
+    int chunkIndex = 0;  
+    for (int i = -WORLD_SIZE; i < WORLD_SIZE; i++) 
+    {
+        for (int j = -WORLD_SIZE; j < WORLD_SIZE; j++)
+        {
+            Vector2 chunkCoord = {(float)i, (float)j};
+
+            TileChunk chunk(chunkCoord);
+            chunks.push_back(chunk); 
+        }
+    }
 
 
 }
+
+
+
+void TileManager::drawAllChunks(Atlas& atlas, Vector2 playerPos)
+{
+    for (int i = 0; i < chunks.size(); i++) 
+    {   
+
+        Vector2 chunkPos = convertChunkToWorldSpace(chunks[i].srcCoordinate, CHUNK_SIZE);
+
+        chunkPos = Vector2{chunkPos.x + (CHUNK_SIZE / 2 * 16), chunkPos.y + (CHUNK_SIZE / 2 * 16)};
+
+        if (Vector2Distance(chunkPos, playerPos) < 1000)
+        {
+            chunks[i].draw(atlas);
+        }
+    }
+}
+
+
+
+
 

@@ -72,8 +72,8 @@ void PlayerCamera::updateZoom()
         cam.zoom = 4.0f;
 
 
-    if (cam.zoom < 1.062f) 
-        cam.zoom = 1.062f;
+    if (cam.zoom < .062f) 
+        cam.zoom = .062f;
 }
 
 void PlayerCamera::updateWindowSize()
