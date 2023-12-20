@@ -5,6 +5,7 @@
 #include "raymath.h" 
 
 #include "atlas.h"
+#include "tile_edit.h"
 
 enum animationDir {RIGHT, LEFT, UP, DOWN};   
 enum stateType {MOVING, IDLE};
@@ -17,10 +18,15 @@ struct PlayerState
 struct PlayerPhysics   
 {
     Vector2 pos;  
-    float velocity;
-    float acceleration;
+    Vector2 dir = {0,0};
+    Vector2 velocity = {0,0};
+    float acceleration = 300.0f;
+    float decel = 300.0f;
+    float maxSpeed = 60.0f;
+
 
     PlayerPhysics(Vector2 spawnPos) : pos(spawnPos) {}; 
+    void clampSpeed();
     void update(); 
  };  
 
@@ -48,7 +54,7 @@ struct PlayerAnimation
 struct PlayerInput 
 {
     void getInput(PlayerPhysics& physics, PlayerAnimation& animation, PlayerState& state);
-    void resetInput(PlayerAnimation& animation, PlayerState& state);
+    void resetInput(PlayerAnimation& animation, PlayerState& state, PlayerPhysics& physics);
 
     void update(PlayerPhysics& physics, PlayerAnimation& animation, PlayerState& state); 
 };
@@ -56,14 +62,13 @@ struct PlayerInput
 
 struct Player  
 {
-    bool isMoving; 
     Player(Vector2 spawnPos, Rectangle src, int animationFrames);  
     PlayerAnimation animation_; 
     PlayerPhysics physics_; 
     PlayerInput input_; 
     PlayerState state_; 
 
-    Rectangle boundingRec = Rectangle{2, 1, 12, 15};
+    Rectangle boundingRec = Rectangle{1, 0, 16, 17};
 
     void update(Atlas& atlas); 
 };

@@ -67,9 +67,12 @@ enum TileType {
 
 typedef struct Tile {
     int id; 
+
+    /* default_atlas.png positions */
     int x; 
     int y; 
 } Tile;  
+
 
 
 

@@ -27,7 +27,10 @@ void PlayerCamera::update(Vector2 target)
         cam.offset = Vector2{(float)(windowWidth/2),(float)(windowHeight/2)};   
     }
     else 
+    {
+        drawMouseGridOutline(cam, RAYWHITE);
         updateFreeCam(); 
+    }
 
     updateZoom();  
     updateWindowSize();

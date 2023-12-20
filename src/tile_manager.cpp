@@ -1,9 +1,48 @@
 #include "tile_manager.h"
 
-int TileChunk::getIndex(int i, int j)  
+int getIndex(int i, int j)   
 {
-    return (row * i) + j * stride;
-}; 
+    return (CHUNK_SIZE * DATA_STRIDE * i) + j * DATA_STRIDE;
+};
+
+
+void TileChunk::generateNoise() 
+{
+    const int xs = CHUNK_SIZE; 
+    const int ys = CHUNK_SIZE;
+
+    FastNoiseLite caveNoise; 
+    caveNoise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+
+    caveNoise.SetFractalType(FastNoiseLite::FractalType_FBm);
+    caveNoise.SetSeed(rand() % 3000 + 1);
+    caveNoise.SetFrequency(.1);
+
+    for (int x = 0; x < xs; x++) 
+    {
+        for (int y = 0; y < ys; y++)  
+        {
+            float val = caveNoise.GetNoise((float)(srcCoordinate.x + x), (float)(srcCoordinate.y + y));
+
+
+            int index = getIndex(y, x);
+
+
+            if (val > .0017) 
+            {
+                tiles[index] = TILE_FLOOR_MIDDLE.id;
+                tiles[index+1] = TILE_FLOOR_MIDDLE.x; 
+                tiles[index+2] = TILE_FLOOR_MIDDLE.y;            
+            } else { 
+                tiles[index] = TILE_WALL_FRONT.id;
+                tiles[index+1] = TILE_WALL_FRONT.x; 
+                tiles[index+2] = TILE_WALL_FRONT.y;                
+            }
+        }
+    }
+
+
+}
 
 void TileChunk::fillTiles() 
 {
@@ -28,11 +67,20 @@ void TileChunk::fillTiles()
             } else if (i == 1 && j > 0 && j < 9) { 
                 tiles[index] = TILE_WALL_FRONT.id;
                 tiles[x] = TILE_WALL_FRONT.x;
-                tiles[y] = TILE_WALL_FRONT.y;                  
+                tiles[y] = TILE_WALL_FRONT.y;           
+            } else if (i == 8 && j == 1) {  
+                tiles[index] = TILE_FLOOR_SW.id;
+                tiles[x] = TILE_FLOOR_SW.x;
+                tiles[y] = TILE_FLOOR_SW.y; 
             } else if (i > 2 && i < 9 && j == 1) { 
                 tiles[index] = TILE_FLOOR_W.id;
                 tiles[x] = TILE_FLOOR_W.x;
                 tiles[y] = TILE_FLOOR_W.y;  
+  
+            } else if (i == 8 && j == 8) {  
+                tiles[index] = TILE_FLOOR_SE.id;
+                tiles[x] = TILE_FLOOR_SE.x;
+                tiles[y] = TILE_FLOOR_SE.y;  
             } else if (i > 2 && i < 9 && j == 8) { 
                 tiles[index] = TILE_FLOOR_E.id;
                 tiles[x] = TILE_FLOOR_E.x;
@@ -49,6 +97,11 @@ void TileChunk::fillTiles()
                 tiles[index] = TILE_FLOOR_N.id;
                 tiles[x] = TILE_FLOOR_N.x;
                 tiles[y] = TILE_FLOOR_N.y;     
+              
+            } else if (i == 8 && j > 1 && j < 8) {  
+                tiles[index] = TILE_FLOOR_S.id;
+                tiles[x] = TILE_FLOOR_S.x;
+                tiles[y] = TILE_FLOOR_S.y;                    
             } else if (i == 0 && j > 0 && j < 9) {
                 tiles[index] = TILE_WALL_N.id;
                 tiles[x] = TILE_WALL_N.x;
@@ -85,15 +138,21 @@ void TileChunk::fillTiles()
 
 void TileChunk::draw(Atlas& atlas) 
 {
-    for (int i = 0; i < 10; i++) 
+    if (IsKeyPressed(KEY_G)) 
     {
-        for (int j = 0; j < 10; j++) 
+        generateNoise();
+    }
+
+
+    for (int i = 0; i < CHUNK_SIZE; i++) 
+    {
+        for (int j = 0; j < CHUNK_SIZE; j++) 
         {
-            int index = getIndex(i, j); 
+            int index = getIndex(i, j);  
             float x = tiles[index + 1];
             float y = tiles[index + 2];
 
-            DrawTextureRec(atlas.texture, Rectangle{x, y, 16, 16}, Vector2{(float)(j*16), (float)(i * 16)}, WHITE);
+            DrawTextureRec(atlas.texture, Rectangle{x, y, 16, 16}, Vector2{(float)((j + (srcCoordinate.x * CHUNK_SIZE))*16), (float)((i+(srcCoordinate.y * CHUNK_SIZE)) * 16)}, WHITE);
         }
     }
 

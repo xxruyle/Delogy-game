@@ -2,8 +2,29 @@
 
 void PlayerPhysics::update() 
 { 
+    clampSpeed();
 
+    // std::cout << velocity.x << ' ' << velocity.y << std::endl; 
+
+    pos.x += velocity.x * GetFrameTime();
+    pos.y += velocity.y * GetFrameTime();
 } 
+
+void PlayerPhysics::clampSpeed()
+{
+    float velMag = sqrt(velocity.x * velocity.x + velocity.y * velocity.y); 
+    if (velMag > maxSpeed) 
+    {
+        float scale = maxSpeed / velMag; 
+        velocity.x *= scale; 
+        velocity.y *= scale; 
+
+        velocity.x = floor(velocity.x);
+        velocity.y = floor(velocity.y);
+
+    }
+
+}
 
 
 void PlayerInput::getInput(PlayerPhysics& physics, PlayerAnimation& animation, PlayerState& state)  
@@ -12,14 +33,14 @@ void PlayerInput::getInput(PlayerPhysics& physics, PlayerAnimation& animation, P
     {
         state.curState = MOVING;
         animation.curAnimation = LEFT;
-        physics.pos.x -= 40.0f * GetFrameTime();
+        physics.dir.x -= 1;
     }
 
     if (IsKeyDown(KEY_D)) // right  
     {
         state.curState = MOVING;
         animation.curAnimation = RIGHT;
-        physics.pos.x += 40.0f * GetFrameTime();
+        physics.dir.x += 1;
     }
 
 
@@ -27,38 +48,90 @@ void PlayerInput::getInput(PlayerPhysics& physics, PlayerAnimation& animation, P
     {
         state.curState = MOVING;
         animation.curAnimation = UP;
-        physics.pos.y -= 40.0f * GetFrameTime();
+        physics.dir.y -= 1;
     }
 
     if (IsKeyDown(KEY_S)) // down 
     {
         state.curState = MOVING;
         animation.curAnimation = DOWN;
-        physics.pos.y += 40.0f * GetFrameTime();
+        physics.dir.y += 1;
     }
+
+    physics.dir = Vector2Normalize(physics.dir);
+
+    physics.velocity.x += physics.dir.x * physics.acceleration;
+    physics.velocity.y += physics.dir.y * physics.acceleration;
 }
 
-void PlayerInput::resetInput(PlayerAnimation& animation, PlayerState& state)
+void PlayerInput::resetInput(PlayerAnimation& animation, PlayerState& state, PlayerPhysics& physics)
 {
-    if (!IsKeyDown(KEY_A)) // LEFT
+    if (!IsKeyDown(KEY_A) && physics.velocity.x < 0) // LEFT
     {
+
         animation.curFrames[LEFT] = 0;
+
+        physics.dir.x = 0;
+        physics.velocity.x += physics.decel;
+
+
+        if (physics.velocity.x > 0)  
+        {
+            physics.velocity.x = 0;
+        }
+
     }
 
-    if (!IsKeyDown(KEY_D)) // RIGHT
+    if (!IsKeyDown(KEY_D) && physics.velocity.x > 0) // RIGHT
     {
-        animation.curFrames[RIGHT] = 0;
+        animation.curFrames[RIGHT] = 0; 
+
+
+        physics.dir.x = 0;
+
+
+        physics.velocity.x -= physics.decel;
+
+        if (physics.velocity.x < 0)  
+        {
+            physics.velocity.x = 0;
+        }
+
+
     }
 
 
-    if (!IsKeyDown(KEY_W)) // up 
+    if (!IsKeyDown(KEY_W) && physics.velocity.y < 0) // up 
     {
-        animation.curFrames[UP] = 0;
+        animation.curFrames[UP] = 0; 
+
+        physics.dir.y = 0;
+
+
+        physics.velocity.y += physics.decel;
+
+        if (physics.velocity.x > 0)  
+        {
+            physics.velocity.y = 0;
+        }
+
+
     }
 
-    if (!IsKeyDown(KEY_S)) // down 
+    if (!IsKeyDown(KEY_S) && physics.velocity.y > 0) // down 
     {
-        animation.curFrames[DOWN] = 0;
+        animation.curFrames[DOWN] = 0; 
+
+        physics.dir.y = 0;
+
+
+        physics.velocity.y -= physics.decel;
+
+        if (physics.velocity.y < 0)  
+        {
+            physics.velocity.y = 0;
+        }
+
     }
 
 
@@ -70,17 +143,16 @@ void PlayerInput::resetInput(PlayerAnimation& animation, PlayerState& state)
 
 void PlayerInput::update(PlayerPhysics& physics, PlayerAnimation& animation, PlayerState& state)
 {
-
-
-    resetInput(animation, state);
+    resetInput(animation, state, physics);
     getInput(physics, animation, state);
+
 }
 
 
 PlayerAnimation::PlayerAnimation(Rectangle src, int animationFrames) 
     : frameAmount(animationFrames)
 {
-    for (int i = 0; i < animationFrames - 1; i++) {  
+    for (int i = 0; i < animationFrames; i++) {  
         animationSrcs[i] = (Rectangle{(float)(src.x), (float)(src.y + i * 16), (float)16, (float)16});           
     }
 
@@ -96,8 +168,13 @@ void PlayerAnimation::changeAnimation(PlayerState& state)
     switch(state.curState) 
     {
         case MOVING: 
-            curRec = animationSrcs[curAnimation];  
-            curRec.x += curFrames[curAnimation] * 16;   
+            curRec = animationSrcs[curAnimation]; 
+            // check for integer errors
+            if (curFrames[curAnimation] >= 0 && (curFrames[curAnimation] <= animationSrcs[curAnimation].x + (16 * (frameAmount - 1)))) 
+            {
+                curRec.x += curFrames[curAnimation] * 16;   
+
+            }
             break; 
         case IDLE: 
             curFrames[curAnimation] = 0;
@@ -116,7 +193,7 @@ void PlayerAnimation::update(PlayerState& state)
 
     if (timeSinceLastFrameSwap > animationUpdateTime)  
     {
-        curFrames[curAnimation] < 4 ? curFrames[curAnimation]++ : curFrames[curAnimation] = 0; // increment curFrame after certain amount of time
+        curFrames[curAnimation] < frameAmount - 1 ? curFrames[curAnimation]++ : curFrames[curAnimation] = 0; // increment curFrame after certain amount of time
         timeSinceLastFrameSwap = 0.0f;
     }
     
@@ -132,9 +209,20 @@ Player::Player(Vector2 spawnPos, Rectangle src, int animationFrames)
 
 void Player::update(Atlas& atlas) 
 {
-    physics_.update();
-    input_.update(physics_, animation_, state_);
-    animation_.update(state_);
+    
+
 
     DrawTextureRec(atlas.texture, animation_.curRec, physics_.pos, WHITE);
+
+    animation_.update(state_);
+    input_.update(physics_, animation_, state_);
+    physics_.update();
+    // DrawRectangleLines((int)floor(physics_.pos.x + boundingRec.x), (int)floor(physics_.pos.y + boundingRec.y), boundingRec.width, boundingRec.height, WHITE); 
+
+
+    // std::cout << (int)floor(physics_.pos.x + boundingRec.x) << ' ' << (int)floor(physics_.pos.y + boundingRec.y) << std::endl;
+
+
+
+
 }
