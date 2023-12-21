@@ -197,7 +197,7 @@ void TileManager::drawAllChunks(Atlas& atlas, Vector2 playerPos)
 
         if (index < chunks.size() && index >= 0 && chunkExists(chunkBuffer[i]))
         {
-            if (Vector2Distance(chunkPos, playerPos) < renderDistance * CHUNK_SIZE * 16)
+            if (Vector2Distance(chunkPos, playerPos) < RENDER_DISTANCE * CHUNK_SIZE * 16)
             {
                 chunks[index].draw(atlas);
 
@@ -215,9 +215,9 @@ std::vector<Vector2> TileManager::generateNearbyChunks(Vector2 playerPos)
     playerPos = getChunkPosition(playerPos, CHUNK_SIZE); // convert player absolute position to chunk position
     std::vector<Vector2> chunkBuffer;
 
-    for (int i = -renderDistance; i < renderDistance; i++)
+    for (int i = -RENDER_DISTANCE; i < RENDER_DISTANCE; i++)
     {
-        for (int j = -renderDistance; j < renderDistance; j++)
+        for (int j = -RENDER_DISTANCE; j < RENDER_DISTANCE; j++)
         {
             Vector2 nearChunk = {playerPos.x + j, playerPos.y + i};
             chunkBuffer.push_back(nearChunk);

@@ -1,7 +1,6 @@
 #pragma once 
+#include "macros_util.h"
 #include "raylib.h" 
-#include <iostream> 
-#include <cassert>
 
 struct Atlas 
 {

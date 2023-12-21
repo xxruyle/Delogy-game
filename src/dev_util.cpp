@@ -65,9 +65,9 @@ void drawMouseChunkPosition(Camera2D& camera)
 }
 
 
-void drawMouseGridPosition(Camera2D& camera, Vector2 mouseGridPos)
+void drawMouseGridPosition(Camera2D& camera)
 {
-    mouseGridPos = getMouseGridPosition(camera);
+    Vector2 mouseGridPos = getMouseGridPosition(camera);
     
     std::string gridPosStr = std::to_string((int)mouseGridPos.x) + " " + std::to_string((int)mouseGridPos.y);
 

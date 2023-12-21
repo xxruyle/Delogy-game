@@ -1,9 +1,7 @@
 #pragma once 
-#include <iostream>
-#include <vector> 
+#include "macros_util.h"
 
 struct World
 {
     std::vector<int> game_objects; 
- 
 }; 

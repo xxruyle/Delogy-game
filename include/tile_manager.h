@@ -1,22 +1,13 @@
 #pragma once 
-#include "tile_data.h"
-#include <iostream>
-#include <math.h>
-#include <vector>
-#include <string>
+#include "macros_util.h"
+
 #include "raylib.h"
 #include "raymath.h"
+#include "tile_data.h"
 #include "atlas.h"
-
-
 #include "dev_util.h"
 #include "FastNoiseLite.h"
-#include <stdlib.h>     /* srand, rand */
 
-
-#define WORLD_SIZE 3
-#define CHUNK_SIZE 32
-#define DATA_STRIDE 3 
 
 int getIndex(int i, int j);
 
