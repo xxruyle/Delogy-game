@@ -46,19 +46,33 @@ Vector2 getMouseGridPosition(Camera2D& camera)
 Vector2 getMouseChunkPosition(Camera2D& camera, int chunkSize)
 {
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
-
     mousePos = getMouseGridPosition(camera);
-
     return getChunkPosition(mousePos, chunkSize);
 }
 
-
-void drawMouseChunkPosition(Vector2 chunkPos)
+void drawGameInfo()
 {
-    std::string chunkPosStr = std::to_string((int)chunkPos.x) + " " + std::to_string((int)chunkPos.y);
+    DrawText("Delogy Pre-Alpha 1.0", 2, 0, 20, RAYWHITE);
+    DrawFPS(2, 25);
+}
+
+
+void drawMouseChunkPosition(Camera2D& camera)
+{
+    Vector2 mouseChunkPos = getMouseChunkPosition(camera, CHUNK_SIZE);
+    std::string chunkPosStr = std::to_string((int)mouseChunkPos.x) + " " + std::to_string((int)mouseChunkPos.y);
     DrawText(chunkPosStr.c_str(), 2, 100, 20, DARKPURPLE);
 }
 
+
+void drawMouseGridPosition(Camera2D& camera, Vector2 mouseGridPos)
+{
+    mouseGridPos = getMouseGridPosition(camera);
+    
+    std::string gridPosStr = std::to_string((int)mouseGridPos.x) + " " + std::to_string((int)mouseGridPos.y);
+
+    DrawText(gridPosStr.c_str(), 2, 50, 20, DARKPURPLE);
+}
 
 Vector2 getGridPosition(Vector2 screenWorldSpace)
 {

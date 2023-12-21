@@ -160,7 +160,6 @@ void TileChunk::draw(Atlas& atlas)
 
 void TileManager::generateChunks()
 {
-    int chunkIndex = 0;  
     for (int i = -WORLD_SIZE; i < WORLD_SIZE; i++) 
     {
         for (int j = -WORLD_SIZE; j < WORLD_SIZE; j++)
@@ -190,10 +189,11 @@ void TileManager::drawAllChunks(Atlas& atlas, Vector2 playerPos)
 {
     std::vector<Vector2> chunkBuffer = generateNearbyChunks(playerPos);
     
-    for (int i = 0; i < chunkBuffer.size(); i++)
+    for (std::vector<Vector2>::size_type i = 0; i < chunkBuffer.size(); i++)
     {
         Vector2 chunkPos = chunkToWorldSpace(chunkBuffer[i], CHUNK_SIZE);
-        int index = getChunkIndex(chunkBuffer[i].x, chunkBuffer[i].y);
+
+        std::vector<Vector2>::size_type index = getChunkIndex(chunkBuffer[i].x, chunkBuffer[i].y);
 
         if (index < chunks.size() && index >= 0 && chunkExists(chunkBuffer[i]))
         {

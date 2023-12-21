@@ -27,56 +27,27 @@ int main()
 
     Player player(Vector2{0,0}, Rectangle{80, 0}, 4);
 
-    // TileChunk tileChunk(Vector2{-3,-3});  
-    // TileChunk tileChunk2(Vector2{0,0});  
-
     TileManager tileManager; 
     tileManager.generateChunks(); 
 
-
-    // std::cout << Vector2Distance(Vector2{-8,-8}, Vector2{-10, -10}) << std::endl; 
-
-
     while (!WindowShouldClose())     
     {  
-
-
-
-
         BeginDrawing();  
 
             BeginMode2D(camera.cam);
                 ClearBackground(BLACK);            
-                Vector2 mouseGridPos = getMouseGridPosition(camera.cam);
-                Vector2 mouseChunkPos = getMouseChunkPosition(camera.cam, 32);
-
-
-
                 
                 /* Draw Tile Chunks */  
                 tileManager.drawAllChunks(atlas, player.physics_.pos);
-
 
                 /* Draw Entities */ 
                 player.update(atlas); 
                 camera.update(player.physics_.pos);
             EndMode2D();
 
+            drawGameInfo();
+            drawMouseChunkPosition(camera.cam);
 
-
-
-            DrawText("Delogy Pre-Alpha 1.0", 2, 0, 20, RAYWHITE);
-            DrawFPS(2, 25); 
-
-            std::string gridPosStr = std::to_string((int)mouseGridPos.x) + " " + std::to_string((int)mouseGridPos.y);
-            DrawText(gridPosStr.c_str(), 2, 50, 20, DARKPURPLE);
-
-            drawMouseChunkPosition(mouseChunkPos);
-
-
-
-
-            
         EndDrawing();   
     }          
     CloseWindow();         
