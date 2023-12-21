@@ -3,6 +3,7 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
+#include <string>
 #include "raylib.h"
 #include "raymath.h"
 #include "atlas.h"
@@ -13,15 +14,11 @@
 #include <stdlib.h>     /* srand, rand */
 
 
-#define WORLD_SIZE 10
-#define CHUNK_SIZE 30
+#define WORLD_SIZE 3
+#define CHUNK_SIZE 32
 #define DATA_STRIDE 3 
 
 int getIndex(int i, int j);
-
-
-
-
 
 struct TileChunk 
 {
@@ -49,17 +46,15 @@ struct TileChunk
 
 struct TileManager  
 {
-
+    int renderDistance = 3;// the amount of chunks near the player the tile manager will render 
     std::vector<TileChunk> chunks;
 
 
+    int getChunkIndex(int x, int y); // Given a chunk coordinate, return the index of the chunk in the chunks vector
+    bool chunkExists(Vector2 chunkPos); // Check if the chunk exists in the chunks vector
+
     void generateChunks(); // given a spawn position of the player generate chunks around the player
-
-
     void drawAllChunks(Atlas& atlas, Vector2 playerPos); 
 
-
-    // std::vector<Vector2> getNearbyChunks(Vector2 playerPos); 
-
-    // void generateNearbyChunks(); 
+    std::vector<Vector2> generateNearbyChunks(Vector2 playerPos); 
 };

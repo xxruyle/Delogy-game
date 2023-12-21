@@ -36,8 +36,11 @@ int main()
 
     // std::cout << Vector2Distance(Vector2{-8,-8}, Vector2{-10, -10}) << std::endl; 
 
+
     while (!WindowShouldClose())     
     {  
+
+
 
 
         BeginDrawing();  
@@ -45,6 +48,8 @@ int main()
             BeginMode2D(camera.cam);
                 ClearBackground(BLACK);            
                 Vector2 mouseGridPos = getMouseGridPosition(camera.cam);
+                Vector2 mouseChunkPos = getMouseChunkPosition(camera.cam, 32);
+
 
 
                 
@@ -65,6 +70,11 @@ int main()
 
             std::string gridPosStr = std::to_string((int)mouseGridPos.x) + " " + std::to_string((int)mouseGridPos.y);
             DrawText(gridPosStr.c_str(), 2, 50, 20, DARKPURPLE);
+
+            drawMouseChunkPosition(mouseChunkPos);
+
+
+
 
             
         EndDrawing();   

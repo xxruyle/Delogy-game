@@ -68,8 +68,8 @@ void PlayerCamera::updateZoom()
 {
     cam.zoom += GetMouseWheelMove() * 0.25f; 
 
-    if (cam.zoom > 4.0f)
-        cam.zoom = 4.0f;
+    if (cam.zoom > 7.0f)
+        cam.zoom = 7.0f;
 
 
     if (cam.zoom < .062f) 
