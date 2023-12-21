@@ -8,38 +8,33 @@
 #include "dev_util.h"
 #include "FastNoiseLite.h"
 
-
-int getIndex(int i, int j);
+int getIndex(int x, int y); // given an x and y coordinate in a chunk return the index of the tile
 
 struct TileChunk 
 {
-    int tiles[CHUNK_SIZE * CHUNK_SIZE * DATA_STRIDE];  // tiles will always have a size of size * stride 
+    Vector2 srcCoordinate; // the src coordinate in chunk coordinates  
+    TileChunk(Vector2 src, int seed) : srcCoordinate(src) {generateNoise(seed);}; 
 
-    int size = 10;  
-    int stride = 3; // the amount of data for each tile, before approaching the next piece of data 
+    int tileID[CHUNK_SIZE * CHUNK_SIZE]; // the id of the tile 
+    /* l The coordinate locations of the tiles in the default atlas */
+    int tileX[CHUNK_SIZE * CHUNK_SIZE]; 
+    int tileY[CHUNK_SIZE * CHUNK_SIZE]; 
+
+    int entities[CHUNK_SIZE * CHUNK_SIZE];
     
-    int row = DATA_STRIDE * CHUNK_SIZE;    // the amount of data for each row (the stride of each row)
+    void generateNoise(int seed); // generate a chunk's tiles given tile manager's seed
 
-    // given a row i and a col j, return the index of the stride in the tiles array  
-    // int getIndex(int i, int j);   
-    void fillTiles();
-    void generateNoise();
-    
-    
-    Vector2 srcCoordinate; // the src coordinate in absolute world space  
-    TileChunk(Vector2 src) : srcCoordinate(src) {generateNoise();}; 
-
-
-    void draw(Atlas& atlas);
+    void draw(Atlas& atlas); // Draw all the tiles
+    void drawEntities(Atlas& atlas); // Draw all the existing entities 
 };
 
 
 
 struct TileManager  
 {
-    int renderDistance = 3;// the amount of chunks near the player the tile manager will render 
+    int world_seed;
+    TileManager(int random_seed) : world_seed(random_seed) {};
     std::vector<TileChunk> chunks;
-
 
     int getChunkIndex(int x, int y); // Given a chunk coordinate, return the index of the chunk in the chunks vector
     bool chunkExists(Vector2 chunkPos); // Check if the chunk exists in the chunks vector

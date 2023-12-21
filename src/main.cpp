@@ -21,7 +21,7 @@ int main()
 
     Player player(Vector2{0,0}, Rectangle{80, 0}, 4);
 
-    TileManager tileManager; 
+    TileManager tileManager(rand() % 1000 + 1); 
     tileManager.generateChunks(); 
 
     while (!WindowShouldClose())     

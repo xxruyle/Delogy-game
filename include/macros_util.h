@@ -15,9 +15,8 @@
 #define WINDOW_HEIGHT 576  
 
 /* Game World Info*/
-#define WORLD_SIZE 3
-#define CHUNK_SIZE 10
-#define DATA_STRIDE 3 
-#define RENDER_DISTANCE 3 // the amount of chunks near the player the tile manager will render
+#define WORLD_SIZE 10
+#define CHUNK_SIZE 32
+#define RENDER_DISTANCE 7 // the amount of chunks near the player the tile manager will render
 
 #endif 

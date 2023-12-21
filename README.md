@@ -1,5 +1,4 @@
-# RGFXInProd 
-The Raylib Game Framework in production (in progress testing build)  
- 
+# Delogy 
+Delogy is an underground survival automation adventure game  
 
 

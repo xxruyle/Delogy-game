@@ -61,7 +61,7 @@ void drawMouseChunkPosition(Camera2D& camera)
 {
     Vector2 mouseChunkPos = getMouseChunkPosition(camera, CHUNK_SIZE);
     std::string chunkPosStr = std::to_string((int)mouseChunkPos.x) + " " + std::to_string((int)mouseChunkPos.y);
-    DrawText(chunkPosStr.c_str(), 2, 100, 20, DARKPURPLE);
+    DrawText(chunkPosStr.c_str(), 2, 100, 20, RAYWHITE);
 }
 
 
@@ -71,7 +71,7 @@ void drawMouseGridPosition(Camera2D& camera)
     
     std::string gridPosStr = std::to_string((int)mouseGridPos.x) + " " + std::to_string((int)mouseGridPos.y);
 
-    DrawText(gridPosStr.c_str(), 2, 50, 20, DARKPURPLE);
+    DrawText(gridPosStr.c_str(), 2, 50, 20, RAYWHITE);
 }
 
 Vector2 getGridPosition(Vector2 screenWorldSpace)
