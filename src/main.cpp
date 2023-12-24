@@ -1,49 +1,43 @@
-#include "macros_util.h"
+#include "dev_util.hpp"
+#include "player.hpp"
+#include "player_camera.hpp"
+#include "raylib.h"
+#include "tile_manager.hpp"
 
-#include "raylib.h" 
-#include "atlas.h" 
-#include "player_camera.h"
-#include "player.h" 
-#include "tile_manager.h"
-#include "dev_util.h"
-#include "FastNoiseLite.h"
-
-int main()    
-{ 
+int main()
+{
     srand(time(NULL));
 
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE); 
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");   
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
 
-    SetTargetFPS(60);     
-    Atlas atlas("res/default_atlas.png");       
-    PlayerCamera camera(WINDOW_WIDTH, WINDOW_HEIGHT);
+    SetTargetFPS(60);
+    Atlas atlas("res/default_atlas.png");
+    /* PlayerCamera camera; */
 
-    Player player(Vector2{0,0}, Rectangle{80, 0}, 4);
+    Player player(Vector2{0, 0}, Rectangle{80, 0}, 4);
 
-    TileManager tileManager(rand() % 1000 + 1); 
-    tileManager.generateChunks(); 
+    TileManager tileManager(GetRandomValue(0, 3000));
+    tileManager.generateChunks();
 
-    while (!WindowShouldClose())     
-    {  
-       BeginDrawing();  
+    while (!WindowShouldClose()) {
+        BeginDrawing();
 
-           BeginMode2D(camera.cam);
-               ClearBackground(BLACK);            
-               
-               /* Draw Tile Chunks */  
-               tileManager.drawAllChunks(atlas, player.physics_.pos);
+        BeginMode2D(player.camera_.cam);
+        ClearBackground(BLACK);
 
-               /* Draw Entities */ 
-               player.update(atlas); 
-               camera.update(player.physics_.pos);
-           EndMode2D();
+        /* Handle Tile Manager */
+        tileManager.update(atlas, player);
 
-            drawGameInfo();
-            drawMouseGridPosition(camera.cam);
-            drawMouseChunkPosition(camera.cam);
+        /* Draw Entities */
+        player.update(atlas);
+        EndMode2D();
 
-        EndDrawing();   
-    }          
-    CloseWindow();         
+        drawGameInfo();
+        drawMouseGridPosition(player.camera_.cam);
+        drawMouseChunkPosition(player.camera_.cam);
+
+        EndDrawing();
+    }
+    CloseWindow();
 }
