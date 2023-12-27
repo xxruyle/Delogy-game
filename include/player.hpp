@@ -49,7 +49,7 @@ class PlayerInput {
   public:
     void getInput(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state);
     void resetInput(PlayerAnimation &animation, PlayerState &state, PlayerPhysics &physics);
-    void updateInteractState(PlayerCamera &camera, PlayerState &state); // TODO ask for user input in here
+    void getInteractState(PlayerCamera &camera, PlayerState &state); // TODO ask for user input in here
 
     void update(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state, PlayerCamera &camera);
 };

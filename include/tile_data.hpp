@@ -1,5 +1,14 @@
 #ifndef TILE_DATA_H
 #define TILE_DATA_H
+
+/* Generally used for terrain  */
+struct Tile {
+    int id;
+    /* default_atlas.png positions */
+    int x;
+    int y;
+};
+
 enum TileType {
     WALL_FRONT,
 
@@ -26,19 +35,15 @@ enum TileType {
     FLOOR_SW,
 
     COAL1,
-    COAL2,
-    RUBY1,
-    RUBY2,
+    /* COAL2, */
+    /* RUBY1, */
+    /* RUBY2, */
 
-    RAIL_NW, // top left rail
-    RAIL_NE, // top right rail
-    RAIL_SW, // bottom left rail
-    RAIL_SE, // bottom right rail
-    RAIL_V,  // rail vertical
-    RAIL_H,  // rail horizontal
+    CAVE_FLOOR_MIDDLE,
+
 };
 
-#define NUM_TILES 30 // the number of tiles so far
+#define NUM_TILES 31 // the number of tiles so far
 
 /* Dungeon Tiles */
 #define TILE_WALL_FRONT                                                                                                \
@@ -84,33 +89,40 @@ enum TileType {
 #define TILE_COAL1                                                                                                     \
     CLITERAL(Tile) { COAL1, 0, 128 }
 
-#define TILE_RAIL_V                                                                                                    \
-    CLITERAL(Tile) { RAIL_V, 0, 176 }
-
-struct Tile {
-    int id;
-    /* default_atlas.png positions */
-    int x;
-    int y;
-};
+#define TILE_CAVE_FLOOR_MIDDLE                                                                                         \
+    CLITERAL(Tile) { CAVE_FLOOR_MIDDLE, 96, 208 }
 
 // cool lookup table for all the tiles,
 // we can just use the tile enum to look for the corresponding struct!
 // HACK Probably not the best way to do this : (
 // NOTE: adding new tiles to this array is order sensitive
-static Tile tileids[NUM_TILES] = {TILE_WALL_FRONT,
+static Tile tileids[NUM_TILES] = {
 
-                                  TILE_WALL_N,       TILE_WALL_E,   TILE_WALL_S,   TILE_WALL_W,
+    TILE_WALL_FRONT,
 
-                                  TILE_WALL_NW,      TILE_WALL_NE,  TILE_WALL_SE,  TILE_WALL_SW,
+    TILE_WALL_N,
+    TILE_WALL_E,
+    TILE_WALL_S,
+    TILE_WALL_W,
 
-                                  TILE_FLOOR_MIDDLE,
+    TILE_WALL_NW,
+    TILE_WALL_NE,
+    TILE_WALL_SE,
+    TILE_WALL_SW,
 
-                                  TILE_FLOOR_N,      TILE_FLOOR_E,  TILE_FLOOR_S,  TILE_FLOOR_W,
+    TILE_FLOOR_MIDDLE,
 
-                                  TILE_FLOOR_NW,     TILE_FLOOR_NE, TILE_FLOOR_SE, TILE_FLOOR_SW,
+    TILE_FLOOR_N,
+    TILE_FLOOR_E,
+    TILE_FLOOR_S,
+    TILE_FLOOR_W,
 
-                                  TILE_COAL1,
+    TILE_FLOOR_NW,
+    TILE_FLOOR_NE,
+    TILE_FLOOR_SE,
+    TILE_FLOOR_SW,
 
-                                  TILE_RAIL_V};
+    TILE_COAL1,
+
+    TILE_CAVE_FLOOR_MIDDLE};
 #endif

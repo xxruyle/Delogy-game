@@ -1,6 +1,7 @@
 #include "tile_manager.hpp"
 #include "FastNoiseLite.h"
 #include "dev_util.hpp"
+#include "item_data.hpp"
 #include "raylib.h"
 #include "raymath.h"
 #include "tile_data.hpp"
@@ -26,15 +27,11 @@ void TileChunk::generateNoise(int seed)
             int index = getIndex(x, y);
 
             if (val > .0017) {
-                tileID[index] = TILE_FLOOR_MIDDLE.id;
-                tileX[index] = TILE_FLOOR_MIDDLE.x;
-                tileY[index] = TILE_FLOOR_MIDDLE.y;
+                tileID[index] = TILE_WALL_FRONT.id;
                 tileZ[index] = 1;
             }
             else {
-                tileID[index] = TILE_WALL_FRONT.id;
-                tileX[index] = TILE_WALL_FRONT.x;
-                tileY[index] = TILE_WALL_FRONT.y;
+                tileID[index] = TILE_CAVE_FLOOR_MIDDLE.id;
                 tileZ[index] = 0;
             }
         }
@@ -45,19 +42,41 @@ void TileChunk::draw(Atlas &atlas)
 {
     for (int y = 0; y < CHUNK_SIZE; y++) {
         for (int x = 0; x < CHUNK_SIZE; x++) {
-            int index = getIndex(x, y);
-            float xPos = tileX[index];
-            float yPos = tileY[index];
-
-            DrawTextureRec(atlas.texture, Rectangle{xPos, yPos, 16, 16},
-                           Vector2{(float)((x + (srcCoordinate.x * CHUNK_SIZE)) * 16),
-                                   (float)((y + (srcCoordinate.y * CHUNK_SIZE)) * 16)},
-                           WHITE);
+            drawTile(atlas, x, y);
+            drawItem(atlas, x, y);
         }
     }
 }
 
-void TileChunk::drawEntities(Atlas &atlas) {}
+void TileChunk::drawTile(Atlas &atlas, int x, int y)
+{
+    int index = getIndex(x, y);
+    int id = tileID[index];
+    Tile curTile = tileids[id];
+    float xAtlasPos = curTile.x;
+    float yAtlasPos = curTile.y;
+
+    DrawTextureRec(
+        atlas.texture, Rectangle{xAtlasPos, yAtlasPos, 16, 16},
+        Vector2{(float)((x + (srcCoordinate.x * CHUNK_SIZE)) * 16), (float)((y + (srcCoordinate.y * CHUNK_SIZE)) * 16)},
+        WHITE);
+}
+
+void TileChunk::drawItem(Atlas &atlas, int x, int y)
+{
+    int index = getIndex(x, y);
+    int itemid = itemID[index];
+    if (itemid != 0) // if an item exists here
+    {
+        Item curItem = itemids[itemid];
+        float xAtlasPos = curItem.x;
+        float yAtlasPos = curItem.y;
+        DrawTextureRec(atlas.texture, Rectangle{xAtlasPos, yAtlasPos, 16, 16},
+                       Vector2{(float)((x + (srcCoordinate.x * CHUNK_SIZE)) * 16),
+                               (float)((y + (srcCoordinate.y * CHUNK_SIZE)) * 16)},
+                       WHITE);
+    }
+}
 
 void TileChunk::deleteTile(int x, int y)
 {
@@ -67,9 +86,7 @@ void TileChunk::deleteTile(int x, int y)
 
     int zLevel = tileZ[index]; // only delete the tile if z level is > 0
     if (zLevel > 0) {
-        tileID[index] = TILE_WALL_FRONT.id;
-        tileX[index] = TILE_WALL_FRONT.x;
-        tileY[index] = TILE_WALL_FRONT.y;
+        tileID[index] = TILE_CAVE_FLOOR_MIDDLE.id;
         tileZ[index] = 0;
     }
     else {
@@ -81,12 +98,23 @@ void TileChunk::updateTile(int x, int y)
 {
     int index = getIndex(x, y);
     int id = tileID[index];
-    Tile curTile = tileids[id]; // the current tile that we wan't to delete
+    Tile curTile = tileids[id]; // the current tile that we wan't to change
 
-    tileID[index] = TILE_RAIL_V.id;
-    tileX[index] = TILE_RAIL_V.x;
-    tileY[index] = TILE_RAIL_V.y;
-    tileZ[index] = 1;
+    tileID[index] = TILE_COAL1.id;
+    // we don't need to change z level because we are just replacing the highest block
+}
+
+void TileChunk::updateItem(int x, int y)
+{
+    int index = getIndex(x, y);
+    int id = itemID[index];
+
+    if (id == 0) {
+        itemID[index] = ITEM_RAIL_V.id;
+    }
+    else {
+        std::cout << id << std::endl;
+    }
 }
 
 /* ---------------- TileManager Methods  ----------------*/
@@ -145,7 +173,7 @@ void TileManager::checkPlayerInteraction(Player &player)
                 break;
             }
             case CREATE: {
-                chunks[chunkIndex].updateTile(relativeGridPos.x, relativeGridPos.y);
+                chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y);
                 break;
             }
             default:

@@ -4,6 +4,8 @@
 #include "player.hpp"
 #include "raylib.h"
 
+int getIndex(int x, int y);
+
 class TileChunk {
   public:
     Vector2 srcCoordinate; // the src coordinate in chunk coordinates
@@ -11,18 +13,19 @@ class TileChunk {
 
     int tileID[CHUNK_SIZE * CHUNK_SIZE]; // the id of the tile
     /* The coordinate locations of the tiles in the default atlas */
-    int tileX[CHUNK_SIZE * CHUNK_SIZE]; // the atlas x coordinate of the tile
-    int tileY[CHUNK_SIZE * CHUNK_SIZE]; // the atlas y coordinate of the tile
     int tileZ[CHUNK_SIZE * CHUNK_SIZE]; // the z level the current tile is on
 
-    int entities[CHUNK_SIZE * CHUNK_SIZE];
-    void generateNoise(int seed); // generate a chunk's tiles given tile manager's seed
+    int itemID[CHUNK_SIZE * CHUNK_SIZE] = {0}; // the item ids
+    void generateNoise(int seed);              // generate a chunk's tiles given tile manager's seed
 
-    void draw(Atlas &atlas);         // Draw all the tiles
-    void drawEntities(Atlas &atlas); // Draw all the existing entities
-    void deleteTile(int x, int y);   // Deletes the tile at the current z level and
+    void drawTile(Atlas &atlas, int x, int y); // draw  an existing tile
+    void drawItem(Atlas &atlas, int x, int y); // Draw an existing entity
+    void draw(Atlas &atlas);                   // Draw all the tiles and entities
+
+    void deleteTile(int x, int y); // Deletes the tile at the current z level and
     // replaces it with a new tile if applicable
     void updateTile(int x, int y);
+    void updateItem(int x, int y);
 };
 
 class TileManager {

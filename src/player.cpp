@@ -123,9 +123,9 @@ void PlayerInput::resetInput(PlayerAnimation &animation, PlayerState &state, Pla
     }
 }
 
-void PlayerInput::updateInteractState(PlayerCamera &camera, PlayerState &state)
+void PlayerInput::getInteractState(PlayerCamera &camera, PlayerState &state)
 {
-    if (IsKeyPressed(KEY_X) && !camera.freeCam) {
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !camera.freeCam) {
         state.curAction = DESTROY;
         state.curState = INTERACTING;
     }
@@ -143,7 +143,7 @@ void PlayerInput::update(PlayerPhysics &physics, PlayerAnimation &animation, Pla
     resetInput(animation, state, physics);
     getInput(physics, animation, state);
     // we want this to be the last call for state info passing to TileManager
-    updateInteractState(camera, state);
+    getInteractState(camera, state);
 }
 
 PlayerAnimation::PlayerAnimation(Rectangle src, int animationFrames) : frameAmount(animationFrames)
