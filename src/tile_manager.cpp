@@ -78,19 +78,26 @@ void TileChunk::drawItem(Atlas &atlas, int x, int y)
     }
 }
 
-void TileChunk::deleteTile(int x, int y)
+void TileChunk::deleteAtTile(int x, int y)
 {
     int index = getIndex(x, y);
-    int id = tileID[index];
-    Tile curTile = tileids[id]; // the current tile that we wan't to delete
-
-    int zLevel = tileZ[index]; // only delete the tile if z level is > 0
-    if (zLevel > 0) {
-        tileID[index] = TILE_CAVE_FLOOR_MIDDLE.id;
-        tileZ[index] = 0;
+    int id = itemID[index];
+    if (itemID[index] != 0) { // if an item exists at this spot
+        itemID[index] = 0;
     }
     else {
-        std::cout << "Lowest layer!" << std::endl;
+
+        int id = tileID[index];
+        Tile curTile = tileids[id]; // the current tile that we wan't to delete
+
+        int zLevel = tileZ[index]; // only delete the tile if z level is > 0
+        if (zLevel > 0) {
+            tileID[index] = TILE_CAVE_FLOOR_MIDDLE.id;
+            tileZ[index] = 0;
+        }
+        else {
+            std::cout << "Lowest layer!" << std::endl;
+        }
     }
 }
 
@@ -144,6 +151,31 @@ int TileManager::getChunkIndex(int x, int y)
     return x + (y * (stride + 1));
 }
 
+void TileManager::checkPlayerInteraction(Player &player)
+{
+    if (player.state_.curState == INTERACTING) {
+        Vector2 mousePos = getMouseGridPosition(player.camera_.cam);
+        Vector2 chunkPos = getMouseChunkPosition(player.camera_.cam);
+        int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y);
+        Vector2 relativeGridPos = getRelativeChunkGridPosition(chunkPos, mousePos);
+        if (chunkExists(chunkPos)) {
+            switch (player.state_.curAction) {
+            case DESTROY: {
+                chunks[chunkIndex].deleteAtTile(relativeGridPos.x, relativeGridPos.y);
+                break;
+            }
+            case CREATE: {
+                chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y);
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+    player.state_.curAction = NORMAL; // resetting player state
+}
+
 std::vector<Vector2> TileManager::generateNearbyChunks(Vector2 playerPos)
 {
     playerPos = getGridPosition(playerPos);
@@ -157,31 +189,6 @@ std::vector<Vector2> TileManager::generateNearbyChunks(Vector2 playerPos)
         }
     }
     return chunkBuffer;
-}
-
-void TileManager::checkPlayerInteraction(Player &player)
-{
-    if (player.state_.curState == INTERACTING) {
-        Vector2 mousePos = getMouseGridPosition(player.camera_.cam);
-        Vector2 chunkPos = getMouseChunkPosition(player.camera_.cam);
-        int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y);
-        Vector2 relativeGridPos = getRelativeChunkGridPosition(chunkPos, mousePos);
-        if (chunkExists(chunkPos)) {
-            switch (player.state_.curAction) {
-            case DESTROY: {
-                chunks[chunkIndex].deleteTile(relativeGridPos.x, relativeGridPos.y);
-                break;
-            }
-            case CREATE: {
-                chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y);
-                break;
-            }
-            default:
-                break;
-            }
-        }
-    }
-    player.state_.curAction = NORMAL; // resetting player state
 }
 
 void TileManager::drawAllChunks(Atlas &atlas, Vector2 &playerPos)

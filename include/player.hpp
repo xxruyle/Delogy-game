@@ -42,7 +42,7 @@ class PlayerAnimation {
     PlayerAnimation(Rectangle src, int animationFrames);
 
     void update(PlayerState &state);
-    void changeAnimation(PlayerState &state);
+    void changeAnimation(PlayerState &state); // increment the current animation's rectangle along the atlas
 };
 
 class PlayerInput {

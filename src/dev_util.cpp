@@ -2,6 +2,12 @@
 #include "macros_util.hpp"
 #include "raylib.h"
 
+void drawGameInfo()
+{
+    DrawText("Delogy Pre-Alpha 1.0", 2, 0, 20, RAYWHITE);
+    DrawFPS(2, 25);
+}
+
 void drawMouseGridOutline(Camera2D &camera, Color color)
 {
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
@@ -22,6 +28,22 @@ void drawMouseGridOutline(Camera2D &camera, Color color)
     }
 
     DrawRectangleLines(mousePos.x, mousePos.y, 16, 16, color);
+}
+
+void drawMouseChunkPosition(Camera2D &camera)
+{
+    Vector2 mouseChunkPos = getMouseChunkPosition(camera);
+    std::string chunkPosStr = std::to_string((int)mouseChunkPos.x) + " " + std::to_string((int)mouseChunkPos.y);
+    DrawText(chunkPosStr.c_str(), 2, 100, 20, RAYWHITE);
+}
+
+void drawMouseGridPosition(Camera2D &camera)
+{
+    Vector2 mouseGridPos = getMouseGridPosition(camera);
+
+    std::string gridPosStr = std::to_string((int)mouseGridPos.x) + " " + std::to_string((int)mouseGridPos.y);
+
+    DrawText(gridPosStr.c_str(), 2, 50, 20, RAYWHITE);
 }
 
 Vector2 getMouseGridPosition(Camera2D &camera)
@@ -46,35 +68,6 @@ Vector2 getMouseGridPosition(Camera2D &camera)
     return mousePos;
 }
 
-Vector2 getMouseChunkPosition(Camera2D &camera)
-{
-    Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
-    mousePos = getMouseGridPosition(camera);
-    return getChunkPosition(mousePos);
-}
-
-void drawGameInfo()
-{
-    DrawText("Delogy Pre-Alpha 1.0", 2, 0, 20, RAYWHITE);
-    DrawFPS(2, 25);
-}
-
-void drawMouseChunkPosition(Camera2D &camera)
-{
-    Vector2 mouseChunkPos = getMouseChunkPosition(camera);
-    std::string chunkPosStr = std::to_string((int)mouseChunkPos.x) + " " + std::to_string((int)mouseChunkPos.y);
-    DrawText(chunkPosStr.c_str(), 2, 100, 20, RAYWHITE);
-}
-
-void drawMouseGridPosition(Camera2D &camera)
-{
-    Vector2 mouseGridPos = getMouseGridPosition(camera);
-
-    std::string gridPosStr = std::to_string((int)mouseGridPos.x) + " " + std::to_string((int)mouseGridPos.y);
-
-    DrawText(gridPosStr.c_str(), 2, 50, 20, RAYWHITE);
-}
-
 Vector2 getGridPosition(Vector2 screenWorldSpace)
 {
     // help with negative coordinate accuracy
@@ -93,6 +86,13 @@ Vector2 getGridPosition(Vector2 screenWorldSpace)
     }
 
     return screenWorldSpace;
+}
+
+Vector2 getMouseChunkPosition(Camera2D &camera)
+{
+    Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
+    mousePos = getMouseGridPosition(camera);
+    return getChunkPosition(mousePos);
 }
 
 Vector2 getChunkPosition(Vector2 gridPosition)

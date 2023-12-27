@@ -15,15 +15,14 @@ class TileChunk {
     /* The coordinate locations of the tiles in the default atlas */
     int tileZ[CHUNK_SIZE * CHUNK_SIZE]; // the z level the current tile is on
 
-    int itemID[CHUNK_SIZE * CHUNK_SIZE] = {0}; // the item ids
+    int itemID[CHUNK_SIZE * CHUNK_SIZE] = {0}; // the item ids, they always have the highest implicit z level
     void generateNoise(int seed);              // generate a chunk's tiles given tile manager's seed
 
     void drawTile(Atlas &atlas, int x, int y); // draw  an existing tile
     void drawItem(Atlas &atlas, int x, int y); // Draw an existing entity
     void draw(Atlas &atlas);                   // Draw all the tiles and entities
 
-    void deleteTile(int x, int y); // Deletes the tile at the current z level and
-    // replaces it with a new tile if applicable
+    void deleteAtTile(int x, int y); // Deletes the tile or item (if it exists) at the current z level and
     void updateTile(int x, int y);
     void updateItem(int x, int y);
 };
@@ -39,9 +38,10 @@ class TileManager {
     bool chunkExists(Vector2 chunkPos); // Check if the chunk exists in the chunks vector
 
     void generateChunks();
-    std::vector<Vector2> generateNearbyChunks(Vector2 playerPos);
 
     void checkPlayerInteraction(Player &player); // change player state based on player interaction
+
+    std::vector<Vector2> generateNearbyChunks(Vector2 playerPos);
     void drawAllChunks(Atlas &atlas, Vector2 &playerPos);
     void update(Atlas &atlas, Player &player);
 };

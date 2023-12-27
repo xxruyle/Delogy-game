@@ -36,7 +36,7 @@ enum ItemType {
 
 #define NUM_ITEMS 50
 
-static Item itemids[NUM_ITEMS] = {
+Item itemids[NUM_ITEMS] = {
     ITEM_NULL, ITEM_RAIL_NW, ITEM_RAIL_NE, ITEM_RAIL_SW, ITEM_RAIL_SE, ITEM_RAIL_V, ITEM_RAIL_H,
 };
 #endif

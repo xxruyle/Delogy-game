@@ -155,19 +155,16 @@ PlayerAnimation::PlayerAnimation(Rectangle src, int animationFrames) : frameAmou
     curRec = animationSrcs[DOWN];
 }
 
-/*
-Given a player state,
-increment the current animation's rectangle along the atlas
-*/
 void PlayerAnimation::changeAnimation(PlayerState &state)
 {
+    int furthestX =
+        animationSrcs[curAnimation].x + (16 * (frameAmount - 1)); // the furthestX a sprite can be in the atlas
     switch (state.curState) {
     case MOVING:
         curRec = animationSrcs[curAnimation];
         // check for integer errors
-        if (curFrames[curAnimation] >= 0 &&
-            (curFrames[curAnimation] <= animationSrcs[curAnimation].x + (16 * (frameAmount - 1)))) {
-            curRec.x += curFrames[curAnimation] * 16;
+        if (curFrames[curAnimation] >= 0 && (curFrames[curAnimation] * 16 <= furthestX)) {
+            curRec.x += curFrames[curAnimation] * 16; // go to the next frame
         }
         break;
     case IDLE:
