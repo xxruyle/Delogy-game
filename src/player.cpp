@@ -58,7 +58,7 @@ void PlayerInput::getInput(PlayerPhysics &physics, PlayerAnimation &animation, P
         physics.dir.y += 1;
     }
 
-    physics.dir = Vector2Normalize(physics.dir);
+    physics.dir = Vector2Normalize(physics.dir); // fixes faster diagonal movement
 
     physics.velocity.x += physics.dir.x * physics.acceleration;
     physics.velocity.y += physics.dir.y * physics.acceleration;

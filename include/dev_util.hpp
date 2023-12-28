@@ -8,6 +8,8 @@ void drawMouseGridOutline(Camera2D &camera, Color color); // draw the outline of
 void drawMouseChunkPosition(Camera2D &camera);
 void drawMouseGridPosition(Camera2D &camera);
 
+void drawChunkInfo(Vector2 chunkWorldPostion); // draws chunk outlines and chunk coordinates
+
 /* Getting Grid Info*/
 Vector2 getMouseGridPosition(Camera2D &camera);
 Vector2 getGridPosition(Vector2 screenWorldSpace); // convert absolute coordinate space

@@ -19,4 +19,7 @@
 #define CHUNK_SIZE 32
 #define RENDER_DISTANCE 3 // the amount of chunks near the player the tile manager will render
 
+/* Player Info */
+#define NUM_INVENTORY 50
+
 #endif

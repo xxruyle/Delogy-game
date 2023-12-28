@@ -1,5 +1,6 @@
 #pragma once
 #include "atlas.hpp"
+#include "macros_util.hpp"
 #include "player_camera.hpp"
 #include "raylib.h"
 
@@ -54,6 +55,11 @@ class PlayerInput {
     void update(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state, PlayerCamera &camera);
 };
 
+class PlayerInventory {
+  public:
+    int itemInventory[NUM_INVENTORY];
+};
+
 class Player {
   public:
     Player(Vector2 spawnPos, Rectangle src, int animationFrames);
@@ -65,6 +71,7 @@ class Player {
     PlayerInput input_;
     PlayerState state_;
     PlayerCamera camera_;
+    PlayerInventory inventory_;
 
     Rectangle boundingRec = Rectangle{1, 0, 16, 17}; // player bounding box
 

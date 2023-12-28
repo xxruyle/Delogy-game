@@ -46,6 +46,17 @@ void drawMouseGridPosition(Camera2D &camera)
     DrawText(gridPosStr.c_str(), 2, 50, 20, RAYWHITE);
 }
 
+void drawChunkInfo(Vector2 chunkWorldPostion)
+{
+    // converting back to chunk src
+    Vector2 chunkPosition = getChunkPosition(chunkWorldPostion);
+    std::string pos =
+        "(" + std::to_string((int)chunkPosition.x / 16) + ", " + std::to_string((int)chunkPosition.y / 16) + *")";
+
+    DrawText(pos.c_str(), chunkWorldPostion.x, chunkWorldPostion.y, 40, RED);
+    DrawRectangleLines(chunkWorldPostion.x, chunkWorldPostion.y, CHUNK_SIZE * 16, CHUNK_SIZE * 16, WHITE);
+}
+
 Vector2 getMouseGridPosition(Camera2D &camera)
 {
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);

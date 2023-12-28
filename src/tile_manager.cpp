@@ -203,12 +203,7 @@ void TileManager::drawAllChunks(Atlas &atlas, Vector2 &playerPos)
         if (index < chunks.size() && index >= 0 && chunkExists(chunkBuffer[i])) {
             if (Vector2Distance(chunkPos, playerPos) < RENDER_DISTANCE * CHUNK_SIZE * 16) {
                 chunks[index].draw(atlas);
-                std::string pos =
-                    "(" + std::to_string((int)chunkBuffer[i].x) + ", " + std::to_string((int)chunkBuffer[i].y) + ")";
-
-                // For debugging
-                DrawText(pos.c_str(), chunkPos.x, chunkPos.y, 40, RED);
-                DrawRectangleLines(chunkPos.x, chunkPos.y, CHUNK_SIZE * 16, CHUNK_SIZE * 16, WHITE);
+                drawChunkInfo(chunkPos);
             }
         }
     }
