@@ -1,5 +1,5 @@
-#ifndef MACROS_UTIL
-#define MACROS_UTIL
+#ifndef MACROS_UTIL_
+#define MACROS_UTIL_
 
 #include <cassert>
 #include <iostream>
@@ -21,5 +21,6 @@
 
 /* Player Info */
 #define NUM_INVENTORY 50
+#define NUM_HOTBAR 6
 
 #endif

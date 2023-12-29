@@ -96,7 +96,7 @@ enum TileType {
 // we can just use the tile enum to look for the corresponding struct!
 // HACK Probably not the best way to do this : (
 // NOTE: adding new tiles to this array is order sensitive
-Tile tileids[NUM_TILES] = {
+static Tile tileids[NUM_TILES] = {
 
     TILE_WALL_FRONT,
 

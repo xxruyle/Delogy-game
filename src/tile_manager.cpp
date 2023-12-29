@@ -81,14 +81,10 @@ void TileChunk::drawItem(Atlas &atlas, int x, int y)
 void TileChunk::deleteAtTile(int x, int y)
 {
     int index = getIndex(x, y);
-    int id = itemID[index];
     if (itemID[index] != 0) { // if an item exists at this spot
         itemID[index] = 0;
     }
     else {
-
-        int id = tileID[index];
-        Tile curTile = tileids[id]; // the current tile that we wan't to delete
 
         int zLevel = tileZ[index]; // only delete the tile if z level is > 0
         if (zLevel > 0) {
@@ -96,7 +92,7 @@ void TileChunk::deleteAtTile(int x, int y)
             tileZ[index] = 0;
         }
         else {
-            std::cout << "Lowest layer!" << std::endl;
+            /* std::cout << "Lowest layer!" << std::endl; */
         }
     }
 }
@@ -104,23 +100,21 @@ void TileChunk::deleteAtTile(int x, int y)
 void TileChunk::updateTile(int x, int y)
 {
     int index = getIndex(x, y);
-    int id = tileID[index];
-    Tile curTile = tileids[id]; // the current tile that we wan't to change
-
     tileID[index] = TILE_COAL1.id;
     // we don't need to change z level because we are just replacing the highest block
 }
 
-void TileChunk::updateItem(int x, int y)
+void TileChunk::updateItem(int x, int y, int playerItemID)
 {
     int index = getIndex(x, y);
-    int id = itemID[index];
+    int curItemID = itemID[index];
+    Item newItem = itemids[playerItemID];
 
-    if (id == 0) {
-        itemID[index] = ITEM_RAIL_V.id;
+    if (curItemID == 0) { // if there is no existing item here
+        itemID[index] = newItem.id;
     }
     else {
-        std::cout << id << std::endl;
+        /* std::cout << curItemID << std::endl; */
     }
 }
 
@@ -165,7 +159,9 @@ void TileManager::checkPlayerInteraction(Player &player)
                 break;
             }
             case CREATE: {
-                chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y);
+                int curPlayerItemIndex = player.inventory_.curHotbarItem;
+                chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y,
+                                              player.inventory_.itemHotbar[curPlayerItemIndex]);
                 break;
             }
             default:
@@ -203,7 +199,7 @@ void TileManager::drawAllChunks(Atlas &atlas, Vector2 &playerPos)
         if (index < chunks.size() && index >= 0 && chunkExists(chunkBuffer[i])) {
             if (Vector2Distance(chunkPos, playerPos) < RENDER_DISTANCE * CHUNK_SIZE * 16) {
                 chunks[index].draw(atlas);
-                drawChunkInfo(chunkPos);
+                /* drawChunkInfo(chunkPos); */
             }
         }
     }

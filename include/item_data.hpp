@@ -1,5 +1,5 @@
-#ifndef ITEM_DATA_HPP
-#define ITEM_DATA_HPP
+#ifndef ITEM_DATA_HPP_
+#define ITEM_DATA_HPP_
 
 struct Item {
     int id;
@@ -18,7 +18,7 @@ enum ItemType {
 };
 
 #define ITEM_NULL                                                                                                      \
-    CLITERAL(Item) { NULL_ITEM, 0, 0 }
+    CLITERAL(Item) { NULL_ITEM, 304, 304 }
 
 #define ITEM_RAIL_NW                                                                                                   \
     CLITERAL(Item) { RAIL_NW, 0, 160 } // top left rail
@@ -36,7 +36,7 @@ enum ItemType {
 
 #define NUM_ITEMS 50
 
-Item itemids[NUM_ITEMS] = {
+static Item itemids[NUM_ITEMS] = {
     ITEM_NULL, ITEM_RAIL_NW, ITEM_RAIL_NE, ITEM_RAIL_SW, ITEM_RAIL_SE, ITEM_RAIL_V, ITEM_RAIL_H,
 };
 #endif

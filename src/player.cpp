@@ -1,9 +1,7 @@
 #include "player.hpp"
-#include "dev_util.hpp"
 #include "player_camera.hpp"
 #include "raylib.h"
 #include "raymath.h"
-#include <iostream>
 
 void PlayerPhysics::update()
 {
@@ -125,11 +123,11 @@ void PlayerInput::resetInput(PlayerAnimation &animation, PlayerState &state, Pla
 
 void PlayerInput::getInteractState(PlayerCamera &camera, PlayerState &state)
 {
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !camera.freeCam) {
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && camera.freeCam) {
         state.curAction = DESTROY;
         state.curState = INTERACTING;
     }
-    else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && !camera.freeCam) {
+    else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && camera.freeCam) {
         state.curAction = CREATE;
         state.curState = INTERACTING;
     }
@@ -138,12 +136,25 @@ void PlayerInput::getInteractState(PlayerCamera &camera, PlayerState &state)
     }
 }
 
-void PlayerInput::update(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state, PlayerCamera &camera)
+void PlayerInput::getInventoryChoice(PlayerInventory &inventory)
+{
+    int key = GetKeyPressed();
+    if (key != 0) {
+        int num = key - 48; // converting from ascii decimal value
+        if (num < NUM_HOTBAR + 1) {
+            inventory.curHotbarItem = num - 1; // set cur hot bar item
+        }
+    }
+}
+
+void PlayerInput::update(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state, PlayerCamera &camera,
+                         PlayerInventory &inventory)
 {
     resetInput(animation, state, physics);
     getInput(physics, animation, state);
     // we want this to be the last call for state info passing to TileManager
     getInteractState(camera, state);
+    getInventoryChoice(inventory);
 }
 
 PlayerAnimation::PlayerAnimation(Rectangle src, int animationFrames) : frameAmount(animationFrames)
@@ -201,7 +212,7 @@ void Player::update(Atlas &atlas)
     DrawTextureRec(atlas.texture, animation_.curRec, physics_.pos, WHITE);
 
     animation_.update(state_);
-    input_.update(physics_, animation_, state_, camera_);
+    input_.update(physics_, animation_, state_, camera_, inventory_);
     physics_.update();
     camera_.update(physics_.pos);
 }

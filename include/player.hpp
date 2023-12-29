@@ -1,5 +1,6 @@
 #pragma once
 #include "atlas.hpp"
+#include "item_data.hpp"
 #include "macros_util.hpp"
 #include "player_camera.hpp"
 #include "raylib.h"
@@ -46,18 +47,22 @@ class PlayerAnimation {
     void changeAnimation(PlayerState &state); // increment the current animation's rectangle along the atlas
 };
 
+class PlayerInventory {
+  public:
+    /* int itemInventory[NUM_INVENTORY]; */
+    int itemHotbar[NUM_HOTBAR] = {RAIL_H, RAIL_V, RAIL_NE, RAIL_NW, RAIL_SE};
+    int curHotbarItem = 0; // the cur item that the player is selecting
+};
+
 class PlayerInput {
   public:
     void getInput(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state);
     void resetInput(PlayerAnimation &animation, PlayerState &state, PlayerPhysics &physics);
     void getInteractState(PlayerCamera &camera, PlayerState &state); // TODO ask for user input in here
+    void getInventoryChoice(PlayerInventory &inventory);
 
-    void update(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state, PlayerCamera &camera);
-};
-
-class PlayerInventory {
-  public:
-    int itemInventory[NUM_INVENTORY];
+    void update(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state, PlayerCamera &camera,
+                PlayerInventory &inventory);
 };
 
 class Player {

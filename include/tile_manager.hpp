@@ -24,7 +24,7 @@ class TileChunk {
 
     void deleteAtTile(int x, int y); // Deletes the tile or item (if it exists) at the current z level and
     void updateTile(int x, int y);
-    void updateItem(int x, int y);
+    void updateItem(int x, int y, int playerItemID);
 };
 
 class TileManager {

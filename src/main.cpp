@@ -6,7 +6,7 @@
 #include "player_camera.hpp"
 #include "raylib.h"
 #include "tile_manager.hpp"
-#include "user_interface.h"
+#include "ui.hpp"
 
 int main()
 {
@@ -23,6 +23,8 @@ int main()
 
     TileManager tileManager(GetRandomValue(0, 3000));
     tileManager.generateChunks();
+
+    UI userInterface;
 
     while (!WindowShouldClose()) {
         BeginDrawing();
@@ -42,8 +44,7 @@ int main()
         drawMouseGridPosition(player.camera_.cam);
         drawMouseChunkPosition(player.camera_.cam);
 
-        UIRowGridRec({20, (float)(GetScreenHeight() - 100), 40, 40}, 1.2f, 1.9f, 10, RAYWHITE,
-                     Color{255, 255, 255, 32});
+        userInterface.showHotBar(atlas, player.inventory_);
         EndDrawing();
     }
     CloseWindow();
