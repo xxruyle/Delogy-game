@@ -2,10 +2,19 @@
 #include "macros_util.hpp"
 #include "raylib.h"
 
-void drawGameInfo()
+void drawGameInfo(Player &player)
 {
     DrawText("Delogy Pre-Alpha 1.0", 2, 0, 20, RAYWHITE);
     DrawFPS(2, 25);
+
+    drawMouseGridPosition(player.camera_.cam);
+    drawMouseChunkPosition(player.camera_.cam);
+
+    if (player.camera_.freeCam) {
+        DrawText("FREE CAM MODE", 2, 125, 20, WHITE);
+    }
+
+    drawPlayerGridPosition(player.physics_.pos);
 }
 
 void drawMouseGridOutline(Camera2D &camera, Color color)
@@ -34,7 +43,7 @@ void drawMouseChunkPosition(Camera2D &camera)
 {
     Vector2 mouseChunkPos = getMouseChunkPosition(camera);
     std::string chunkPosStr = std::to_string((int)mouseChunkPos.x) + " " + std::to_string((int)mouseChunkPos.y);
-    DrawText(chunkPosStr.c_str(), 2, 100, 20, RAYWHITE);
+    DrawText(chunkPosStr.c_str(), 2, 75, 20, RAYWHITE);
 }
 
 void drawMouseGridPosition(Camera2D &camera)
@@ -44,6 +53,24 @@ void drawMouseGridPosition(Camera2D &camera)
     std::string gridPosStr = std::to_string((int)mouseGridPos.x) + " " + std::to_string((int)mouseGridPos.y);
 
     DrawText(gridPosStr.c_str(), 2, 50, 20, RAYWHITE);
+}
+void drawPlayerGridPosition(Vector2 playerPos)
+{
+    playerPos = getGridPosition(playerPos);
+    std::string playerPosStr =
+        "Player Position: (" + std::to_string((int)playerPos.x) + ", " + std::to_string((int)playerPos.y) + ")";
+
+    DrawText(playerPosStr.c_str(), 2, 100, 20, WHITE);
+}
+
+void drawItem(Camera2D &camera, Atlas &atlas, int itemID)
+{
+    Vector2 atlasSrc = {(float)itemids[itemID].x, (float)itemids[itemID].y};
+    Vector2 mousePosition = getMouseGridPosition(camera);
+    mousePosition.x *= 16;
+    mousePosition.y *= 16;
+
+    DrawTextureRec(atlas.texture, {atlasSrc.x, atlasSrc.y, 16, 16}, mousePosition, Color{255, 255, 255, 150});
 }
 
 void drawChunkInfo(Vector2 chunkWorldPostion)

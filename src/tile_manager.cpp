@@ -1,7 +1,5 @@
 #include "tile_manager.hpp"
 #include "FastNoiseLite.h"
-#include "dev_util.hpp"
-#include "item_data.hpp"
 #include "raylib.h"
 #include "raymath.h"
 #include "tile_data.hpp"
@@ -56,10 +54,10 @@ void TileChunk::drawTile(Atlas &atlas, int x, int y)
     float xAtlasPos = curTile.x;
     float yAtlasPos = curTile.y;
 
-    DrawTextureRec(
-        atlas.texture, Rectangle{xAtlasPos, yAtlasPos, 16, 16},
-        Vector2{(float)((x + (srcCoordinate.x * CHUNK_SIZE)) * 16), (float)((y + (srcCoordinate.y * CHUNK_SIZE)) * 16)},
-        WHITE);
+    DrawTextureRec(atlas.texture, Rectangle{xAtlasPos, yAtlasPos, 16, 16},
+                   Vector2{(float)(((float)x + ((float)srcCoordinate.x * (float)CHUNK_SIZE)) * (float)16),
+                           (float)(((float)y + ((float)srcCoordinate.y * (float)CHUNK_SIZE)) * (float)16)},
+                   WHITE); // casting to float helps with texture coordinate offset with camera movement
 }
 
 void TileChunk::drawItem(Atlas &atlas, int x, int y)
@@ -72,9 +70,9 @@ void TileChunk::drawItem(Atlas &atlas, int x, int y)
         float xAtlasPos = curItem.x;
         float yAtlasPos = curItem.y;
         DrawTextureRec(atlas.texture, Rectangle{xAtlasPos, yAtlasPos, 16, 16},
-                       Vector2{(float)((x + (srcCoordinate.x * CHUNK_SIZE)) * 16),
-                               (float)((y + (srcCoordinate.y * CHUNK_SIZE)) * 16)},
-                       WHITE);
+                       Vector2{(float)(((float)x + ((float)srcCoordinate.x * (float)CHUNK_SIZE)) * (float)16),
+                               (float)(((float)y + ((float)srcCoordinate.y * (float)CHUNK_SIZE)) * (float)16)},
+                       WHITE); // casting to float helps with texture coordinate integer offset with camera movement
     }
 }
 
@@ -145,14 +143,15 @@ int TileManager::getChunkIndex(int x, int y)
     return x + (y * (stride + 1));
 }
 
-void TileManager::checkPlayerInteraction(Player &player)
+void TileManager::checkPlayerInteraction(Player &player, UI &ui)
 {
     if (player.state_.curState == INTERACTING) {
         Vector2 mousePos = getMouseGridPosition(player.camera_.cam);
         Vector2 chunkPos = getMouseChunkPosition(player.camera_.cam);
         int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y);
         Vector2 relativeGridPos = getRelativeChunkGridPosition(chunkPos, mousePos);
-        if (chunkExists(chunkPos)) {
+        if (chunkExists(chunkPos) &&
+            ui.mouseOutOfBounds()) { // player can interact if chunk exists and mouse is not over ui
             switch (player.state_.curAction) {
             case DESTROY: {
                 chunks[chunkIndex].deleteAtTile(relativeGridPos.x, relativeGridPos.y);
@@ -205,8 +204,8 @@ void TileManager::drawAllChunks(Atlas &atlas, Vector2 &playerPos)
     }
 }
 
-void TileManager::update(Atlas &atlas, Player &player)
+void TileManager::update(Atlas &atlas, Player &player, UI &ui)
 {
     drawAllChunks(atlas, player.physics_.pos);
-    checkPlayerInteraction(player);
+    checkPlayerInteraction(player, ui);
 }

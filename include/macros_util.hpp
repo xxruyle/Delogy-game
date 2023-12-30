@@ -1,11 +1,8 @@
-#ifndef MACROS_UTIL_
-#define MACROS_UTIL_
-
+#pragma once
 #include <cassert>
 #include <iostream>
 #include <math.h>
-#include <stdio.h>  /* printf, scanf, puts, NULL */
-#include <stdlib.h> /* srand, rand */
+#include <stdio.h> /* printf, scanf, puts, NULL */
 #include <string>
 #include <time.h> /* time */
 #include <vector>
@@ -22,5 +19,3 @@
 /* Player Info */
 #define NUM_INVENTORY 50
 #define NUM_HOTBAR 6
-
-#endif

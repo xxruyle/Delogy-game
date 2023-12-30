@@ -1,6 +1,6 @@
 #include "player_camera.hpp"
-#include "dev_util.hpp"
 #include "macros_util.hpp"
+#include "dev_util.hpp" // includes player.hpp
 #include "raylib.h"
 #include "raymath.h"
 
@@ -10,8 +10,6 @@ PlayerCamera::PlayerCamera()
     cam.offset = Vector2{(float)((float)WINDOW_WIDTH / 2), (float)((float)WINDOW_HEIGHT / 2)};
     windowWidth = WINDOW_WIDTH;
     windowHeight = WINDOW_HEIGHT;
-    HideCursor();
-    DisableCursor();
 }
 
 void PlayerCamera::update(Vector2 target)
@@ -19,13 +17,10 @@ void PlayerCamera::update(Vector2 target)
     if (IsKeyPressed(KEY_Y)) // enable free cam
     {
         if (freeCam) {
-            HideCursor();
-            DisableCursor();
             freeCam = false;
             updateTarget(target);
         }
         else {
-            ShowCursor();
             freeCam = true;
         }
     }
@@ -35,10 +30,7 @@ void PlayerCamera::update(Vector2 target)
         cam.offset = Vector2{(float)((float)windowWidth / 2), (float)((float)windowHeight / 2)};
     }
     else {
-        updateTarget(target);
-        cam.offset = Vector2{(float)((float)windowWidth / 2), (float)((float)windowHeight / 2)};
-        drawMouseGridOutline(cam, RAYWHITE);
-        /* updateFreeCam(); */
+        updateFreeCam();
     }
 
     updateZoom();

@@ -3,7 +3,7 @@
 #include "raylib.h"
 #include "ui_util.hpp"
 
-void UI::showHotBar(Atlas &atlas, PlayerInventory &inventory)
+void UI::hotBar(Atlas &atlas, PlayerInventory &inventory)
 {
 
     UIRowGridRec({0, (float)(GetScreenHeight() - 48), 48, 48}, 1.0f, gridSpacing, NUM_HOTBAR, inventory.curHotbarItem,
@@ -14,3 +14,5 @@ void UI::showHotBar(Atlas &atlas, PlayerInventory &inventory)
     bounds = {0, (float)(GetScreenHeight() - 48), (NUM_HOTBAR * 48) + (gridSpacing * NUM_HOTBAR), NUM_HOTBAR * 48};
     /* DrawRectangle(bounds.x, bounds.y, bounds.width, bounds.height, PURPLE); */
 }
+
+bool UI::mouseOutOfBounds() { return !CheckCollisionPointRec(GetMousePosition(), bounds); }

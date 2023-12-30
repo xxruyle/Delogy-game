@@ -1,13 +1,16 @@
 #pragma once
 #include "raylib.h"
+#include "ui.hpp"
 
 /* Drawing Dev Utility  Functions*/
-void drawGameInfo();                                      // draws version info, fps, etc
-void drawMouseGridOutline(Camera2D &camera, Color color); // draw the outline of a grid depending on
-// the coordinate the mouse is hovering over
+void drawGameInfo(
+    Player &player); // draws version info, fps, etc void drawMouseGridOutline(Camera2D &camera, Color color); // draw
+                     // the outline of a grid depending on // the coordinate the mouse is hovering over
 void drawMouseChunkPosition(Camera2D &camera);
 void drawMouseGridPosition(Camera2D &camera);
+void drawPlayerGridPosition(Vector2 playerPos);
 
+void drawItem(Camera2D &camera, Atlas &atlas, int itemID);
 void drawChunkInfo(Vector2 chunkWorldPostion); // draws chunk outlines and chunk coordinates
 
 /* Getting Grid Info*/
@@ -23,4 +26,4 @@ Vector2 getRelativeChunkGridPosition(Vector2 chunkSrc,
 // coordinates to chunk coordinates
 Vector2 chunkToGrid(Vector2 chunkPosition);       // convert from chunk coordinates to absolute grid space coordinates
 Vector2 chunkToWorldSpace(Vector2 chunkPosition); // convert from chunk coordinates to
-// absolute coordinate space
+                                                  // absolute coordinate space

@@ -19,8 +19,8 @@ class PlayerPhysics {
     Vector2 pos;
     Vector2 dir = {0, 0};
     Vector2 velocity = {0, 0};
-    float acceleration = 300.0f;
-    float decel = 300.0f;
+    float acceleration = 500.0f;
+    float decel = 700.0f;
     float maxSpeed = 120.0f;
 
     PlayerPhysics(Vector2 spawnPos) : pos(spawnPos){};
@@ -32,7 +32,7 @@ class PlayerAnimation {
   public:
     enum animationDir curAnimation = DOWN;
 
-    Rectangle curRec;
+    Rectangle curRec;           // the cur frame that will be drawn
     Rectangle animationSrcs[4]; // right, left, up, down
     int curFrames[4];           // the curFrames of each animation rec
     int frameAmount;

@@ -1,4 +1,5 @@
 #include "player.hpp"
+#include "dev_util.hpp"
 #include "player_camera.hpp"
 #include "raylib.h"
 #include "raymath.h"
@@ -58,8 +59,8 @@ void PlayerInput::getInput(PlayerPhysics &physics, PlayerAnimation &animation, P
 
     physics.dir = Vector2Normalize(physics.dir); // fixes faster diagonal movement
 
-    physics.velocity.x += physics.dir.x * physics.acceleration;
-    physics.velocity.y += physics.dir.y * physics.acceleration;
+    physics.velocity.x += physics.dir.x * physics.acceleration * GetFrameTime();
+    physics.velocity.y += physics.dir.y * physics.acceleration * GetFrameTime();
 }
 
 void PlayerInput::resetInput(PlayerAnimation &animation, PlayerState &state, PlayerPhysics &physics)
@@ -70,7 +71,7 @@ void PlayerInput::resetInput(PlayerAnimation &animation, PlayerState &state, Pla
         animation.curFrames[LEFT] = 0;
 
         physics.dir.x = 0;
-        physics.velocity.x += physics.decel;
+        physics.velocity.x += physics.decel * GetFrameTime();
 
         if (physics.velocity.x > 0) {
             physics.velocity.x = 0;
@@ -83,7 +84,7 @@ void PlayerInput::resetInput(PlayerAnimation &animation, PlayerState &state, Pla
 
         physics.dir.x = 0;
 
-        physics.velocity.x -= physics.decel;
+        physics.velocity.x -= physics.decel * GetFrameTime();
 
         if (physics.velocity.x < 0) {
             physics.velocity.x = 0;
@@ -96,7 +97,7 @@ void PlayerInput::resetInput(PlayerAnimation &animation, PlayerState &state, Pla
 
         physics.dir.y = 0;
 
-        physics.velocity.y += physics.decel;
+        physics.velocity.y += physics.decel * GetFrameTime();
 
         if (physics.velocity.x > 0) {
             physics.velocity.y = 0;
@@ -109,7 +110,7 @@ void PlayerInput::resetInput(PlayerAnimation &animation, PlayerState &state, Pla
 
         physics.dir.y = 0;
 
-        physics.velocity.y -= physics.decel;
+        physics.velocity.y -= physics.decel * GetFrameTime();
 
         if (physics.velocity.y < 0) {
             physics.velocity.y = 0;
@@ -123,11 +124,11 @@ void PlayerInput::resetInput(PlayerAnimation &animation, PlayerState &state, Pla
 
 void PlayerInput::getInteractState(PlayerCamera &camera, PlayerState &state)
 {
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && camera.freeCam) {
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !camera.freeCam) {
         state.curAction = DESTROY;
         state.curState = INTERACTING;
     }
-    else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && camera.freeCam) {
+    else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && !camera.freeCam) {
         state.curAction = CREATE;
         state.curState = INTERACTING;
     }
@@ -140,7 +141,7 @@ void PlayerInput::getInventoryChoice(PlayerInventory &inventory)
 {
     int key = GetKeyPressed();
     if (key != 0) {
-        int num = key - 48; // converting from ascii decimal value
+        int num = key - 48; // converting from ascii decimal value to actual keyboard values
         if (num < NUM_HOTBAR + 1) {
             inventory.curHotbarItem = num - 1; // set cur hot bar item
         }
@@ -210,6 +211,12 @@ void Player::update(Atlas &atlas)
 {
 
     DrawTextureRec(atlas.texture, animation_.curRec, physics_.pos, WHITE);
+    /* DrawTextureRec(atlas.texture, */
+    /*                Rectangle{(float)itemids[inventory_.curHotbarItem + 1].x, */
+    /*                          (float)itemids[inventory_.curHotbarItem + 1].y, 16, 16}, */
+    /*                getMouseGridPosition(camera_.cam), */
+    /*                Color{255, 255, 255, 255}); // draw outline of cur hotbar item on ground */
+    drawItem(camera_.cam, atlas, inventory_.itemHotbar[inventory_.curHotbarItem]);
 
     animation_.update(state_);
     input_.update(physics_, animation_, state_, camera_, inventory_);

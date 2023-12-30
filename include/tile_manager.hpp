@@ -1,7 +1,8 @@
 #pragma once
 #include "atlas.hpp"
+#include "dev_util.hpp"
+#include "item_data.hpp"
 #include "macros_util.hpp"
-#include "player.hpp"
 #include "raylib.h"
 
 int getIndex(int x, int y);
@@ -39,9 +40,9 @@ class TileManager {
 
     void generateChunks();
 
-    void checkPlayerInteraction(Player &player); // change player state based on player interaction
+    void checkPlayerInteraction(Player &player, UI &ui); // change player state based on player interaction
 
     std::vector<Vector2> generateNearbyChunks(Vector2 playerPos);
     void drawAllChunks(Atlas &atlas, Vector2 &playerPos);
-    void update(Atlas &atlas, Player &player);
+    void update(Atlas &atlas, Player &player, UI &ui);
 };
