@@ -7,15 +7,16 @@
 int main()
 {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
     SetTargetFPS(60);
 
-    Atlas atlas("res/default_atlas.png");
+    Atlas atlas("res/real_atlas.png");
 
-    Player player(Vector2{0, 0}, Rectangle{80, 0}, 4);
+    Player player(Vector2{0, 0}, Rectangle{4, 4}, 4);
 
-    UI userInterface;
     TileManager tileManager(GetRandomValue(0, 3000));
+    UI userInterface;
     tileManager.generateChunks();
 
     while (!WindowShouldClose()) {
@@ -33,8 +34,8 @@ int main()
 
         /* Draw UI */
         drawGameInfo(player);
-
         userInterface.hotBar(atlas, player.inventory_);
+
         EndDrawing();
     }
     CloseWindow();

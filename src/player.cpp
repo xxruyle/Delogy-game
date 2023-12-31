@@ -161,7 +161,8 @@ void PlayerInput::update(PlayerPhysics &physics, PlayerAnimation &animation, Pla
 PlayerAnimation::PlayerAnimation(Rectangle src, int animationFrames) : frameAmount(animationFrames)
 {
     for (int i = 0; i < animationFrames; i++) {
-        animationSrcs[i] = (Rectangle{(float)(src.x), (float)(src.y + i * 16), (float)16, (float)16});
+        animationSrcs[i] =
+            (Rectangle{(float)(src.x), (float)(src.y + i * (16 + SPRITE_PADDING)), (float)16, (float)16});
     }
 
     curRec = animationSrcs[DOWN];
@@ -169,14 +170,14 @@ PlayerAnimation::PlayerAnimation(Rectangle src, int animationFrames) : frameAmou
 
 void PlayerAnimation::changeAnimation(PlayerState &state)
 {
-    int furthestX =
-        animationSrcs[curAnimation].x + (16 * (frameAmount - 1)); // the furthestX a sprite can be in the atlas
+    int furthestX = animationSrcs[curAnimation].x +
+                    ((16 + SPRITE_PADDING) * (frameAmount - 1)); // the furthestX a sprite can be in the atlas
     switch (state.curState) {
     case MOVING:
         curRec = animationSrcs[curAnimation];
         // check for integer errors
         if (curFrames[curAnimation] >= 0 && (curFrames[curAnimation] * 16 <= furthestX)) {
-            curRec.x += curFrames[curAnimation] * 16; // go to the next frame
+            curRec.x += curFrames[curAnimation] * (16 + SPRITE_PADDING); // go to the next frame
         }
         break;
     case IDLE:

@@ -21,18 +21,18 @@ enum ItemType {
     CLITERAL(Item) { NULL_ITEM, 304, 304 }
 
 #define ITEM_RAIL_NW                                                                                                   \
-    CLITERAL(Item) { RAIL_NW, 0, 160 } // top left rail
+    CLITERAL(Item) { RAIL_NW, 4, 88 } // top left rail
 #define ITEM_RAIL_NE                                                                                                   \
-    CLITERAL(Item) { RAIL_NE, 32, 160 } // top right rail
+    CLITERAL(Item) { RAIL_NE, 46, 88 } // top right rail
 #define ITEM_RAIL_SW                                                                                                   \
-    CLITERAL(Item) { RAIL_SW, 0, 192 } // bottom left rail
+    CLITERAL(Item) { RAIL_SW, 4, 130 } // bottom left rail
 #define ITEM_RAIL_SE                                                                                                   \
-    CLITERAL(Item) { RAIL_SE, 32, 192 } // bottom right rail
+    CLITERAL(Item) { RAIL_SE, 46, 130 } // bottom right rail
 #define ITEM_RAIL_V                                                                                                    \
-    CLITERAL(Item) { RAIL_V, 0, 176 }
+    CLITERAL(Item) { RAIL_V, 4, 109 }
 
 #define ITEM_RAIL_H                                                                                                    \
-    CLITERAL(Item) { RAIL_H, 16, 160 }
+    CLITERAL(Item) { RAIL_H, 25, 88 }
 
 #define NUM_ITEMS 50
 

@@ -7,6 +7,7 @@ class PlayerCamera {
     Vector2 playerPos;
     float windowWidth;
     float windowHeight;
+    Vector2 prevTarget;
     bool freeCam = false;
 
     PlayerCamera();

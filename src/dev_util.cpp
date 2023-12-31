@@ -4,7 +4,7 @@
 
 void drawGameInfo(Player &player)
 {
-    DrawText("Delogy Pre-Alpha 1.0", 2, 0, 20, RAYWHITE);
+    DrawText("Delogy Indev 1.0", 2, 0, 20, RAYWHITE);
     DrawFPS(2, 25);
 
     drawMouseGridPosition(player.camera_.cam);
@@ -70,7 +70,7 @@ void drawItem(Camera2D &camera, Atlas &atlas, int itemID)
     mousePosition.x *= 16;
     mousePosition.y *= 16;
 
-    DrawTextureRec(atlas.texture, {atlasSrc.x, atlasSrc.y, 16, 16}, mousePosition, Color{255, 255, 255, 150});
+    DrawTextureRec(atlas.texture, {atlasSrc.x, atlasSrc.y, 16, 16}, mousePosition, Color{255, 255, 255, 170});
 }
 
 void drawChunkInfo(Vector2 chunkWorldPostion)

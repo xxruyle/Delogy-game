@@ -10,3 +10,5 @@ int UIRowGridRec(Rectangle cellSrc, float thickness, float spacing, int numCells
 
 void UIRowGridIcon(Atlas &atlas, PlayerInventory &inventory, Rectangle cellSrc, float thickness, float spacing,
                    int numCells);
+
+void UIRowGridNumbers(Rectangle cellSrc, float spacing, int numCells);

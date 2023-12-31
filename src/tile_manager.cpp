@@ -54,10 +54,17 @@ void TileChunk::drawTile(Atlas &atlas, int x, int y)
     float xAtlasPos = curTile.x;
     float yAtlasPos = curTile.y;
 
-    DrawTextureRec(atlas.texture, Rectangle{xAtlasPos, yAtlasPos, 16, 16},
-                   Vector2{(float)(((float)x + ((float)srcCoordinate.x * (float)CHUNK_SIZE)) * (float)16),
-                           (float)(((float)y + ((float)srcCoordinate.y * (float)CHUNK_SIZE)) * (float)16)},
-                   WHITE); // casting to float helps with texture coordinate offset with camera movement
+    /* DrawTextureRec(atlas.texture, Rectangle{xAtlasPos, yAtlasPos, 16.0f, 16.0f}, */
+    /*                Vector2{(float)(((float)x + ((float)srcCoordinate.x * (float)CHUNK_SIZE)) * (float)16), */
+    /*                        (float)(((float)y + ((float)srcCoordinate.y * (float)CHUNK_SIZE)) * (float)16)}, */
+    /*                WHITE); // casting to float helps with texture coordinate offset with camera movement */
+
+    Rectangle tileAtlasPos = Rectangle{xAtlasPos, yAtlasPos, 16.0f, 16.0f};
+    Vector2 loc;
+    loc.x = (float)(((float)x + ((float)srcCoordinate.x * (float)CHUNK_SIZE)) * 16.0f);
+    loc.y = (float)(((float)y + ((float)srcCoordinate.y * (float)CHUNK_SIZE)) * 16.0f);
+    Rectangle tileDest = {loc.x, loc.y, 16.0f, 16.0f};
+    DrawTexturePro(atlas.texture, tileAtlasPos, tileDest, {0, 0}, 0.0f, WHITE);
 }
 
 void TileChunk::drawItem(Atlas &atlas, int x, int y)
@@ -69,10 +76,17 @@ void TileChunk::drawItem(Atlas &atlas, int x, int y)
         Item curItem = itemids[itemid];
         float xAtlasPos = curItem.x;
         float yAtlasPos = curItem.y;
-        DrawTextureRec(atlas.texture, Rectangle{xAtlasPos, yAtlasPos, 16, 16},
-                       Vector2{(float)(((float)x + ((float)srcCoordinate.x * (float)CHUNK_SIZE)) * (float)16),
-                               (float)(((float)y + ((float)srcCoordinate.y * (float)CHUNK_SIZE)) * (float)16)},
-                       WHITE); // casting to float helps with texture coordinate integer offset with camera movement
+        /* DrawTextureRec(atlas.texture, Rectangle{xAtlasPos, yAtlasPos, 16.0f, 16.0f}, */
+        /*                Vector2{(float)(((float)x + ((float)srcCoordinate.x * (float)CHUNK_SIZE)) * (float)16), */
+        /*                        (float)(((float)y + ((float)srcCoordinate.y * (float)CHUNK_SIZE)) * (float)16)}, */
+        /*                WHITE); // casting to float helps with texture coordinate integer offset with camera movement
+         */
+        Rectangle tileAtlasPos = Rectangle{xAtlasPos, yAtlasPos, 16.0f, 16.0f};
+        Vector2 loc;
+        loc.x = (float)(((float)x + ((float)srcCoordinate.x * (float)CHUNK_SIZE)) * 16.0f);
+        loc.y = (float)(((float)y + ((float)srcCoordinate.y * (float)CHUNK_SIZE)) * 16.0f);
+        Rectangle tileDest = {loc.x, loc.y, 16.0f, 16.0f};
+        DrawTexturePro(atlas.texture, tileAtlasPos, tileDest, {0, 0}, 0.0f, WHITE);
     }
 }
 

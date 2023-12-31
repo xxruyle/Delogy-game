@@ -6,8 +6,9 @@
 
 PlayerCamera::PlayerCamera()
 {
-    cam.zoom = 1.9f;
-    cam.offset = Vector2{(float)((float)WINDOW_WIDTH / 2), (float)((float)WINDOW_HEIGHT / 2)};
+    cam.zoom = 2.0f;
+    cam.offset = Vector2{round((float)(WINDOW_WIDTH / 2)), round((float)(WINDOW_HEIGHT / 2))};
+    prevTarget = {0, 0};
     windowWidth = WINDOW_WIDTH;
     windowHeight = WINDOW_HEIGHT;
 }
@@ -27,7 +28,7 @@ void PlayerCamera::update(Vector2 target)
 
     if (!freeCam) {
         updateTarget(target);
-        cam.offset = Vector2{(float)((float)windowWidth / 2), (float)((float)windowHeight / 2)};
+        cam.offset = Vector2{round((float)(windowWidth / 2)), round((float)(windowHeight / 2))};
     }
     else {
         updateFreeCam();
@@ -58,17 +59,30 @@ void PlayerCamera::updateFreeCam()
     }
 }
 
-void PlayerCamera::updateTarget(Vector2 target) { cam.target = Vector2Add(target, Vector2{8.0f, 8.0f}); }
+void PlayerCamera::updateTarget(Vector2 target)
+{
+    // Linear interpolation (Lerp) for smooth movement
+    float smoothFactor = 0.2f;
+    Vector2 interpolatedTarget = Vector2Lerp(prevTarget, target, smoothFactor);
+
+    // Round the interpolated target position to the nearest integer
+    prevTarget = interpolatedTarget;
+
+    // Update camera target with an offset
+    cam.target = Vector2Add(interpolatedTarget, Vector2{8.0f, 8.0f});
+}
 
 void PlayerCamera::updateZoom()
 {
-    cam.zoom += GetMouseWheelMove() * 0.25f;
+    cam.zoom += GetMouseWheelMove();
 
     if (cam.zoom > 7.0f)
         cam.zoom = 7.0f;
 
-    if (cam.zoom < .062f)
-        cam.zoom = .062f;
+    if (cam.zoom < 1.0f)
+        cam.zoom = 1.0f;
+
+    cam.zoom = (int)(floor(cam.zoom));
 }
 
 void PlayerCamera::updateWindowSize()

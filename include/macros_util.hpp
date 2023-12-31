@@ -7,6 +7,9 @@
 #include <time.h> /* time */
 #include <vector>
 
+/* Sprite Atlas Info */
+#define SPRITE_PADDING 5
+
 /* Window info*/
 #define WINDOW_WIDTH 864
 #define WINDOW_HEIGHT 576

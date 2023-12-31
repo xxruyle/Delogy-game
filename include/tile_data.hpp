@@ -47,7 +47,7 @@ enum TileType {
 
 /* Dungeon Tiles */
 #define TILE_WALL_FRONT                                                                                                \
-    CLITERAL(Tile) { WALL_FRONT, 16, 240 }
+    CLITERAL(Tile) { WALL_FRONT, 4, 214 }
 #define TILE_WALL_N                                                                                                    \
     CLITERAL(Tile) { WALL_N, 16, 224 }
 #define TILE_WALL_E                                                                                                    \
@@ -90,7 +90,7 @@ enum TileType {
     CLITERAL(Tile) { COAL1, 0, 128 }
 
 #define TILE_CAVE_FLOOR_MIDDLE                                                                                         \
-    CLITERAL(Tile) { CAVE_FLOOR_MIDDLE, 96, 208 }
+    CLITERAL(Tile) { CAVE_FLOOR_MIDDLE, 4, 151 }
 
 // cool lookup table for all the tiles,
 // we can just use the tile enum to look for the corresponding struct!
