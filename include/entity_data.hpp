@@ -18,6 +18,4 @@ struct Entity {
 #define ENTITY_CART_V                                                                                                  \
     CLITERAL(Entity) { CART_V, 88, 88 }
 
-static Entity entityids[NUM_ENTITIES] = {ENTITY_NULL, ENTITY_CART_H, ENTITY_CART_V
-
-};
+static Entity entityids[NUM_ENTITIES] = {ENTITY_NULL, ENTITY_CART_H, ENTITY_CART_V};

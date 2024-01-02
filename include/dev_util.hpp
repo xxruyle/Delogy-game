@@ -9,6 +9,7 @@ void drawGameInfo(
 void drawMouseChunkPosition(Camera2D &camera);
 void drawMouseGridPosition(Camera2D &camera);
 void drawPlayerGridPosition(Vector2 playerPos);
+void drawMouseGridOutline(Camera2D &camera, Color color);
 
 void drawItem(Camera2D &camera, Atlas &atlas, int itemID);
 void drawChunkInfo(Vector2 chunkWorldPostion); // draws chunk outlines and chunk coordinates

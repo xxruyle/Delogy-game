@@ -172,7 +172,7 @@ void TileManager::checkPlayerInteraction(Player &player, UI &ui)
                 chunks[chunkIndex].deleteAtTile(relativeGridPos.x, relativeGridPos.y);
                 break;
             }
-            case CREATE: {
+            case ITEM_CREATE: {
                 int curPlayerItemIndex = player.inventory_.curHotbarItem;
                 chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y,
                                               player.inventory_.itemHotbar[curPlayerItemIndex]);
@@ -183,7 +183,6 @@ void TileManager::checkPlayerInteraction(Player &player, UI &ui)
             }
         }
     }
-    player.state_.curAction = NORMAL; // resetting player state
 }
 
 std::vector<Vector2> TileManager::generateNearbyChunks(Vector2 playerPos)
@@ -228,7 +227,7 @@ int TileManager::getItemUnder(Vector2 pos)
 {
     Vector2 centeredPos = {pos.x, pos.y};
     Vector2 gridPos = getGridPosition(centeredPos);
-    std::cout << gridPos.x << " " << gridPos.y << std::endl;
+    /* std::cout << gridPos.x << " " << gridPos.y << std::endl; */
     Vector2 chunkPos = getChunkPosition(gridPos);
     std::vector<Vector2>::size_type index = getChunkIndex(chunkPos.x, chunkPos.y);
     Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, gridPos);

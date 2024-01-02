@@ -6,24 +6,31 @@
 
 void PlayerPhysics::update()
 {
-    clampSpeed();
-
-    // std::cout << velocity.x << ' ' << velocity.y << std::endl;
-
     pos.x += velocity.x * GetFrameTime();
     pos.y += velocity.y * GetFrameTime();
 }
 
 void PlayerPhysics::clampSpeed()
 {
+    if (velocity.x > maxSpeed) {
+        velocity.x = maxSpeed;
+    }
+    else if (velocity.x < -maxSpeed) {
+        velocity.x = -maxSpeed;
+    }
+
+    if (velocity.y > maxSpeed) {
+        velocity.y = maxSpeed;
+    }
+    else if (velocity.y < -maxSpeed) {
+        velocity.y = -maxSpeed;
+    }
+
     float velMag = sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
     if (velMag > maxSpeed) {
         float scale = maxSpeed / velMag;
         velocity.x *= scale;
         velocity.y *= scale;
-
-        velocity.x = floor(velocity.x);
-        velocity.y = floor(velocity.y);
     }
 }
 
@@ -57,6 +64,7 @@ void PlayerInput::getInput(PlayerPhysics &physics, PlayerAnimation &animation, P
         physics.dir.y += 1;
     }
 
+    physics.clampSpeed();
     physics.dir = Vector2Normalize(physics.dir); // fixes faster diagonal movement
 
     physics.velocity.x += physics.dir.x * physics.acceleration * GetFrameTime();
@@ -122,14 +130,20 @@ void PlayerInput::resetInput(PlayerAnimation &animation, PlayerState &state, Pla
     }
 }
 
-void PlayerInput::getInteractState(PlayerCamera &camera, PlayerState &state)
+void PlayerInput::getInteractState(PlayerCamera &camera, PlayerState &state, PlayerInventory &inventory)
 {
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !camera.freeCam) {
         state.curAction = DESTROY;
         state.curState = INTERACTING;
     }
     else if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON) && !camera.freeCam) {
-        state.curAction = CREATE;
+        if (inventory.itemHotbar[inventory.curHotbarItem] == CART_H_ ||
+            inventory.itemHotbar[inventory.curHotbarItem] == CART_V_) {
+            state.curAction = ENTITY_CREATE;
+        }
+        else {
+            state.curAction = ITEM_CREATE;
+        }
         state.curState = INTERACTING;
     }
     else {
@@ -141,9 +155,9 @@ void PlayerInput::getInventoryChoice(PlayerInventory &inventory)
 {
     int key = GetKeyPressed();
     if (key != 0) {
-        int num = key - 48; // converting from ascii decimal value to actual keyboard values
-        if (num < NUM_HOTBAR + 1) {
-            inventory.curHotbarItem = num - 1; // set cur hot bar item
+        int num = key - 48;                     // converting from ascii decimal value to actual keyboard values
+        if (num >= 0 && num < NUM_HOTBAR + 1) { // make sure keys are not negative
+            inventory.curHotbarItem = num - 1;  // set cur hot bar item
         }
     }
 }
@@ -168,7 +182,7 @@ void PlayerInput::update(PlayerPhysics &physics, PlayerAnimation &animation, Pla
     resetInput(animation, state, physics);
     getInput(physics, animation, state);
     // we want this to be the last call for state info passing to TileManager
-    getInteractState(camera, state);
+    getInteractState(camera, state, inventory);
     getInventoryChoice(inventory);
     getItemRotation(inventory);
 }
@@ -225,13 +239,7 @@ Player::Player(Vector2 spawnPos, Rectangle src, int animationFrames)
 
 void Player::update(Atlas &atlas)
 {
-
     DrawTextureRec(atlas.texture, animation_.curRec, physics_.pos, WHITE);
-    /* DrawTextureRec(atlas.texture, */
-    /*                Rectangle{(float)itemids[inventory_.curHotbarItem + 1].x, */
-    /*                          (float)itemids[inventory_.curHotbarItem + 1].y, 16, 16}, */
-    /*                getMouseGridPosition(camera_.cam), */
-    /*                Color{255, 255, 255, 255}); // draw outline of cur hotbar item on ground */
     drawItem(camera_.cam, atlas, inventory_.itemHotbar[inventory_.curHotbarItem]);
 
     animation_.update(state_);

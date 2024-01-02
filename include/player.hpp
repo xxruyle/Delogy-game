@@ -1,5 +1,6 @@
 #pragma once
 #include "atlas.hpp"
+#include "entity_data.hpp"
 #include "item_data.hpp"
 #include "macros_util.hpp"
 #include "player_camera.hpp"
@@ -7,7 +8,12 @@
 
 enum animationDir { RIGHT, LEFT, UP, DOWN };
 enum stateType { MOVING, IDLE, INTERACTING };
-enum action { NORMAL, CREATE, DESTROY }; // whether the player is performing normal actions or interactive actions
+enum action {
+    NORMAL,
+    ITEM_CREATE,
+    DESTROY,
+    ENTITY_CREATE
+}; // whether the player is performing normal actions or interactive actions
 
 struct PlayerState {
     enum stateType curState = IDLE;
@@ -50,7 +56,7 @@ class PlayerAnimation {
 class PlayerInventory {
   public:
     /* int itemInventory[NUM_INVENTORY]; */
-    int itemHotbar[NUM_HOTBAR] = {RAIL_V, NULL_ITEM, NULL_ITEM, NULL_ITEM, NULL_ITEM};
+    int itemHotbar[NUM_HOTBAR] = {RAIL_V, CART_H_, NULL_ITEM, NULL_ITEM, NULL_ITEM};
     int curHotbarItem = 0; // the cur item that the player is selecting
 };
 
@@ -58,7 +64,8 @@ class PlayerInput {
   public:
     void getInput(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state);
     void resetInput(PlayerAnimation &animation, PlayerState &state, PlayerPhysics &physics);
-    void getInteractState(PlayerCamera &camera, PlayerState &state); // TODO ask for user input in here
+    void getInteractState(PlayerCamera &camera, PlayerState &state,
+                          PlayerInventory &inventory); // TODO ask for user input in here
     void getInventoryChoice(PlayerInventory &inventory);
     void getItemRotation(PlayerInventory &inventory);
 

@@ -1,6 +1,16 @@
 #include "entity_manager.hpp"
+#include "dev_util.hpp"
 #include "entity_data.hpp"
+#include "item_data.hpp"
 #include "raylib.h"
+#include "player.hpp"
+
+EntityPhysics::EntityPhysics(Vector2 gridPos)
+{
+    gridPos.x *= 16;
+    gridPos.y *= 16;
+    pos = gridPos;
+}
 
 void EntityPhysics::clampSpeed()
 {
@@ -29,21 +39,25 @@ void EntityPhysics::update()
     pos.y += velocity.y * GetFrameTime();
 }
 
+void EntityManager::createCart(Vector2 gridPos, int id)
+{
+    EntityPhysics tempPhysics(gridPos);
+    Cart tempCart = {id, CART_H, tempPhysics};
+    carts.push_back(tempCart);
+}
+
 void EntityManager::populateCarts()
 {
     for (int i = 0; i < 1; i++) {
-        EntityStorage tempStorage;
-        EntityPhysics tempPhysics;
-        Cart tempCart = {i, tempPhysics, tempStorage};
-        carts.push_back(tempCart);
+        Vector2 gridPos = {(float)GetRandomValue(0, 2), 0};
+        createCart(gridPos, carts.size());
     }
 }
 
 void EntityManager::drawCarts(Atlas &atlas)
 {
-    int cartID = CART_H; // JUST A placeholder for now for ENTITY_CART_H
     for (int i = 0; i < carts.size(); i++) {
-        Entity curEntity = entityids[cartID];
+        Entity curEntity = entityids[carts[i].orientation];
         Rectangle entityRec = {(float)curEntity.x, (float)curEntity.y, 16, 16};
         DrawTextureRec(atlas.texture, entityRec, carts[i].physics_.pos, WHITE);
     }
@@ -92,6 +106,12 @@ void EntityManager::updateCart(Cart &cart, TileManager &tileManager)
 
     switch (itemUnder) {
     case RAIL_H:
+        if (cart.curDirection == SOUTH) {
+            cart.curDirection = EAST;
+        }
+        else if (cart.curDirection == NORTH) {
+            cart.curDirection = WEST;
+        }
         break;
     case RAIL_NE:
         if (cart.curDirection == EAST) {
@@ -104,6 +124,12 @@ void EntityManager::updateCart(Cart &cart, TileManager &tileManager)
         }
         break;
     case RAIL_V:
+        if (cart.curDirection == EAST) {
+            cart.curDirection = SOUTH;
+        }
+        else if (cart.curDirection == WEST) {
+            cart.curDirection = NORTH;
+        }
         break;
     case RAIL_SE:
         if (cart.curDirection == SOUTH) {
@@ -144,15 +170,19 @@ void EntityManager::updateCart(Cart &cart, TileManager &tileManager)
     int directionMultiplier = getDirectionMultiplier(cart.curDirection);
     switch (cart.curDirection) {
     case WEST:
+        cart.orientation = CART_H;
         cart.physics_.velocity.x += directionMultiplier * cart.physics_.acceleration * GetFrameTime();
         break;
     case EAST:
+        cart.orientation = CART_H;
         cart.physics_.velocity.x += directionMultiplier * cart.physics_.acceleration * GetFrameTime();
         break;
     case NORTH:
+        cart.orientation = CART_V;
         cart.physics_.velocity.y += directionMultiplier * cart.physics_.acceleration * GetFrameTime();
         break;
     case SOUTH:
+        cart.orientation = CART_V;
         cart.physics_.velocity.y += directionMultiplier * cart.physics_.acceleration * GetFrameTime();
         break;
     default:
@@ -162,8 +192,26 @@ void EntityManager::updateCart(Cart &cart, TileManager &tileManager)
     }
 }
 
-void EntityManager::update(Atlas &atlas, TileManager &tileManager)
+void EntityManager::getPlayerInteraction(Player &player)
 {
+    int curPlayerItem = player.inventory_.itemHotbar[player.inventory_.curHotbarItem];
+    if (player.state_.curState == INTERACTING) {
+        switch (player.state_.curAction) {
+        case ENTITY_CREATE:
+            if (curPlayerItem == CART_H_ || curPlayerItem == CART_V_) {
+                Vector2 mouseGridPos = getMouseGridPosition(player.camera_.cam);
+                createCart(mouseGridPos, carts.size());
+            }
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void EntityManager::update(Atlas &atlas, TileManager &tileManager, Player &player)
+{
+    getPlayerInteraction(player);
     for (int i = 0; i < carts.size(); i++) {
         Vector2 cartPos = carts[i].physics_.pos;
         updateCart(carts[i], tileManager);
