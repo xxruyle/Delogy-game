@@ -22,3 +22,6 @@
 /* Player Info */
 #define NUM_INVENTORY 50
 #define NUM_HOTBAR 6
+
+/* Entity Object Info */
+#define ENTITY_STORAGE_SIZE 50

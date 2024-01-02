@@ -1,5 +1,6 @@
 #include "tile_manager.hpp"
 #include "FastNoiseLite.h"
+#include "dev_util.hpp"
 #include "raylib.h"
 #include "raymath.h"
 #include "tile_data.hpp"
@@ -222,4 +223,15 @@ void TileManager::update(Atlas &atlas, Player &player, UI &ui)
 {
     drawAllChunks(atlas, player.physics_.pos);
     checkPlayerInteraction(player, ui);
+}
+int TileManager::getItemUnder(Vector2 pos)
+{
+    Vector2 centeredPos = {pos.x, pos.y};
+    Vector2 gridPos = getGridPosition(centeredPos);
+    std::cout << gridPos.x << " " << gridPos.y << std::endl;
+    Vector2 chunkPos = getChunkPosition(gridPos);
+    std::vector<Vector2>::size_type index = getChunkIndex(chunkPos.x, chunkPos.y);
+    Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, gridPos);
+    int relativeChunkIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y);
+    return chunks[index].itemID[relativeChunkIndex];
 }

@@ -50,7 +50,7 @@ class PlayerAnimation {
 class PlayerInventory {
   public:
     /* int itemInventory[NUM_INVENTORY]; */
-    int itemHotbar[NUM_HOTBAR] = {RAIL_H, RAIL_V, RAIL_NE, RAIL_NW, RAIL_SE};
+    int itemHotbar[NUM_HOTBAR] = {RAIL_V, NULL_ITEM, NULL_ITEM, NULL_ITEM, NULL_ITEM};
     int curHotbarItem = 0; // the cur item that the player is selecting
 };
 
@@ -60,6 +60,7 @@ class PlayerInput {
     void resetInput(PlayerAnimation &animation, PlayerState &state, PlayerPhysics &physics);
     void getInteractState(PlayerCamera &camera, PlayerState &state); // TODO ask for user input in here
     void getInventoryChoice(PlayerInventory &inventory);
+    void getItemRotation(PlayerInventory &inventory);
 
     void update(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state, PlayerCamera &camera,
                 PlayerInventory &inventory);

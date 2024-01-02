@@ -10,11 +10,11 @@ struct Item {
 enum ItemType {
     NULL_ITEM,
     RAIL_NW, // top left rail
-    RAIL_NE, // top right rail
-    RAIL_SW, // bottom left rail
-    RAIL_SE, // bottom right rail
     RAIL_V,  // rail vertical
+    RAIL_NE, // top right rail
     RAIL_H,  // rail horizontal
+    RAIL_SE, // bottom right rail
+    RAIL_SW, // bottom left rail
 };
 
 #define ITEM_NULL                                                                                                      \
@@ -37,6 +37,6 @@ enum ItemType {
 #define NUM_ITEMS 50
 
 static Item itemids[NUM_ITEMS] = {
-    ITEM_NULL, ITEM_RAIL_NW, ITEM_RAIL_NE, ITEM_RAIL_SW, ITEM_RAIL_SE, ITEM_RAIL_V, ITEM_RAIL_H,
+    ITEM_NULL, ITEM_RAIL_NW, ITEM_RAIL_V, ITEM_RAIL_NE, ITEM_RAIL_H, ITEM_RAIL_SE, ITEM_RAIL_SW,
 };
 #endif

@@ -44,5 +44,6 @@ class TileManager {
 
     std::vector<Vector2> generateNearbyChunks(Vector2 playerPos);
     void drawAllChunks(Atlas &atlas, Vector2 &playerPos);
+    int getItemUnder(Vector2 pos);
     void update(Atlas &atlas, Player &player, UI &ui);
 };

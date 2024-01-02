@@ -128,7 +128,7 @@ void PlayerInput::getInteractState(PlayerCamera &camera, PlayerState &state)
         state.curAction = DESTROY;
         state.curState = INTERACTING;
     }
-    else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && !camera.freeCam) {
+    else if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON) && !camera.freeCam) {
         state.curAction = CREATE;
         state.curState = INTERACTING;
     }
@@ -148,6 +148,20 @@ void PlayerInput::getInventoryChoice(PlayerInventory &inventory)
     }
 }
 
+void PlayerInput::getItemRotation(PlayerInventory &inventory)
+{
+    // add more rotations for items
+    int curItemID = inventory.itemHotbar[inventory.curHotbarItem];
+    if (IsKeyPressed(KEY_R) && curItemID >= RAIL_NW && curItemID <= RAIL_SW) {
+        if (curItemID == 6) {
+            inventory.itemHotbar[inventory.curHotbarItem] = RAIL_NW; // the first RAIL item
+        }
+        else {
+            inventory.itemHotbar[inventory.curHotbarItem]++; // go to next rail item if it is not the last
+        }
+    }
+}
+
 void PlayerInput::update(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state, PlayerCamera &camera,
                          PlayerInventory &inventory)
 {
@@ -156,6 +170,7 @@ void PlayerInput::update(PlayerPhysics &physics, PlayerAnimation &animation, Pla
     // we want this to be the last call for state info passing to TileManager
     getInteractState(camera, state);
     getInventoryChoice(inventory);
+    getItemRotation(inventory);
 }
 
 PlayerAnimation::PlayerAnimation(Rectangle src, int animationFrames) : frameAmount(animationFrames)
