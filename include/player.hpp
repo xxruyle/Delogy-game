@@ -56,7 +56,7 @@ class PlayerAnimation {
 class PlayerInventory {
   public:
     /* int itemInventory[NUM_INVENTORY]; */
-    int itemHotbar[NUM_HOTBAR] = {RAIL_V, CART_H_, NULL_ITEM, NULL_ITEM, NULL_ITEM};
+    int itemHotbar[NUM_HOTBAR] = {RAIL_V, CART, NULL_ITEM, NULL_ITEM, NULL_ITEM};
     int curHotbarItem = 0; // the cur item that the player is selecting
 };
 

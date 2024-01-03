@@ -80,19 +80,18 @@ int getDirectionMultiplier(int direction)
     }
 }
 
-void EntityManager::updateCart(Cart &cart, TileManager &tileManager)
+Vector2 getFarSideCartAABB(Cart &cart)
 {
     Vector2 cartPos;
-    // change the cart pos to check depending on the direction of the cart
     switch (cart.curDirection) {
     case WEST:
-        cartPos = {cart.physics_.pos.x + 15.0f, cart.physics_.pos.y + 8.0f}; // put position on the right side
+        cartPos = {cart.physics_.pos.x + 15.5f, cart.physics_.pos.y + 8.0f}; // put position on the right side
         break;
     case EAST:
         cartPos = {cart.physics_.pos.x, cart.physics_.pos.y + 8.0f};
         break;
     case NORTH:
-        cartPos = {cart.physics_.pos.x + 8.0f, cart.physics_.pos.y + 15.0f}; // put position on the right side
+        cartPos = {cart.physics_.pos.x + 8.0f, cart.physics_.pos.y + 15.5f}; // put position on the right side
         break;
     case SOUTH:
         cartPos = {cart.physics_.pos.x, cart.physics_.pos.y}; // put position on the right side
@@ -101,104 +100,144 @@ void EntityManager::updateCart(Cart &cart, TileManager &tileManager)
         cartPos = cart.physics_.pos;
         break;
     }
+    return cartPos;
+}
 
-    int itemUnder = tileManager.getItemUnder(cartPos);
+Vector2 getNearSideCartAABB(Cart &cart)
+{
+    Vector2 cartPos;
+    switch (cart.curDirection) {
+    case WEST:
+        cartPos = {cart.physics_.pos.x, cart.physics_.pos.y + 8.0f};
+        break;
+    case EAST:
+        cartPos = {cart.physics_.pos.x + 15.8f, cart.physics_.pos.y + 8.0f};
+        break;
+    case NORTH:
+        cartPos = {cart.physics_.pos.x + 8.0f, cart.physics_.pos.y};
+        break;
+    case SOUTH:
+        cartPos = {cart.physics_.pos.x, cart.physics_.pos.y + 15.8f};
+        break;
+    default:
+        cartPos = cart.physics_.pos;
+        break;
+    }
+    return cartPos;
+}
 
+void Cart::updateDirection(int itemUnder)
+{
     switch (itemUnder) {
     case RAIL_H:
-        if (cart.curDirection == SOUTH) {
-            cart.curDirection = EAST;
+        if (curDirection == SOUTH) {
+            curDirection = EAST;
         }
-        else if (cart.curDirection == NORTH) {
-            cart.curDirection = WEST;
+        else if (curDirection == NORTH) {
+            curDirection = WEST;
         }
         break;
     case RAIL_NE:
-        if (cart.curDirection == EAST) {
-            cart.physics_.velocity.x = 0;
-            cart.curDirection = SOUTH;
+        if (curDirection == EAST) {
+            physics_.velocity.x = 0;
+            curDirection = SOUTH;
         }
-        else if (cart.curDirection == NORTH) {
-            cart.physics_.velocity.y = 0;
-            cart.curDirection = WEST;
+        else if (curDirection == NORTH) {
+            physics_.velocity.y = 0;
+            curDirection = WEST;
         }
         break;
     case RAIL_V:
-        if (cart.curDirection == EAST) {
-            cart.curDirection = SOUTH;
+        if (curDirection == EAST) {
+            curDirection = SOUTH;
         }
-        else if (cart.curDirection == WEST) {
-            cart.curDirection = NORTH;
+        else if (curDirection == WEST) {
+            curDirection = NORTH;
         }
         break;
     case RAIL_SE:
-        if (cart.curDirection == SOUTH) {
-            cart.physics_.velocity.y = 0;
-            cart.curDirection = WEST;
+        if (curDirection == SOUTH) {
+            physics_.velocity.y = 0;
+            curDirection = WEST;
         }
-        else if (cart.curDirection == EAST) {
-            cart.physics_.velocity.x = 0;
-            cart.curDirection = NORTH;
+        else if (curDirection == EAST) {
+            physics_.velocity.x = 0;
+            curDirection = NORTH;
         }
         break;
     case RAIL_SW:
-        if (cart.curDirection == WEST) {
-            cart.physics_.velocity.x = 0;
-            cart.curDirection = NORTH;
+        if (curDirection == WEST) {
+            physics_.velocity.x = 0;
+            curDirection = NORTH;
         }
-        else if (cart.curDirection == SOUTH) {
-            cart.physics_.velocity.y = 0;
-            cart.curDirection = EAST;
+        else if (curDirection == SOUTH) {
+            physics_.velocity.y = 0;
+            curDirection = EAST;
         }
         break;
     case RAIL_NW:
-        if (cart.curDirection == NORTH) {
-            cart.physics_.velocity.y = 0;
-            cart.curDirection = EAST;
+        if (curDirection == NORTH) {
+            physics_.velocity.y = 0;
+            curDirection = EAST;
         }
-        else if (cart.curDirection == WEST) {
-            cart.physics_.velocity.x = 0;
-            cart.curDirection = SOUTH;
+        else if (curDirection == WEST) {
+            physics_.velocity.x = 0;
+            curDirection = SOUTH;
         }
         break;
     default:
-        cart.physics_.velocity.x = 0;
-        cart.physics_.velocity.y = 0;
-        break;
-    }
-
-    int directionMultiplier = getDirectionMultiplier(cart.curDirection);
-    switch (cart.curDirection) {
-    case WEST:
-        cart.orientation = CART_H;
-        cart.physics_.velocity.x += directionMultiplier * cart.physics_.acceleration * GetFrameTime();
-        break;
-    case EAST:
-        cart.orientation = CART_H;
-        cart.physics_.velocity.x += directionMultiplier * cart.physics_.acceleration * GetFrameTime();
-        break;
-    case NORTH:
-        cart.orientation = CART_V;
-        cart.physics_.velocity.y += directionMultiplier * cart.physics_.acceleration * GetFrameTime();
-        break;
-    case SOUTH:
-        cart.orientation = CART_V;
-        cart.physics_.velocity.y += directionMultiplier * cart.physics_.acceleration * GetFrameTime();
-        break;
-    default:
-        cart.physics_.velocity.x = 0;
-        cart.physics_.velocity.y = 0;
+        physics_.velocity.x = 0;
+        physics_.velocity.y = 0;
         break;
     }
 }
 
+void Cart::updateVelocity()
+{
+
+    int directionMultiplier = getDirectionMultiplier(curDirection);
+    switch (curDirection) {
+    case WEST:
+        orientation = CART_H;
+        physics_.velocity.x += directionMultiplier * physics_.acceleration * GetFrameTime();
+        break;
+    case EAST:
+        orientation = CART_H;
+        physics_.velocity.x += directionMultiplier * physics_.acceleration * GetFrameTime();
+        break;
+    case NORTH:
+        orientation = CART_V;
+        physics_.velocity.y += directionMultiplier * physics_.acceleration * GetFrameTime();
+        break;
+    case SOUTH:
+        orientation = CART_V;
+        physics_.velocity.y += directionMultiplier * physics_.acceleration * GetFrameTime();
+        break;
+    default:
+        physics_.velocity.x = 0;
+        physics_.velocity.y = 0;
+        break;
+    }
+}
+
+void EntityManager::updateCart(Cart &cart, TileManager &tileManager)
+{
+
+    Vector2 farSideAABB = getFarSideCartAABB(cart);
+    /* Vector2 nearSideAABB = getNearSideCartAABB(cart); */
+    int itemUnder = tileManager.getItemUnder(farSideAABB);
+    cart.updateDirection(itemUnder);
+    cart.updateVelocity();
+}
+
 void EntityManager::getPlayerInteraction(Player &player)
 {
-    int curPlayerItem = player.inventory_.itemHotbar[player.inventory_.curHotbarItem];
-    if (player.state_.curState == INTERACTING) {
+
+    if (player.state_.curAction != NORMAL) {
+        int curPlayerItem = player.inventory_.itemHotbar[player.inventory_.curHotbarItem];
         switch (player.state_.curAction) {
         case ENTITY_CREATE:
-            if (curPlayerItem == CART_H_ || curPlayerItem == CART_V_) {
+            if (curPlayerItem == CART) {
                 Vector2 mouseGridPos = getMouseGridPosition(player.camera_.cam);
                 createCart(mouseGridPos, carts.size());
             }

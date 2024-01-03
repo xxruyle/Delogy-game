@@ -15,8 +15,7 @@ enum ItemType {
     RAIL_H,  // rail horizontal
     RAIL_SE, // bottom right rail
     RAIL_SW, // bottom left rail
-    CART_H_, // they have underscores because they are items ;)
-    CART_V_,
+    CART,    // they have underscores because they are items ;)
 };
 
 #define ITEM_NULL                                                                                                      \
@@ -36,13 +35,11 @@ enum ItemType {
 #define ITEM_RAIL_H                                                                                                    \
     CLITERAL(Item) { RAIL_H, 25, 88 }
 
-#define ITEM_CART_H                                                                                                    \
-    CLITERAL(Item) { CART_H_, 67, 88 }
-#define ITEM_CART_V                                                                                                    \
-    CLITERAL(Item) { CART_V_, 88, 88 }
+#define ITEM_CART                                                                                                      \
+    CLITERAL(Item) { CART, 67, 88 }
 
 #define NUM_ITEMS 50
 
-static Item itemids[NUM_ITEMS] = {ITEM_NULL,    ITEM_RAIL_NW, ITEM_RAIL_V, ITEM_RAIL_NE, ITEM_RAIL_H,
-                                  ITEM_RAIL_SE, ITEM_RAIL_SW, ITEM_CART_H, ITEM_CART_V};
+static Item itemids[NUM_ITEMS] = {ITEM_NULL,   ITEM_RAIL_NW, ITEM_RAIL_V,  ITEM_RAIL_NE,
+                                  ITEM_RAIL_H, ITEM_RAIL_SE, ITEM_RAIL_SW, ITEM_CART};
 #endif

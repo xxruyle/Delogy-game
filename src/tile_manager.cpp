@@ -160,7 +160,7 @@ int TileManager::getChunkIndex(int x, int y)
 
 void TileManager::checkPlayerInteraction(Player &player, UI &ui)
 {
-    if (player.state_.curState == INTERACTING) {
+    if (player.state_.curAction != NORMAL) {
         Vector2 mousePos = getMouseGridPosition(player.camera_.cam);
         Vector2 chunkPos = getMouseChunkPosition(player.camera_.cam);
         int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y);

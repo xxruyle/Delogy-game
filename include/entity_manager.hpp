@@ -16,7 +16,7 @@ class EntityPhysics {
     Vector2 pos;
     EntityPhysics(Vector2 gridPos);
     Vector2 velocity = {0, 0};
-    float acceleration = 5.0f;
+    float acceleration = 15.0f;
     float maxSpeed = 100.0f;
     void clampSpeed();
     void update();
@@ -31,8 +31,14 @@ class Cart {
     int storage[ENTITY_STORAGE_SIZE];
     enum cartState curState = MOVE;
     enum cartDirection curDirection = WEST;
+    void updateDirection(int itemUnder);
+    void updateVelocity();
+    void getFutureRail();
     void update();
 };
+
+Vector2 getFarSideCartAABB(Cart &cart);  // e.g if car is going EAST then it returns the left side of the cart's BB
+Vector2 getNearSideCartAABB(Cart &cart); // e.g if car is going EAST then it returns the right side of the cart's BB
 
 class EntityManager {
   public:

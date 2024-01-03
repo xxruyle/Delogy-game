@@ -134,17 +134,14 @@ void PlayerInput::getInteractState(PlayerCamera &camera, PlayerState &state, Pla
 {
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !camera.freeCam) {
         state.curAction = DESTROY;
-        state.curState = INTERACTING;
     }
-    else if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON) && !camera.freeCam) {
-        if (inventory.itemHotbar[inventory.curHotbarItem] == CART_H_ ||
-            inventory.itemHotbar[inventory.curHotbarItem] == CART_V_) {
+    else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && !camera.freeCam) {
+        if (inventory.itemHotbar[inventory.curHotbarItem] == CART) {
             state.curAction = ENTITY_CREATE;
         }
         else {
             state.curAction = ITEM_CREATE;
         }
-        state.curState = INTERACTING;
     }
     else {
         state.curAction = NORMAL;
