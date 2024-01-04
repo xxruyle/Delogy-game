@@ -1,5 +1,5 @@
-#ifndef ITEM_DATA_HPP_
-#define ITEM_DATA_HPP_
+#ifndef ITEM_DATA_HPP
+#define ITEM_DATA_HPP
 
 struct Item {
     int id;
@@ -42,4 +42,5 @@ enum ItemType {
 
 static Item itemids[NUM_ITEMS] = {ITEM_NULL,   ITEM_RAIL_NW, ITEM_RAIL_V,  ITEM_RAIL_NE,
                                   ITEM_RAIL_H, ITEM_RAIL_SE, ITEM_RAIL_SW, ITEM_CART};
+
 #endif

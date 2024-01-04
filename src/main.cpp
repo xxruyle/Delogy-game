@@ -22,7 +22,7 @@ int main()
     UI userInterface;
 
     EntityManager entityManager;
-    entityManager.populateCarts();
+    /* entityManager.populateCarts(); */
 
     while (!WindowShouldClose()) {
         BeginDrawing();

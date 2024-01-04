@@ -11,3 +11,13 @@
 - relationship system with villages 
 - weight system (give items weight which slow maxSpeed) 
 - map system 
+- minecarts linking together
+- explosives 
+- batteries 
+    - chargers 
+    - electric motor generator dc charging 
+- mine ventilation blower 
+    - intake shaft (brings air from the surface )
+    - exhaust shaft (expels contaminated air to the surface )
+- faults 
+    - detail where ore deposits are 
