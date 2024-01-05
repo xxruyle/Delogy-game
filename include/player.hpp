@@ -25,7 +25,7 @@ class PlayerPhysics {
     Vector2 pos;
     Vector2 dir = {0, 0};
     Vector2 velocity = {0, 0};
-    float acceleration = 500.0f;
+    float acceleration = 700.0f;
     float decel = 700.0f;
     float maxSpeed = 120.0f;
 
@@ -62,8 +62,25 @@ class PlayerInventory {
 
 class PlayerInput {
   public:
-    void getInput(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state);
+    bool firstPressed = false;
+    int curGamepad = 0;
+
+    // Gamepad axis
+    Vector2 gamepadDir;
+    Vector2 rightStickAxis;
+
+    bool isGamepadBeingUsed(PlayerState &state);
+    void getGamePadInput(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state);
+    void getGamePadMouseInput();
+    void getGamePadAnimation(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state);
+    void resetGamePadInput(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state);
+
+    // Keyboard input
+    void getInput(PlayerPhysics &physics, PlayerAnimation &animation,
+                  PlayerState &state);                  // changes player velocity based on player input
+    void getAnimationInput(PlayerAnimation &animation); // changes player animation based on player input
     void resetInput(PlayerAnimation &animation, PlayerState &state, PlayerPhysics &physics);
+
     void getInteractState(PlayerCamera &camera, PlayerState &state,
                           PlayerInventory &inventory); // TODO ask for user input in here
     void getInventoryChoice(PlayerInventory &inventory);

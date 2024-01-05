@@ -4,17 +4,18 @@
 
 void drawGameInfo(Player &player)
 {
-    DrawText("Delogy Indev 1.0", 2, 0, 20, RAYWHITE);
+    DrawText("Delogy Indev 1.0", 3, 0, UI_FONT_SIZE, RAYWHITE);
     DrawFPS(2, 25);
 
     drawMouseGridPosition(player.camera_.cam);
     drawMouseChunkPosition(player.camera_.cam);
 
     if (player.camera_.freeCam) {
-        DrawText("FREE CAM MODE", 2, 125, 20, WHITE);
+        DrawText("FREE CAM MODE", 3, 125, UI_FONT_SIZE, WHITE);
     }
 
     drawPlayerGridPosition(player.physics_.pos);
+    drawPlayerVelocity(player.physics_.velocity);
 }
 
 void drawMouseGridOutline(Camera2D &camera, Color color)
@@ -42,25 +43,34 @@ void drawMouseGridOutline(Camera2D &camera, Color color)
 void drawMouseChunkPosition(Camera2D &camera)
 {
     Vector2 mouseChunkPos = getMouseChunkPosition(camera);
-    std::string chunkPosStr = std::to_string((int)mouseChunkPos.x) + " " + std::to_string((int)mouseChunkPos.y);
-    DrawText(chunkPosStr.c_str(), 2, 75, 20, RAYWHITE);
+    std::string chunkPosStr =
+        "ChunkPos: " + std::to_string((int)mouseChunkPos.x) + " " + std::to_string((int)mouseChunkPos.y);
+    DrawText(chunkPosStr.c_str(), 3, 75, UI_FONT_SIZE, RAYWHITE);
 }
 
 void drawMouseGridPosition(Camera2D &camera)
 {
     Vector2 mouseGridPos = getMouseGridPosition(camera);
 
-    std::string gridPosStr = std::to_string((int)mouseGridPos.x) + " " + std::to_string((int)mouseGridPos.y);
+    std::string gridPosStr = "Pos: " + std::to_string((int)mouseGridPos.x) + " " + std::to_string((int)mouseGridPos.y);
 
-    DrawText(gridPosStr.c_str(), 2, 50, 20, RAYWHITE);
+    DrawText(gridPosStr.c_str(), 3, 50, UI_FONT_SIZE, RAYWHITE);
 }
 void drawPlayerGridPosition(Vector2 playerPos)
 {
     playerPos = getGridPosition(playerPos);
     std::string playerPosStr =
-        "Player Position: (" + std::to_string((int)playerPos.x) + ", " + std::to_string((int)playerPos.y) + ")";
+        "Player: (" + std::to_string((int)playerPos.x) + ", " + std::to_string((int)playerPos.y) + ")";
 
-    DrawText(playerPosStr.c_str(), 2, 100, 20, WHITE);
+    DrawText(playerPosStr.c_str(), 3, 100, UI_FONT_SIZE, WHITE);
+}
+
+void drawPlayerVelocity(Vector2 playerVelocity)
+{
+    std::string playerVelStr =
+        "Velocity: (" + std::to_string((int)playerVelocity.x) + ", " + std::to_string((int)playerVelocity.y) + ")";
+
+    DrawText(playerVelStr.c_str(), 2, 150, UI_FONT_SIZE, WHITE);
 }
 
 void drawItem(Camera2D &camera, Atlas &atlas, int itemID)

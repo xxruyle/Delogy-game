@@ -15,7 +15,7 @@
 #define WINDOW_HEIGHT 576
 
 /* Game World Info*/
-#define WORLD_SIZE 10
+#define WORLD_SIZE 11
 #define CHUNK_SIZE 32
 #define RENDER_DISTANCE 3 // the amount of chunks near the player the tile manager will render
 
@@ -25,3 +25,11 @@
 
 /* Entity Object Info */
 #define ENTITY_STORAGE_SIZE 50
+
+/* UI Info */
+#define UI_FONT_SIZE 18
+
+/* Gamepad Info */
+#define XBOX360_LEGACY_NAME_ID "Xbox Controller"
+#define XBOX360_NAME_ID "Xbox 360 Controller"
+#define PS3_NAME_ID "PLAYSTATION(R)3 Controller"

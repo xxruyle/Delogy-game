@@ -3,12 +3,13 @@
 #include "ui.hpp"
 
 /* Drawing Dev Utility  Functions*/
-void drawGameInfo(
-    Player &player); // draws version info, fps, etc void drawMouseGridOutline(Camera2D &camera, Color color); // draw
-                     // the outline of a grid depending on // the coordinate the mouse is hovering over
+void drawGameInfo(Player &player); // draws version info, fps, etc void drawMouseGridOutline(Camera2D
+                                   // &camera, Color color); // draw the outline of a grid depending on
+                                   // // the coordinate the mouse is hovering over
 void drawMouseChunkPosition(Camera2D &camera);
 void drawMouseGridPosition(Camera2D &camera);
 void drawPlayerGridPosition(Vector2 playerPos);
+void drawPlayerVelocity(Vector2 playerVelocity);
 void drawMouseGridOutline(Camera2D &camera, Color color);
 
 void drawItem(Camera2D &camera, Atlas &atlas, int itemID);

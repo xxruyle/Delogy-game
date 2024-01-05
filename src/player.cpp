@@ -1,8 +1,10 @@
 #include "player.hpp"
 #include "dev_util.hpp"
+#include "macros_util.hpp"
 #include "player_camera.hpp"
 #include "raylib.h"
 #include "raymath.h"
+#include "input_util.hpp"
 
 void PlayerPhysics::update()
 {
@@ -39,28 +41,24 @@ void PlayerInput::getInput(PlayerPhysics &physics, PlayerAnimation &animation, P
     if (IsKeyDown(KEY_A)) // left
     {
         state.curState = MOVING;
-        animation.curAnimation = LEFT;
         physics.dir.x -= 1;
     }
 
     if (IsKeyDown(KEY_D)) // right
     {
         state.curState = MOVING;
-        animation.curAnimation = RIGHT;
         physics.dir.x += 1;
     }
 
     if (IsKeyDown(KEY_W)) // up
     {
         state.curState = MOVING;
-        animation.curAnimation = UP;
         physics.dir.y -= 1;
     }
 
     if (IsKeyDown(KEY_S)) // down
     {
         state.curState = MOVING;
-        animation.curAnimation = DOWN;
         physics.dir.y += 1;
     }
 
@@ -71,11 +69,129 @@ void PlayerInput::getInput(PlayerPhysics &physics, PlayerAnimation &animation, P
     physics.velocity.y += physics.dir.y * physics.acceleration * GetFrameTime();
 }
 
+void PlayerInput::getGamePadInput(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state)
+{
+    gamepadDir.x = GetGamepadAxisMovement(curGamepad, GAMEPAD_AXIS_LEFT_X);
+    gamepadDir.y = GetGamepadAxisMovement(curGamepad, GAMEPAD_AXIS_LEFT_Y);
+
+    // Check left joystick for movement
+    if (gamepadDir.x < 0) // left
+    {
+        state.curState = MOVING;
+        physics.dir.x -= 1;
+    }
+
+    if (gamepadDir.x > 0) // right
+    {
+        state.curState = MOVING;
+        physics.dir.x += 1;
+    }
+
+    if (gamepadDir.y < 0) // up
+    {
+        state.curState = MOVING;
+        physics.dir.y -= 1;
+    }
+
+    if (gamepadDir.y > 0) // down
+    {
+        state.curState = MOVING;
+        physics.dir.y += 1;
+    }
+
+    physics.clampSpeed();
+    physics.dir = Vector2Normalize(physics.dir);
+
+    physics.velocity.x += gamepadDir.x * physics.acceleration * GetFrameTime();
+    physics.velocity.y += gamepadDir.y * physics.acceleration * GetFrameTime();
+}
+void PlayerInput::getGamePadMouseInput()
+{
+    Vector2 mousePos = GetMousePosition();
+
+    rightStickAxis.x = GetGamepadAxisMovement(curGamepad, GAMEPAD_AXIS_RIGHT_X);
+    rightStickAxis.y = GetGamepadAxisMovement(curGamepad, GAMEPAD_AXIS_RIGHT_Y);
+
+    mousePos.x += rightStickAxis.x * JOYSTICK_RIGHT_SENSITIVITY;
+    mousePos.y += rightStickAxis.y * JOYSTICK_RIGHT_SENSITIVITY;
+
+    SetMousePosition((int)mousePos.x, (int)mousePos.y);
+}
+
+void PlayerInput::resetGamePadInput(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state)
+{
+    if (gamepadDir.x >= 0 && physics.velocity.x < 0) {
+        animation.curFrames[LEFT] = 0;
+
+        physics.velocity.x += physics.decel * GetFrameTime();
+
+        if (physics.velocity.x > 0) {
+            physics.velocity.x = 0;
+        }
+    }
+
+    if (gamepadDir.x <= 0 && physics.velocity.x > 0) {
+        animation.curFrames[RIGHT] = 0;
+        physics.velocity.x -= physics.decel * GetFrameTime();
+
+        if (physics.velocity.x < 0) {
+            physics.velocity.x = 0;
+        }
+    }
+
+    if (gamepadDir.y >= 0 && physics.velocity.y < 0) {
+        animation.curFrames[UP] = 0;
+        physics.velocity.y += physics.decel * GetFrameTime();
+
+        if (physics.velocity.y < 0) {
+            physics.velocity.y = 0;
+        }
+    }
+
+    if (gamepadDir.y <= 0 && physics.velocity.y > 0) {
+        animation.curFrames[DOWN] = 0;
+
+        physics.velocity.y -= physics.decel * GetFrameTime();
+
+        if (physics.velocity.y > 0) {
+            physics.velocity.y = 0;
+        }
+    }
+}
+
+bool PlayerInput::isGamepadBeingUsed(PlayerState &state)
+{
+
+    if (!IsGamepadAvailable(curGamepad)) {
+        return false;
+    }
+    getGamePadMouseInput();
+
+    gamepadDir.x = GetGamepadAxisMovement(curGamepad, GAMEPAD_AXIS_LEFT_X);
+    gamepadDir.y = GetGamepadAxisMovement(curGamepad, GAMEPAD_AXIS_LEFT_Y);
+
+    rightStickAxis.x = GetGamepadAxisMovement(curGamepad, GAMEPAD_AXIS_RIGHT_X);
+    rightStickAxis.y = GetGamepadAxisMovement(curGamepad, GAMEPAD_AXIS_RIGHT_Y);
+
+    bool gamepadBeingUsed;
+
+    if (abs(gamepadDir.x) == 0 && abs(gamepadDir.y) == 0) {
+        state.curState = IDLE;
+        gamepadBeingUsed = false;
+        ShowCursor();
+    }
+    else {
+        HideCursor();
+        gamepadBeingUsed = true;
+    }
+
+    return gamepadBeingUsed;
+}
+
 void PlayerInput::resetInput(PlayerAnimation &animation, PlayerState &state, PlayerPhysics &physics)
 {
     if (!IsKeyDown(KEY_A) && physics.velocity.x < 0) // LEFT
     {
-
         animation.curFrames[LEFT] = 0;
 
         physics.dir.x = 0;
@@ -130,12 +246,70 @@ void PlayerInput::resetInput(PlayerAnimation &animation, PlayerState &state, Pla
     }
 }
 
+void PlayerInput::getGamePadAnimation(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state)
+{
+    Vector2 curDir;
+    switch (animation.curAnimation) {
+    case DOWN:
+        curDir = {0, 1};
+        break;
+    case UP:
+        curDir = {0, -1};
+        break;
+    case RIGHT:
+        curDir = {1, 0};
+    case LEFT:
+        curDir = {-1, 0};
+    default:
+        break;
+    }
+
+    Vector2 nGamePadDir = Vector2Normalize(gamepadDir);
+    Vector2 uDir = {0, -1};
+    float dirDot = Vector2Angle(uDir, nGamePadDir) * 180.0f / PI;
+    float dirToVelAngle = abs(Vector2DotProduct(curDir, nGamePadDir));
+    if (dirToVelAngle < .54f || state.curState == IDLE) {
+        if ((dirDot >= 157 && dirDot <= 180) || (dirDot >= 0 && dirDot <= 22)) // UP
+        {
+            animation.curAnimation = UP;
+        }
+        else if (dirDot >= 22 && dirDot < 67) { // RIGHT
+            animation.curAnimation = RIGHT;
+        }
+        else if (dirDot >= 67 && dirDot <= 112) { // DOWN
+            animation.curAnimation = DOWN;
+        }
+        else if (dirDot >= 112 && dirDot <= 157) { // LEFT
+            animation.curAnimation = LEFT;
+        }
+    }
+}
+
+void PlayerInput::getAnimationInput(PlayerAnimation &animation)
+{
+    if (IsKeyDown(KEY_A) && !(IsKeyDown(KEY_D) || IsKeyDown(KEY_W) || IsKeyDown(KEY_S))) {
+        animation.curAnimation = LEFT;
+    }
+
+    if (IsKeyDown(KEY_D) && !(IsKeyDown(KEY_A) || IsKeyDown(KEY_W) || IsKeyDown(KEY_S))) {
+        animation.curAnimation = RIGHT;
+    }
+
+    if (IsKeyDown(KEY_W) && !(IsKeyDown(KEY_D) || IsKeyDown(KEY_A) || IsKeyDown(KEY_S))) {
+        animation.curAnimation = UP;
+    }
+
+    if (IsKeyDown(KEY_S) && !(IsKeyDown(KEY_A) || IsKeyDown(KEY_D) || IsKeyDown(KEY_W))) {
+        animation.curAnimation = DOWN;
+    }
+}
+
 void PlayerInput::getInteractState(PlayerCamera &camera, PlayerState &state, PlayerInventory &inventory)
 {
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !camera.freeCam) {
+    if (isDestroyButtonPressed(curGamepad) && !camera.freeCam) {
         state.curAction = DESTROY;
     }
-    else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && !camera.freeCam) {
+    else if (isCreateButtonPressed(curGamepad) && !camera.freeCam) {
         if (inventory.itemHotbar[inventory.curHotbarItem] == CART) {
             state.curAction = ENTITY_CREATE;
         }
@@ -157,13 +331,22 @@ void PlayerInput::getInventoryChoice(PlayerInventory &inventory)
             inventory.curHotbarItem = num - 1;  // set cur hot bar item
         }
     }
+
+    if (IsGamepadButtonPressed(curGamepad, GAMEPAD_BUTTON_RIGHT_FACE_UP)) {
+        if (inventory.curHotbarItem < NUM_HOTBAR - 1) {
+            inventory.curHotbarItem += 1;
+        }
+        else {
+            inventory.curHotbarItem = 0;
+        }
+    }
 }
 
 void PlayerInput::getItemRotation(PlayerInventory &inventory)
 {
     // add more rotations for items
     int curItemID = inventory.itemHotbar[inventory.curHotbarItem];
-    if (IsKeyPressed(KEY_R) && curItemID >= RAIL_NW && curItemID <= RAIL_SW) {
+    if (isRotationButtonPressed(curGamepad) && curItemID >= RAIL_NW && curItemID <= RAIL_SW) {
         if (curItemID == 6) {
             inventory.itemHotbar[inventory.curHotbarItem] = RAIL_NW; // the first RAIL item
         }
@@ -176,8 +359,18 @@ void PlayerInput::getItemRotation(PlayerInventory &inventory)
 void PlayerInput::update(PlayerPhysics &physics, PlayerAnimation &animation, PlayerState &state, PlayerCamera &camera,
                          PlayerInventory &inventory)
 {
-    resetInput(animation, state, physics);
-    getInput(physics, animation, state);
+
+    if (isGamepadBeingUsed(state)) {
+        getGamePadAnimation(physics, animation, state);
+        resetGamePadInput(physics, animation, state);
+        getGamePadInput(physics, animation, state);
+    }
+    else {
+        getAnimationInput(animation);
+        resetInput(animation, state, physics);
+        getInput(physics, animation, state);
+    }
+
     // we want this to be the last call for state info passing to TileManager
     getInteractState(camera, state, inventory);
     getInventoryChoice(inventory);

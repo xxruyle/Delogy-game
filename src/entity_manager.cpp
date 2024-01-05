@@ -4,6 +4,7 @@
 #include "item_data.hpp"
 #include "raylib.h"
 #include "player.hpp"
+#include <string>
 
 std::unordered_set<int> getValidRails(int rail, int direction)
 {
@@ -366,10 +367,23 @@ void EntityManager::getPlayerInteraction(Player &player)
 void EntityManager::update(Atlas &atlas, TileManager &tileManager, Player &player)
 {
     getPlayerInteraction(player);
+    derails = 0;
     for (int i = 0; i < carts.size(); i++) {
         Vector2 cartPos = carts[i].physics_.pos;
         updateCart(carts[i], tileManager);
         carts[i].physics_.update();
+        if (carts[i].curState == DERAILED) {
+            derails += 1;
+        }
     }
     drawCarts(atlas);
+}
+
+void showEntityInfo(EntityManager &entityManager)
+{
+    std::string entityCountStr = "Entity Count: " + std::to_string(entityManager.carts.size());
+    std::string derailmentsStr = "Entity Derails: " + std::to_string(entityManager.derails);
+
+    DrawText(entityCountStr.c_str(), 2, 175, UI_FONT_SIZE, RAYWHITE);
+    DrawText(derailmentsStr.c_str(), 2, 200, UI_FONT_SIZE, RAYWHITE);
 }

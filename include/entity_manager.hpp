@@ -9,6 +9,7 @@ enum cartState { MOVE, DERAILED };
 enum cartDirection { WEST = 0, EAST = 1, NORTH = 2, SOUTH = 3 };
 
 int getDirectionMultiplier(int direction);
+
 std::unordered_set<int> getValidRails(
     int rail,
     int direction); // given a current rail return all the valid future rail connections depending on cart direction
@@ -48,6 +49,7 @@ Vector2 getNearSideCartBorder(Cart &cart); // e.g if car is going EAST then it r
 class EntityManager {
   public:
     std::vector<Cart> carts;
+    int derails = 0;
     void updateCart(Cart &cart, TileManager &tileManager); // changes cart direction based on rail underneath it
     void getPlayerInteraction(Player &player);
     void update(Atlas &atlas, TileManager &tileManager, Player &player);
@@ -55,3 +57,5 @@ class EntityManager {
     void populateCarts();
     void drawCarts(Atlas &atlas);
 };
+
+void showEntityInfo(EntityManager &entityManager);

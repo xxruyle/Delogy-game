@@ -11,7 +11,7 @@ int main()
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
     SetExitKey(KEY_ESCAPE);
-    SetTargetFPS(60);
+    /* SetTargetFPS(60); */
 
     Atlas atlas("res/real_atlas.png");
 
@@ -32,15 +32,19 @@ int main()
 
         /* Handle Tile Manager */
         tileManager.update(atlas, player, userInterface);
+
+        /* Handle Entities */
         entityManager.update(atlas, tileManager, player);
 
         /* Draw Entities */
         player.update(atlas);
         drawMouseGridOutline(player.camera_.cam, WHITE);
+
         EndMode2D();
 
         /* Draw UI */
         drawGameInfo(player);
+        showEntityInfo(entityManager);
         userInterface.hotBar(atlas, player.inventory_);
 
         EndDrawing();
