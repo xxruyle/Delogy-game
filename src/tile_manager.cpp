@@ -3,11 +3,22 @@
 #include "input_system.hpp"
 #include "raylib.h"
 #include "raymath.h"
-#include "tile_data.hpp"
 
 int getIndex(int x, int y) { return (CHUNK_SIZE * y) + x; };
 
 /* ---------------- TileChunk Methods  ----------------*/
+void TileChunk::wallGeneration()
+{
+    // fill chunk with wall tiles
+    for (int y = 0; y < CHUNK_SIZE; y++) {
+        for (int x = 0; x < CHUNK_SIZE; x++) {
+            int index = getIndex(x, y);
+            tileID[index] = TILE_WALL_FRONT.id;
+            tileZ[index] = 1;
+        }
+    }
+}
+
 void TileChunk::generateNoise(int seed)
 {
     const int xs = CHUNK_SIZE;
@@ -16,8 +27,9 @@ void TileChunk::generateNoise(int seed)
     FastNoiseLite caveNoise;
     caveNoise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
     caveNoise.SetFractalType(FastNoiseLite::FractalType_FBm);
+    caveNoise.SetFrequency(.001);
+    caveNoise.SetFractalOctaves(4);
     caveNoise.SetSeed(seed);
-    caveNoise.SetFrequency(.0001);
     for (int y = 0; y < ys; y++) {
         for (int x = 0; x < xs; x++) {
             float val = caveNoise.GetNoise((float)(srcCoordinate.x * CHUNK_SIZE * 16 + x * 16),
@@ -33,6 +45,52 @@ void TileChunk::generateNoise(int seed)
                 tileID[index] = TILE_CAVE_FLOOR_MIDDLE.id;
                 tileZ[index] = 0;
             }
+        }
+    }
+}
+
+void TileChunk::drunkardWalk()
+{
+
+    enum cardinalDirection { NORTH, EAST, SOUTH, WEST };
+
+    int floorCount = 0;
+    Vector2 curTile = {15, 15};
+    while (floorCount < 500) {
+        if (curTile.x >= 0 && curTile.y >= 0 && curTile.y < 32 && curTile.x < 32) {
+            int index = getIndex(curTile.x, curTile.y);
+            if (tileID[index] != TILE_CAVE_FLOOR_MIDDLE.id) {
+                tileID[index] = TILE_CAVE_FLOOR_MIDDLE.id;
+                tileZ[index] = 0;
+                floorCount++;
+            }
+        }
+        else {
+            bool foundNew = false;
+            while (!foundNew) {
+                Vector2 randomSpot = Vector2{GetRandomValue(0, 32), GetRandomValue(0, 32)};
+                int index = getIndex(randomSpot.x, randomSpot.y);
+                if (tileID[index] == TILE_CAVE_FLOOR_MIDDLE.id) {
+                    foundNew = true;
+                    curTile = randomSpot;
+                }
+            }
+        }
+
+        int randomDirection = GetRandomValue(0, 3);
+        switch (randomDirection) {
+        case NORTH:
+            curTile.y -= 1;
+            break;
+        case EAST:
+            curTile.x += 1;
+            break;
+        case SOUTH:
+            curTile.y += 1;
+            break;
+        case WEST:
+            curTile.x -= 1;
+            break;
         }
     }
 }
@@ -55,11 +113,6 @@ void TileChunk::drawTile(Atlas &atlas, int x, int y)
     float xAtlasPos = curTile.x;
     float yAtlasPos = curTile.y;
 
-    /* DrawTextureRec(atlas.texture, Rectangle{xAtlasPos, yAtlasPos, 16.0f, 16.0f}, */
-    /*                Vector2{(float)(((float)x + ((float)srcCoordinate.x * (float)CHUNK_SIZE)) * (float)16), */
-    /*                        (float)(((float)y + ((float)srcCoordinate.y * (float)CHUNK_SIZE)) * (float)16)}, */
-    /*                WHITE); // casting to float helps with texture coordinate offset with camera movement */
-
     Rectangle tileAtlasPos = Rectangle{xAtlasPos, yAtlasPos, 16.0f, 16.0f};
     Vector2 loc;
     loc.x = (float)(((float)x + ((float)srcCoordinate.x * (float)CHUNK_SIZE)) * 16.0f);
@@ -77,11 +130,7 @@ void TileChunk::drawItem(Atlas &atlas, int x, int y)
         Item curItem = itemids[itemid];
         float xAtlasPos = curItem.x;
         float yAtlasPos = curItem.y;
-        /* DrawTextureRec(atlas.texture, Rectangle{xAtlasPos, yAtlasPos, 16.0f, 16.0f}, */
-        /*                Vector2{(float)(((float)x + ((float)srcCoordinate.x * (float)CHUNK_SIZE)) * (float)16), */
-        /*                        (float)(((float)y + ((float)srcCoordinate.y * (float)CHUNK_SIZE)) * (float)16)}, */
-        /*                WHITE); // casting to float helps with texture coordinate integer offset with camera movement
-         */
+
         Rectangle tileAtlasPos = Rectangle{xAtlasPos, yAtlasPos, 16.0f, 16.0f};
         Vector2 loc;
         loc.x = (float)(((float)x + ((float)srcCoordinate.x * (float)CHUNK_SIZE)) * 16.0f);

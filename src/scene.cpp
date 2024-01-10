@@ -19,8 +19,8 @@ void Scene::updateCamera()
     if (camera.zoom > 7.0f)
         camera.zoom = 7.0f;
 
-    if (camera.zoom < 1.0f)
-        camera.zoom = 1.0f;
+    if (camera.zoom < 0.3f)
+        camera.zoom = 0.3f;
 
     windowWidth = GetScreenWidth();
     windowHeight = GetScreenHeight();

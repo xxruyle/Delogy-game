@@ -10,6 +10,7 @@
 #include "animation_system.hpp"
 #include "player_movement_system.hpp"
 #include "player_inventory_system.hpp"
+#include "npc_system.hpp"
 #include "entt/entity/registry.hpp"
 
 int main()
@@ -17,16 +18,15 @@ int main()
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
-    SetExitKey(KEY_ESCAPE);
     /* SetTargetFPS(60); */
 
     Atlas atlas("res/real_atlas.png");
 
+    SetRandomSeed(30);
     TileManager tileManager(GetRandomValue(0, 3000));
     tileManager.generateChunks();
 
     UI userInterface;
-
     CartManager cartManager;
 
     SpriteDrawSystem drawSystem;
@@ -36,9 +36,12 @@ int main()
     Scene scene;
     scene.addPlayer({0, 0}, {4, 4, 16, 16}, 4);
 
+    NPCSystem npcSystem;
+
     InputSystem input;
     PlayerMovementSystem playerMovementSystem;
 
+    npcSystem.update(scene);
     while (!WindowShouldClose()) {
         BeginDrawing();
 
@@ -55,6 +58,7 @@ int main()
         cartManager.update(atlas, tileManager);
 
         /* Systems */
+        npcSystem.moveNPCs(scene.EntityRegistry);
         inventorySystem.update(scene, input);
         animationSystem.update(input, scene.EntityRegistry, scene.player);
 

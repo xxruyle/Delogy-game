@@ -7,6 +7,7 @@
 #include "macros_util.hpp"
 #include "raylib.h"
 #include "scene.hpp"
+#include "tile_data.hpp"
 #include "ui.hpp"
 
 int getIndex(int x, int y);
@@ -14,7 +15,10 @@ int getIndex(int x, int y);
 class TileChunk {
   public:
     Vector2 srcCoordinate; // the src coordinate in chunk coordinates
-    TileChunk(Vector2 src, int seed) : srcCoordinate(src) { generateNoise(seed); };
+    TileChunk(Vector2 src, int seed) : srcCoordinate(src) {
+        wallGeneration();
+        drunkardWalk();
+    };
 
     int tileID[CHUNK_SIZE * CHUNK_SIZE]; // the id of the tile
     /* The coordinate locations of the tiles in the default atlas */
@@ -22,6 +26,8 @@ class TileChunk {
 
     int itemID[CHUNK_SIZE * CHUNK_SIZE] = {0}; // the item ids, they always have the highest implicit z level
     void generateNoise(int seed);              // generate a chunk's tiles given tile manager's seed
+    void drunkardWalk();
+    void wallGeneration();
 
     void drawTile(Atlas &atlas, int x, int y); // draw  an existing tile
     void drawItem(Atlas &atlas, int x, int y); // Draw an existing entity

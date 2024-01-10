@@ -1,2 +1,0 @@
--I/Development/Delogy/include/ 
--L/Development/Delogy/lib/ 

@@ -9,6 +9,7 @@
 #define ORECART_STORAGE_SIZE 20
 
 enum class directionState { WEST, EAST, NORTH, SOUTH };
+enum class emotionState { SAD = 0, HAPPY };
 
 struct DirectionStateC {};
 
@@ -66,4 +67,9 @@ struct OrecartC {
 
 struct PlayerC {
     int timePlayed;
+};
+
+struct EmotionC {
+    int emotion;
+    int opinion;
 };
