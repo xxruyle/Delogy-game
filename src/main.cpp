@@ -3,7 +3,14 @@
 #include "dev_util.hpp"
 #include "raylib.h"
 #include "tile_manager.hpp"
-#include "entity_manager.hpp"
+#include "cart_manager.hpp"
+#include "scene.hpp"
+#include "draw_system.hpp"
+#include "input_system.hpp"
+#include "animation_system.hpp"
+#include "player_movement_system.hpp"
+#include "player_inventory_system.hpp"
+#include "entt/entity/registry.hpp"
 
 int main()
 {
@@ -15,37 +22,53 @@ int main()
 
     Atlas atlas("res/real_atlas.png");
 
-    Player player(Vector2{0, 0}, Rectangle{4, 4}, 4);
-
     TileManager tileManager(GetRandomValue(0, 3000));
     tileManager.generateChunks();
+
     UI userInterface;
 
-    EntityManager entityManager;
-    /* entityManager.populateCarts(); */
+    CartManager cartManager;
+
+    SpriteDrawSystem drawSystem;
+    AnimationSystem animationSystem;
+    PlayerInventorySystem inventorySystem;
+
+    Scene scene;
+    scene.addPlayer({0, 0}, {4, 4, 16, 16}, 4);
+
+    InputSystem input;
+    PlayerMovementSystem playerMovementSystem;
 
     while (!WindowShouldClose()) {
         BeginDrawing();
 
         ClearBackground(BLACK);
-        BeginMode2D(player.camera_.cam);
+
+        scene.setPlayerFocus();
+        scene.updateCamera();
+
+        BeginMode2D(scene.camera);
 
         /* Handle Tile Manager */
-        tileManager.update(atlas, player, userInterface);
+        tileManager.update(atlas, input, userInterface, scene);
+        /* Handle Carts */
+        cartManager.update(atlas, tileManager);
 
-        /* Handle Entities */
-        entityManager.update(atlas, tileManager, player);
+        /* Systems */
+        inventorySystem.update(scene, input);
+        animationSystem.update(input, scene.EntityRegistry, scene.player);
 
-        /* Draw Entities */
-        player.update(atlas);
-        drawMouseGridOutline(player.camera_.cam, WHITE);
+        drawSystem.drawSprites(atlas.texture, scene.EntityRegistry);
+        playerMovementSystem.update(input, scene.player, scene.EntityRegistry);
 
+        inventorySystem.drawCurItem(scene.camera, atlas.texture, scene.EntityRegistry.get<InventoryC>(scene.player));
+
+        drawMouseGridOutline(scene.camera, WHITE);
         EndMode2D();
 
         /* Draw UI */
-        drawGameInfo(player);
-        showEntityInfo(entityManager);
-        userInterface.hotBar(atlas, player.inventory_);
+        drawGameInfo(scene.camera, scene.playerPosition);
+        userInterface.hotBar(atlas, scene.EntityRegistry.get<InventoryC>(scene.player));
 
         EndDrawing();
     }

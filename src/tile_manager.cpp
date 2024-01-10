@@ -1,6 +1,6 @@
 #include "tile_manager.hpp"
 #include "FastNoiseLite.h"
-#include "dev_util.hpp"
+#include "input_system.hpp"
 #include "raylib.h"
 #include "raymath.h"
 #include "tile_data.hpp"
@@ -158,24 +158,27 @@ int TileManager::getChunkIndex(int x, int y)
     return x + (y * (stride + 1));
 }
 
-void TileManager::checkPlayerInteraction(Player &player, UI &ui)
+void TileManager::checkPlayerInteraction(InputSystem input, Camera2D &camera, UI &ui, InventoryC &playerInventory)
 {
-    if (player.state_.curAction != NORMAL) {
-        Vector2 mousePos = getMouseGridPosition(player.camera_.cam);
-        Vector2 chunkPos = getMouseChunkPosition(player.camera_.cam);
+    int interactKey = input.getUserMouseInteraction();
+    if (interactKey) {
+        Vector2 mousePos = getMouseGridPosition(camera);
+        Vector2 chunkPos = getMouseChunkPosition(camera);
+
         int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y);
         Vector2 relativeGridPos = getRelativeChunkGridPosition(chunkPos, mousePos);
+
         if (chunkExists(chunkPos) &&
             ui.mouseOutOfBounds()) { // player can interact if chunk exists and mouse is not over ui
-            switch (player.state_.curAction) {
-            case DESTROY: {
+            switch (interactKey) {
+            case PLAYER_DESTROY: {
                 chunks[chunkIndex].deleteAtTile(relativeGridPos.x, relativeGridPos.y);
                 break;
             }
-            case ITEM_CREATE: {
-                int curPlayerItemIndex = player.inventory_.curHotbarItem;
+            case PLAYER_CREATE: {
+                int selectedItem = playerInventory.curItem;
                 chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y,
-                                              player.inventory_.itemHotbar[curPlayerItemIndex]);
+                                              playerInventory.hotbar[selectedItem]);
                 break;
             }
             default:
@@ -218,11 +221,15 @@ void TileManager::drawAllChunks(Atlas &atlas, Vector2 &playerPos)
     }
 }
 
-void TileManager::update(Atlas &atlas, Player &player, UI &ui)
+void TileManager::update(Atlas &atlas, InputSystem input, UI &ui, Scene &scene)
 {
-    drawAllChunks(atlas, player.physics_.pos);
-    checkPlayerInteraction(player, ui);
+
+    PositionC &position = scene.EntityRegistry.get<PositionC>(scene.player);
+    InventoryC &inventory = scene.EntityRegistry.get<InventoryC>(scene.player);
+    drawAllChunks(atlas, position.pos);
+    checkPlayerInteraction(input, scene.camera, ui, inventory);
 }
+
 int TileManager::getItemUnder(Vector2 pos)
 {
     Vector2 centeredPos = {pos.x, pos.y};

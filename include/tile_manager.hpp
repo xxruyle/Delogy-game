@@ -1,9 +1,13 @@
 #pragma once
 #include "atlas.hpp"
+#include "components.hpp"
 #include "dev_util.hpp"
+#include "input_system.hpp"
 #include "item_data.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
+#include "scene.hpp"
+#include "ui.hpp"
 
 int getIndex(int x, int y);
 
@@ -40,10 +44,11 @@ class TileManager {
 
     void generateChunks();
 
-    void checkPlayerInteraction(Player &player, UI &ui); // change player state based on player interaction
+    void checkPlayerInteraction(InputSystem input, Camera2D &camera, UI &ui,
+                                InventoryC &playerInventory); // change player state based on player interaction
 
     std::vector<Vector2> generateNearbyChunks(Vector2 playerPos);
     void drawAllChunks(Atlas &atlas, Vector2 &playerPos);
     int getItemUnder(Vector2 pos);
-    void update(Atlas &atlas, Player &player, UI &ui);
+    void update(Atlas &atlas, InputSystem input, UI &ui, Scene &scene);
 };

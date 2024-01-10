@@ -34,14 +34,14 @@ int UIRowGridRec(Rectangle cellSrc, float thickness, float spacing, int numCells
     return result; // returning the cell a mouse position was in
 }
 
-void UIRowGridIcon(Atlas &atlas, PlayerInventory &inventory, Rectangle cellSrc, float thickness, float spacing,
+void UIRowGridIcon(Atlas &atlas, InventoryC &playerInventory, Rectangle cellSrc, float thickness, float spacing,
                    int numCells)
 {
 
     cellSrc.x -= cellSrc.width; // re-orient cellSrc to prepare for additions in the loop
     for (int i = 0; i < numCells; i++) {
         cellSrc.x += cellSrc.width + spacing; // incrememnt the x src each iteration
-        int itemId = inventory.itemHotbar[i];
+        int itemId = playerInventory.hotbar[i];
         Item curItem = itemids[itemId];
         Rectangle itemTexture = {(float)curItem.x, (float)curItem.y, 16, 16};
         DrawTexturePro(atlas.texture, itemTexture, {cellSrc.x + 4, cellSrc.y + 4, 40, 40}, {0, 0}, 0.0f, WHITE);

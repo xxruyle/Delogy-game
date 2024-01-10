@@ -3,10 +3,10 @@
 #include "raylib.h"
 #include "ui_util.hpp"
 
-void UI::hotBar(Atlas &atlas, PlayerInventory &inventory)
+void UI::hotBar(Atlas &atlas, InventoryC &inventory)
 {
 
-    UIRowGridRec({0, (float)(GetScreenHeight() - 48), 48, 48}, 1.0f, gridSpacing, NUM_HOTBAR, inventory.curHotbarItem,
+    UIRowGridRec({0, (float)(GetScreenHeight() - 48), 48, 48}, 1.0f, gridSpacing, NUM_HOTBAR, inventory.curItem,
                  RAYWHITE, Color{255, 255, 255, 32});
 
     UIRowGridIcon(atlas, inventory, {0, (float)(GetScreenHeight() - 48), 48, 48}, 1.0f, gridSpacing, NUM_HOTBAR);

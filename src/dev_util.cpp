@@ -1,21 +1,13 @@
 #include "dev_util.hpp"
 #include "macros_util.hpp"
-#include "raylib.h"
 
-void drawGameInfo(Player &player)
+void drawGameInfo(Camera2D &camera, Vector2 playerPos)
 {
     DrawText("Delogy Indev 1.0", 3, 0, UI_FONT_SIZE, RAYWHITE);
     DrawFPS(2, 25);
-
-    drawMouseGridPosition(player.camera_.cam);
-    drawMouseChunkPosition(player.camera_.cam);
-
-    if (player.camera_.freeCam) {
-        DrawText("FREE CAM MODE", 3, 125, UI_FONT_SIZE, WHITE);
-    }
-
-    drawPlayerGridPosition(player.physics_.pos);
-    drawPlayerVelocity(player.physics_.velocity);
+    drawMouseChunkPosition(camera);
+    drawMouseGridPosition(camera);
+    drawPlayerGridPosition(playerPos);
 }
 
 void drawMouseGridOutline(Camera2D &camera, Color color)
@@ -63,24 +55,6 @@ void drawPlayerGridPosition(Vector2 playerPos)
         "Player: (" + std::to_string((int)playerPos.x) + ", " + std::to_string((int)playerPos.y) + ")";
 
     DrawText(playerPosStr.c_str(), 3, 100, UI_FONT_SIZE, WHITE);
-}
-
-void drawPlayerVelocity(Vector2 playerVelocity)
-{
-    std::string playerVelStr =
-        "Velocity: (" + std::to_string((int)playerVelocity.x) + ", " + std::to_string((int)playerVelocity.y) + ")";
-
-    DrawText(playerVelStr.c_str(), 2, 150, UI_FONT_SIZE, WHITE);
-}
-
-void drawItem(Camera2D &camera, Atlas &atlas, int itemID)
-{
-    Vector2 atlasSrc = {(float)itemids[itemID].x, (float)itemids[itemID].y};
-    Vector2 mousePosition = getMouseGridPosition(camera);
-    mousePosition.x *= 16;
-    mousePosition.y *= 16;
-
-    DrawTextureRec(atlas.texture, {atlasSrc.x, atlasSrc.y, 16, 16}, mousePosition, Color{255, 255, 255, 170});
 }
 
 void drawChunkInfo(Vector2 chunkWorldPostion)
