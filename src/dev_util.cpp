@@ -1,5 +1,6 @@
 #include "dev_util.hpp"
 #include "macros_util.hpp"
+#include "raylib.h"
 
 void drawGameInfo(Camera2D &camera, Vector2 playerPos)
 {
@@ -29,7 +30,7 @@ void drawMouseGridOutline(Camera2D &camera, Color color)
         mousePos.y = (int)(mousePos.y / 16) * 16;
     }
 
-    DrawRectangleLines(mousePos.x, mousePos.y, 16, 16, color);
+    DrawRectangleLinesEx(Rectangle{mousePos.x, mousePos.y, 16, 16}, 0.4f, WHITE);
 }
 
 void drawMouseChunkPosition(Camera2D &camera)

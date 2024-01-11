@@ -1,17 +1,21 @@
-# Delogy Ideas 
+# Delogy Design Ideas 
 
 - telegraph lines 
 - fog of war 
 - npc villages 
 - worker npcs
 - earthquake events 
+- robot companion 
+    - order him to mine a certain area 
 - roguelike permadeath elements
+    - player headstone 
 - dungeons contained with better parts  
+- engineering progression tree 
 - prestige system 
 - relationship system with villages 
 - weight system (give items weight which slow maxSpeed) 
 - map system 
-- minecarts linking together
+- orecarts linking together
 - explosives 
 - batteries 
     - chargers 
@@ -21,3 +25,4 @@
     - exhaust shaft (expels contaminated air to the surface )
 - faults 
     - detail where ore deposits are 
+- tipping rail switch will empties orecart storage into storage box 

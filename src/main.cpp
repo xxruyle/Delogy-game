@@ -1,4 +1,5 @@
 #include "macros_util.hpp"
+#include <utility>
 #define RAYGUI_IMPLEMENTATION
 #include "dev_util.hpp"
 #include "raylib.h"
@@ -11,6 +12,7 @@
 #include "player_movement_system.hpp"
 #include "player_inventory_system.hpp"
 #include "npc_system.hpp"
+#include "entity_data.hpp"
 #include "entt/entity/registry.hpp"
 
 int main()
@@ -41,7 +43,7 @@ int main()
     InputSystem input;
     PlayerMovementSystem playerMovementSystem;
 
-    npcSystem.update(scene);
+    /* npcSystem.update(scene); */
     while (!WindowShouldClose()) {
         BeginDrawing();
 
@@ -55,7 +57,7 @@ int main()
         /* Handle Tile Manager */
         tileManager.update(atlas, input, userInterface, scene);
         /* Handle Carts */
-        cartManager.update(atlas, tileManager);
+        cartManager.update(tileManager, input, scene);
 
         /* Systems */
         npcSystem.moveNPCs(scene.EntityRegistry);

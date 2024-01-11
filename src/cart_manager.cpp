@@ -1,4 +1,5 @@
 #include "cart_manager.hpp"
+#include "components.hpp"
 #include "entity_data.hpp"
 #include "item_data.hpp"
 #include "raylib.h"
@@ -65,65 +66,6 @@ std::unordered_set<int> getValidRails(int rail, int direction)
     return validRails;
 }
 
-EntityPhysics::EntityPhysics(Vector2 gridPos)
-{
-    prevGridPos = gridPos;
-    gridPos.x *= 16;
-    gridPos.y *= 16;
-    pos = gridPos;
-}
-
-void EntityPhysics::clampSpeed()
-{
-
-    if (velocity.x > maxSpeed) {
-        velocity.x = maxSpeed;
-    }
-
-    if (velocity.x < -maxSpeed) {
-        velocity.x = -maxSpeed;
-    }
-
-    if (velocity.y > maxSpeed) {
-        velocity.y = maxSpeed;
-    }
-
-    if (velocity.y < -maxSpeed) {
-        velocity.y = -maxSpeed;
-    }
-}
-
-void EntityPhysics::update()
-{
-    clampSpeed();
-    pos.x += velocity.x * GetFrameTime();
-    pos.y += velocity.y * GetFrameTime();
-}
-
-void CartManager::createCart(Vector2 gridPos, int id)
-{
-    EntityPhysics tempPhysics(gridPos);
-    Cart tempCart = {id, CART_H, tempPhysics};
-    carts.push_back(tempCart);
-}
-
-void CartManager::populateCarts()
-{
-    for (int i = 0; i < 1; i++) {
-        Vector2 gridPos = {(float)GetRandomValue(0, 2), 0};
-        createCart(gridPos, carts.size());
-    }
-}
-
-void CartManager::drawCarts(Atlas &atlas)
-{
-    for (int i = 0; i < carts.size(); i++) {
-        Entity curEntity = entityids[carts[i].orientation];
-        Rectangle entityRec = {(float)curEntity.x, (float)curEntity.y, 16, 16};
-        DrawTextureRec(atlas.texture, entityRec, carts[i].physics_.pos, WHITE);
-    }
-}
-
 int getDirectionMultiplier(int direction)
 {
     switch (direction) {
@@ -140,238 +82,253 @@ int getDirectionMultiplier(int direction)
     }
 }
 
-Vector2 getFarSideCartBorder(Cart &cart)
+Vector2 getFarSideCartBorder(PositionC &position, int direction)
 {
     Vector2 cartPos;
-    switch (cart.curDirection) {
+    switch (direction) {
     case WEST:
-        cartPos = {cart.physics_.pos.x + 15.0f, cart.physics_.pos.y + 8.0f}; // put position on the right side
+        cartPos = {position.pos.x + 15.5f, position.pos.y + 8.0f}; // put position on the right side
         break;
     case EAST:
-        cartPos = {cart.physics_.pos.x, cart.physics_.pos.y + 8.0f};
+        cartPos = {position.pos.x, position.pos.y + 8.0f};
         break;
     case NORTH:
-        cartPos = {cart.physics_.pos.x + 8.0f, cart.physics_.pos.y + 15.0f}; // put position on the right side
+        cartPos = {position.pos.x + 8.0f, position.pos.y + 15.0f}; // put position on the right side
         break;
     case SOUTH:
-        cartPos = {cart.physics_.pos.x, cart.physics_.pos.y}; // put position on the right side
+        cartPos = {position.pos.x, position.pos.y}; // put position on the right side
         break;
     default:
-        cartPos = cart.physics_.pos;
+        cartPos = position.pos;
         break;
     }
     return cartPos;
 }
 
-Vector2 getNearSideCartBorder(Cart &cart)
+Vector2 getNearSideCartBorder(PositionC &position, int direction)
 {
     Vector2 cartPos;
-    switch (cart.curDirection) {
+    switch (direction) {
     case WEST:
-        cartPos = {cart.physics_.pos.x + 1.0f, cart.physics_.pos.y + 8.0f};
+        cartPos = {position.pos.x + 1.0f, position.pos.y + 8.0f};
         break;
     case EAST:
-        cartPos = {cart.physics_.pos.x + 15.0f, cart.physics_.pos.y + 8.0f};
+        cartPos = {position.pos.x + 15.0f, position.pos.y + 8.0f};
         break;
     case NORTH:
-        cartPos = {cart.physics_.pos.x + 8.0f, cart.physics_.pos.y};
+        cartPos = {position.pos.x + 8.0f, position.pos.y};
         break;
     case SOUTH:
-        cartPos = {cart.physics_.pos.x, cart.physics_.pos.y + 15.0f};
+        cartPos = {position.pos.x, position.pos.y + 15.0f};
         break;
     default:
-        cartPos = cart.physics_.pos;
+        cartPos = position.pos;
         break;
     }
     return cartPos;
 }
 
-void Cart::updateDirection(int itemUnder, int prevItemUnder, int futureItemUnder)
+void CartManager::createCart(Vector2 position, InputSystem &input, entt::basic_registry<> &registry)
 {
-    Vector2 curGridPos = getGridPosition({physics_.pos.x + 8.0f, physics_.pos.y + 8.0f});
+    entt::entity entity = registry.create();
+
+    registry.emplace<SpriteC>(entity, Rectangle{67, 88, 16, 16});
+    registry.emplace<PositionC>(entity, Vector2{position.x * 16, position.y * 16});
+    registry.emplace<OrecartC>(entity, CART_H, EAST, NULL_ITEM, position);
+    registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 15, 15, Rectangle{0, 0, 16, 16}, true);
+}
+
+void CartManager::getPlayerInteraction(InputSystem &input, InventoryC &inventory, Camera2D &camera,
+                                       entt::basic_registry<> &registry)
+{
+    if (input.getUserMouseInteraction() == PLAYER_CREATE) {
+        int inventoryItem = inventory.hotbar[inventory.curItem];
+        if (inventoryItem == CART) {
+            Vector2 mouseGridPos = getMouseGridPosition(camera);
+            createCart(mouseGridPos, input, registry);
+        };
+    }
+}
+
+void CartManager::changeCartDirection(PositionC &position, OrecartC &orecart, PhysicsC &physics, int itemUnder,
+                                      int prevItemUnder, int futureItemUnder)
+{
+    Vector2 curGridPos = getGridPosition({position.pos.x + 8.0f, position.pos.y + 8.0f});
 
     if (prevItemUnder != NULL_ITEM && futureItemUnder != NULL_ITEM) {
-
-        if (physics_.prevGridPos.x != curGridPos.x || physics_.prevGridPos.y != curGridPos.y ||
-            curState == DERAILED) { // recheck if the cart is stopped
+        if (orecart.previousGridPos.x != curGridPos.x || orecart.previousGridPos.y != curGridPos.y ||
+            !physics.moving) { // recheck if the cart is stopped
 
             std::unordered_set<int> connectableRails = getValidRails(
-                prevItemUnder, curDirection); // get all the connectable rails for the previous rail the cart was under
+                prevItemUnder,
+                orecart.movementDirection); // get all the connectable rails for the previous rail the cart was under
 
             if (!connectableRails.count(
                     futureItemUnder)) { // if the future rail that the cart is going on is connectable
-                curState = DERAILED;
-                physics_.velocity.x = 0;
-                physics_.velocity.y = 0;
+                physics.moving = false;
+                physics.velocity.x = 0;
+                physics.velocity.y = 0;
             }
             else {
-                curState = MOVE;
+                physics.moving = true;
             }
         }
     }
 
-    /* std::cout << curState << " " << orientation << " | Previous: " << prevItemUnder << " | Future: " <<
-     * futureItemUnder */
-    /*           << std::endl; */
-
-    if (curState == MOVE) {
-        physics_.prevGridPos = curGridPos;
+    if (physics.moving) {
+        orecart.previousGridPos = curGridPos;
     }
+
+    /* std::cout << prevItemUnder << " " << itemUnder << " " << futureItemUnder << " " << orecart.movementDirection */
+    /*           << std::endl; */
 
     switch (itemUnder) {
     case RAIL_H:
-        if (curDirection == SOUTH) {
-            curDirection = EAST;
+        if (orecart.movementDirection == SOUTH) {
+            orecart.movementDirection = EAST;
         }
-        else if (curDirection == NORTH) {
-            curDirection = WEST;
+        else if (orecart.movementDirection == NORTH) {
+            orecart.orientation = WEST;
         }
         break;
-        previousRail = RAIL_H;
+        orecart.previousRail = RAIL_H;
     case RAIL_NE:
-        if (curDirection == EAST) {
-            physics_.velocity.x = 0;
-            curDirection = SOUTH;
+        if (orecart.movementDirection == EAST) {
+            physics.velocity.x = 0;
+            orecart.movementDirection = SOUTH;
         }
-        else if (curDirection == NORTH) {
-            physics_.velocity.y = 0;
-            curDirection = WEST;
+        else if (orecart.movementDirection == NORTH) {
+            physics.velocity.y = 0;
+            orecart.movementDirection = WEST;
         }
         break;
-        previousRail = RAIL_NE;
+        orecart.previousRail = RAIL_NE;
     case RAIL_V:
-        if (curDirection == EAST) {
-            curDirection = SOUTH;
+        if (orecart.movementDirection == EAST) {
+            orecart.movementDirection = SOUTH;
         }
-        else if (curDirection == WEST) {
-            curDirection = NORTH;
+        else if (orecart.movementDirection == WEST) {
+            orecart.movementDirection = NORTH;
         }
         break;
-        previousRail = RAIL_V;
+        orecart.previousRail = RAIL_V;
     case RAIL_SE:
-        if (curDirection == SOUTH) {
-            physics_.velocity.y = 0;
-            curDirection = WEST;
+        if (orecart.movementDirection == SOUTH) {
+            physics.velocity.y = 0;
+            orecart.movementDirection = WEST;
         }
-        else if (curDirection == EAST) {
-            physics_.velocity.x = 0;
-            curDirection = NORTH;
+        else if (orecart.movementDirection == EAST) {
+            physics.velocity.x = 0;
+            orecart.movementDirection = NORTH;
         }
-        previousRail = RAIL_SE;
+        orecart.previousRail = RAIL_SE;
         break;
     case RAIL_SW:
-        if (curDirection == WEST) {
-            physics_.velocity.x = 0;
-            curDirection = NORTH;
+        if (orecart.movementDirection == WEST) {
+            physics.velocity.x = 0;
+            orecart.movementDirection = NORTH;
         }
-        else if (curDirection == SOUTH) {
-            physics_.velocity.y = 0;
-            curDirection = EAST;
+        else if (orecart.movementDirection == SOUTH) {
+            physics.velocity.y = 0;
+            orecart.movementDirection = EAST;
         }
-        previousRail = RAIL_SW;
+        orecart.previousRail = RAIL_SW;
         break;
     case RAIL_NW:
-        if (curDirection == NORTH) {
-            physics_.velocity.y = 0;
-            curDirection = EAST;
+        if (orecart.movementDirection == NORTH) {
+            physics.velocity.y = 0;
+            orecart.movementDirection = EAST;
         }
-        else if (curDirection == WEST) {
-            physics_.velocity.x = 0;
-            curDirection = SOUTH;
+        else if (orecart.movementDirection == WEST) {
+            physics.velocity.x = 0;
+            orecart.movementDirection = SOUTH;
         }
-        previousRail = RAIL_NW;
+        orecart.previousRail = RAIL_NW;
         break;
     default: // if the item underneat is the NULL_ITEM
-        curState = DERAILED;
-        physics_.velocity.x = 0;
-        physics_.velocity.y = 0;
+        physics.moving = false;
+        physics.velocity.x = 0;
+        physics.velocity.y = 0;
         break;
     }
 }
 
-void Cart::updateVelocity()
+void CartManager::changeCartVelocity(PhysicsC &physics, OrecartC &orecart)
 {
 
-    int directionMultiplier = getDirectionMultiplier(curDirection);
+    int directionMultiplier = getDirectionMultiplier(orecart.movementDirection);
 
-    if (curState == MOVE) {
-        switch (curDirection) {
+    if (physics.moving) {
+        switch (orecart.movementDirection) {
         case WEST:
-            orientation = CART_H;
-            physics_.velocity.x += directionMultiplier * physics_.acceleration * GetFrameTime();
+            orecart.orientation = CART_H;
+            physics.velocity.x = directionMultiplier * physics.speed;
             break;
         case EAST:
-            orientation = CART_H;
-            physics_.velocity.x += directionMultiplier * physics_.acceleration * GetFrameTime();
+            orecart.orientation = CART_H;
+            physics.velocity.x = directionMultiplier * physics.speed;
             break;
         case NORTH:
-            orientation = CART_V;
-            physics_.velocity.y += directionMultiplier * physics_.acceleration * GetFrameTime();
+            orecart.orientation = CART_V;
+            physics.velocity.y = directionMultiplier * physics.speed;
             break;
         case SOUTH:
-            orientation = CART_V;
-            physics_.velocity.y += directionMultiplier * physics_.acceleration * GetFrameTime();
+            orecart.orientation = CART_V;
+            physics.velocity.y = directionMultiplier * physics.speed;
+            break;
+        default:
+            physics.velocity.x = 0;
+            physics.velocity.y = 0;
             break;
         }
     }
     else {
         // change orientation to derailed sprites
-        if (orientation == CART_H) {
-            orientation = CART_HD;
+        if (orecart.orientation == CART_H) {
+            orecart.orientation = CART_HD;
         }
-        else if (orientation == CART_V) {
-            orientation = CART_VD;
+        else if (orecart.orientation == CART_V) {
+            orecart.orientation = CART_VD;
         }
-
-        physics_.velocity.x = 0;
-        physics_.velocity.y = 0;
+        physics.velocity.x = 0;
+        physics.velocity.y = 0;
     }
-    /* std::cout << curState << " | Direction: " << curDirection << " | speed: " << physics_.velocity.x << " " */
-    /*           << physics_.velocity.y << std::endl; */
 }
 
-void CartManager::updateCart(Cart &cart, TileManager &tileManager)
+void CartManager::changeCartPosition(PositionC &position, PhysicsC &physics)
 {
-    Vector2 farSideAABB = getFarSideCartBorder(cart);
-    int itemUnder = tileManager.getItemUnder(farSideAABB);
-
-    int prevItemUnder =
-        tileManager.getItemUnder({cart.physics_.prevGridPos.x * 16.0f, cart.physics_.prevGridPos.y * 16.0f});
-
-    int futureItemUnder = tileManager.getItemUnder({cart.physics_.pos.x + 8.0f, cart.physics_.pos.y + 8.0f});
-
-    cart.updateDirection(itemUnder, prevItemUnder, futureItemUnder);
-    cart.updateVelocity();
+    /* std::cout << physics.velocity.x << " " << physics.velocity.y << std::endl; */
+    position.pos.x += physics.velocity.x * GetFrameTime();
+    position.pos.y += physics.velocity.y * GetFrameTime();
 }
 
-/* void CartManager::getPlayerInteraction(Player &player) */
-/* { */
-/**/
-/*     if (player.state_.curAction != NORMAL) { */
-/*         int curPlayerItem = player.inventory_.itemHotbar[player.inventory_.curHotbarItem]; */
-/*         switch (player.state_.curAction) { */
-/*         case ENTITY_CREATE: */
-/*             if (curPlayerItem == CART) { */
-/*                 Vector2 mouseGridPos = getMouseGridPosition(player.camera_.cam); */
-/*                 createCart(mouseGridPos, carts.size()); */
-/*             } */
-/*             break; */
-/*         default: */
-/*             break; */
-/*         } */
-/*     } */
-/* } */
-
-void CartManager::update(Atlas &atlas, TileManager &tileManager)
+void CartManager::updateCarts(entt::basic_registry<> &registry, TileManager &tileManager)
 {
-    derails = 0;
-    for (int i = 0; i < carts.size(); i++) {
-        Vector2 cartPos = carts[i].physics_.pos;
-        updateCart(carts[i], tileManager);
-        carts[i].physics_.update();
-        if (carts[i].curState == DERAILED) {
-            derails += 1;
-        }
+    auto view = registry.view<SpriteC, PhysicsC, PositionC, OrecartC>();
+
+    for (auto entity : view) {
+        auto &sprite = view.get<SpriteC>(entity);
+        auto &physics = view.get<PhysicsC>(entity);
+        auto &position = view.get<PositionC>(entity);
+        auto &orecart = view.get<OrecartC>(entity);
+
+        Vector2 farSideAABB = getFarSideCartBorder(position, orecart.movementDirection);
+        int itemUnder = tileManager.getItemUnder(farSideAABB);
+        int prevItemUnder =
+            tileManager.getItemUnder({orecart.previousGridPos.x * 16.0f, orecart.previousGridPos.y * 16.0f});
+        int futureItemUnder = tileManager.getItemUnder({position.pos.x + 8.0f, position.pos.y + 8.0f});
+
+        changeCartDirection(position, orecart, physics, itemUnder, prevItemUnder, futureItemUnder);
+        changeCartVelocity(physics, orecart);
+        changeCartPosition(position, physics);
+
+        // change sprite based on cart orientation
+        Entity e = entityids[orecart.orientation];
+        sprite.atlasPos = Rectangle{e.x, e.y, 16, 16};
     }
-    drawCarts(atlas);
+}
+void CartManager::update(TileManager &tileManager, InputSystem &input, Scene &scene)
+{
+    getPlayerInteraction(input, scene.EntityRegistry.get<InventoryC>(scene.player), scene.camera, scene.EntityRegistry);
+    updateCarts(scene.EntityRegistry, tileManager);
 }

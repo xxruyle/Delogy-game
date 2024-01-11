@@ -1,7 +1,11 @@
 #include "atlas.hpp"
+#include "components.hpp"
+#include "entt/entity/registry.hpp"
+#include "input_system.hpp"
 #include "item_data.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
+#include "scene.hpp"
 #include "tile_manager.hpp"
 #include <unordered_set>
 
@@ -14,46 +18,21 @@ std::unordered_set<int> getValidRails(
     int rail,
     int direction); // given a current rail return all the valid future rail connections depending on cart direction
 
-struct EntityStorage {};
-
-class EntityPhysics {
-  public:
-    Vector2 pos;
-    Vector2 prevGridPos;
-    EntityPhysics(Vector2 gridPos);
-    Vector2 velocity = {0, 0};
-    float acceleration = 50.0f;
-    float maxSpeed = 50.0f;
-    void clampSpeed();
-    void update();
-};
-
-class Cart {
-  public:
-    int id;          // the id of the individual cart
-    int orientation; // vertical or horizontal
-    EntityPhysics physics_;
-
-    int storage[ENTITY_STORAGE_SIZE];
-    enum cartState curState = MOVE;
-    enum cartDirection curDirection = WEST;
-    int previousRail = NULL_ITEM;
-    void updateDirection(int itemUnder, int prevItemUnder, int futureItemUnder);
-    void updateVelocity();
-    void update();
-};
-
-Vector2 getFarSideCartBorder(Cart &cart);  // e.g if car is going EAST then it returns the left side of the cart's BB
-Vector2 getNearSideCartBorder(Cart &cart); // e.g if car is going EAST then it returns the right side of the cart's BB
+Vector2 getFarSideCartBorder(PositionC &position,
+                             int direction); // e.g if car is going EAST then it returns the left side of the cart's BB
+Vector2
+getNearSideCartBorder(PositionC &position,
+                      int direction); // e.g if car is going EAST then it returns the right side of the cart's BB
 
 class CartManager {
   public:
-    std::vector<Cart> carts;
-    int derails = 0;
-    void updateCart(Cart &cart, TileManager &tileManager); // changes cart direction based on rail underneath it
-    /* void getPlayerInteraction(Player &player); */
-    void update(Atlas &atlas, TileManager &tileManager);
-    void createCart(Vector2 gridPos, int id);
-    void populateCarts();
-    void drawCarts(Atlas &atlas);
+    void createCart(Vector2 position, InputSystem &input, entt::basic_registry<> &registry);
+    void changeCartDirection(PositionC &position, OrecartC &orecart, PhysicsC &physics, int itemUnder,
+                             int prevItemUnder, int futureItemUnder);
+    void changeCartVelocity(PhysicsC &physics, OrecartC &orecart);
+    void changeCartPosition(PositionC &position, PhysicsC &physics);
+    void updateCarts(entt::basic_registry<> &registry, TileManager &tileManager);
+    void getPlayerInteraction(InputSystem &input, InventoryC &inventory, Camera2D &camera,
+                              entt::basic_registry<> &registry);
+    void update(TileManager &tileManager, InputSystem &input, Scene &scene);
 };

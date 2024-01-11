@@ -4,7 +4,7 @@
 #include "raylib.h"
 #include <vector>
 
-#define ANIMATION_SPEED 5.0f
+#define ANIMATION_SPEED 8.0f
 #define ATLAS_SPRITE_PADDING 5.0f
 #define ORECART_STORAGE_SIZE 20
 
@@ -23,8 +23,8 @@ struct PositionC {
 
 struct PhysicsC {
     Vector2 velocity;
-    unsigned int speed;
-    unsigned int maxSpeed;
+    int speed;
+    int maxSpeed;
     Rectangle aabb;
     bool moving;
 };
@@ -35,8 +35,7 @@ struct AnimationC {
     int curFrameSrc;                  // the index of the cur frame we will draw from frameSrcs
     std::vector<Rectangle> frameSrcs; // the src of each frame
 
-    /* Example: If our curFrameSrc is 0,
-    we will just multiply by atFrame[0] * 16 * padding to get to that frame  */
+    /* Example: If our curFrameSrc is 0, we will just multiply by atFrame[0] * 16 * padding to get to that frame  */
     std::vector<unsigned int> atFrame; // the number each frame is on
 
     float animationSpeed = ANIMATION_SPEED;
@@ -57,11 +56,15 @@ struct AnimationC {
 };
 
 struct InventoryC {
-    int hotbar[NUM_HOTBAR] = {RAIL_V, CART, NULL_ITEM, NULL_ITEM, NULL_ITEM};
+    int hotbar[NUM_HOTBAR] = {RAIL_V, CART, STORAGE_BOX, NULL_ITEM, NULL_ITEM};
     int curItem = 0;
 };
 
 struct OrecartC {
+    int orientation;
+    int movementDirection;
+    int previousRail;
+    Vector2 previousGridPos;
     int storage[ORECART_STORAGE_SIZE];
 };
 

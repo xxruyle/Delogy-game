@@ -23,6 +23,7 @@ int InputSystem::getMovementDirection()
         !(IsKeyDown(Keys[MOVE_LEFT]) || IsKeyDown(Keys[MOVE_UP]) || IsKeyDown(Keys[MOVE_DOWN]))) {
         return MOVE_RIGHT;
     }
+
     if (IsKeyDown(Keys[MOVE_LEFT]) &&
         !(IsKeyDown(Keys[MOVE_RIGHT]) || IsKeyDown(Keys[MOVE_UP]) || IsKeyDown(Keys[MOVE_DOWN]))) {
         return MOVE_LEFT;

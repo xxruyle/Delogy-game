@@ -225,9 +225,10 @@ void TileManager::checkPlayerInteraction(InputSystem input, Camera2D &camera, UI
                 break;
             }
             case PLAYER_CREATE: {
-                int selectedItem = playerInventory.curItem;
-                chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y,
-                                              playerInventory.hotbar[selectedItem]);
+                int selectedItem = playerInventory.hotbar[playerInventory.curItem];
+                if (selectedItem >= RAIL_NW && selectedItem < CART) {
+                    chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y, selectedItem);
+                }
                 break;
             }
             default:

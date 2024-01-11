@@ -11,6 +11,7 @@ void SpriteDrawSystem::drawSprites(Texture2D &atlas, entt::basic_registry<> &reg
     for (auto entity : view) {
         auto &sprite = view.get<SpriteC>(entity);
         auto &position = view.get<PositionC>(entity);
+        /* std::cout << position.pos.x << " " << position.pos.y << std::endl; */
 
         DrawTexturePro(atlas, sprite.atlasPos, Rectangle{position.pos.x, position.pos.y, 16, 16}, {0, 0}, 0.0f, WHITE);
     }
