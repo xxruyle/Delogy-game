@@ -16,6 +16,11 @@ int InputSystem::getUserKeypress()
     return NULL_PRESS;
 }
 
+bool InputSystem::getMoveRight() { return IsKeyDown(Keys[MOVE_RIGHT]); }
+bool InputSystem::getMoveLeft() { return IsKeyDown(Keys[MOVE_LEFT]); }
+bool InputSystem::getMoveUp() { return IsKeyDown(Keys[MOVE_UP]); }
+bool InputSystem::getMoveDown() { return IsKeyDown(Keys[MOVE_DOWN]); }
+
 int InputSystem::getMovementDirection()
 {
 

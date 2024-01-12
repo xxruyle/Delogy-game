@@ -1,5 +1,7 @@
 #include "animation_system.hpp"
 #include "components.hpp"
+#include "macros_util.hpp"
+#include "raymath.h"
 #include <iostream>
 
 void AnimationSystem::incrementAnimation(AnimationC &animation)
@@ -7,7 +9,7 @@ void AnimationSystem::incrementAnimation(AnimationC &animation)
     animation.timeSinceLastFrameSwap += GetFrameTime();
 
     if (animation.timeSinceLastFrameSwap > animation.animationUpdateTime) {
-        if (animation.atFrame[animation.curFrameSrc] < animation.numFrames - 1) {
+        if (animation.atFrame[animation.curFrameSrc] < animation.framesPerRow - 1) {
             animation.atFrame[animation.curFrameSrc]++;
         }
         else {
@@ -19,22 +21,20 @@ void AnimationSystem::incrementAnimation(AnimationC &animation)
 
 void AnimationSystem::updatePlayerAnimation(InputSystem input, AnimationC &animation, bool movementState)
 {
-    int playerAnimation = input.getMovementDirection();
-    switch (playerAnimation) {
-    case MOVE_RIGHT:
-        animation.curFrameSrc = (int)animationDirection::RIGHT;
-        break;
-    case MOVE_LEFT:
+    /* int playerAnimation = input.getMovementDirection(); */
+    Vector2 direction = input.getDirectionVector();
+
+    if (direction.x < 0 && !(direction.y > 0 || direction.y < 0)) {
         animation.curFrameSrc = (int)animationDirection::LEFT;
-        break;
-    case MOVE_UP:
+    }
+    if (direction.x > 0 && !(direction.y > 0 || direction.y < 0)) {
+        animation.curFrameSrc = (int)animationDirection::RIGHT;
+    }
+    if (direction.y < 0 && !(direction.x > 0 || direction.x < 0)) {
         animation.curFrameSrc = (int)animationDirection::UP;
-        break;
-    case MOVE_DOWN:
+    }
+    if (direction.y > 0 && !(direction.x > 0 || direction.x < 0)) {
         animation.curFrameSrc = (int)animationDirection::DOWN;
-        break;
-    default:
-        break;
     }
 
     incrementAnimation(animation);
@@ -51,8 +51,9 @@ void AnimationSystem::updateSprites(entt::basic_registry<> &registry)
     for (auto entity : view) {
         auto &animation = view.get<AnimationC>(entity);
         auto &sprite = view.get<SpriteC>(entity);
+        int distanceToNextSprite = animation.frameSrcs[animation.curFrameSrc].width + ATLAS_SPRITE_PADDING;
         unsigned int atframe = animation.atFrame[animation.curFrameSrc];
-        sprite.atlasPos.x = animation.frameSrcs[animation.curFrameSrc].x + atframe * (16 + ATLAS_SPRITE_PADDING);
+        sprite.atlasPos.x = animation.frameSrcs[animation.curFrameSrc].x + atframe * (distanceToNextSprite);
         sprite.atlasPos.y = animation.frameSrcs[animation.curFrameSrc].y;
     }
 }

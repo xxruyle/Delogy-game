@@ -32,7 +32,7 @@ void PlayerInventorySystem::updateItemRotation(InventoryC &inventory, InputSyste
     }
 }
 
-void PlayerInventorySystem::drawCurItem(Camera2D &camera, Texture2D &texture, InventoryC &inventory)
+void PlayerInventorySystem::drawCurItem(Atlas &atlas, Camera2D &camera, InventoryC &inventory)
 {
     int itemID = inventory.hotbar[inventory.curItem];
     Vector2 atlasSrc = {(float)itemids[itemID].x, (float)itemids[itemID].y};
@@ -40,7 +40,8 @@ void PlayerInventorySystem::drawCurItem(Camera2D &camera, Texture2D &texture, In
     mousePosition.x *= 16;
     mousePosition.y *= 16;
 
-    DrawTextureRec(texture, {atlasSrc.x, atlasSrc.y, 16, 16}, mousePosition, Color{255, 255, 255, 170});
+    DrawTextureRec(atlas.texture, {atlasSrc.x, atlasSrc.y, atlas.width, atlas.height}, mousePosition,
+                   Color{255, 255, 255, 170});
 }
 
 void PlayerInventorySystem::update(Scene &scene, InputSystem &input)

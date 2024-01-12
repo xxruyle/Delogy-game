@@ -3,7 +3,7 @@
 #include "input_system.hpp"
 #include <entt/entity/registry.hpp>
 
-enum class animationDirection { RIGHT = 0, LEFT, UP, DOWN };
+enum class animationDirection { RIGHT = 0, LEFT, UP, DOWN, RIGHT_IDLE, LEFT_IDLE, UP_IDLE, DOWN_IDLE };
 class AnimationSystem {
   public:
     void updatePlayerAnimation(InputSystem input, AnimationC &animation, bool movementState);

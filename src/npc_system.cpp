@@ -6,7 +6,7 @@
 void NPCSystem::addNPCs(entt::basic_registry<> &registry)
 {
     entt::entity entity = registry.create();
-    registry.emplace<SpriteC>(entity, Rectangle{88, 4, 16, 16});
+    registry.emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{88, 4, 16, 16});
     registry.emplace<PositionC>(entity, Vector2{(float)GetRandomValue(0, 1000), (float)GetRandomValue(0, 1000)});
     registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 5, 5, Rectangle{0, 0, 16, 16}, false);
     registry.emplace<EmotionC>(entity, GetRandomValue(0, 1));

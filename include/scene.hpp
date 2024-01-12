@@ -24,7 +24,7 @@ class Scene {
 
     void updateCamera();
     void setPlayerFocus();
-    void addPlayer(Vector2 spawnPos, Rectangle frameSrc, int numFrames);
+    void addPlayer(AtlasType atlasid, Vector2 spawnPos, Rectangle frameSrc, int numFrames, int framesPerRow);
 
   private:
     int windowWidth;

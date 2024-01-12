@@ -5,7 +5,7 @@
 #include "raylib.h"
 #include <string>
 
-std::unordered_set<int> getValidRails(int rail, int direction)
+std::unordered_set<int> CartManager::getValidRails(int rail, int direction)
 {
     std::unordered_set<int> validRails = {};
 
@@ -66,7 +66,7 @@ std::unordered_set<int> getValidRails(int rail, int direction)
     return validRails;
 }
 
-int getDirectionMultiplier(int direction)
+int CartManager::getDirectionMultiplier(int direction)
 {
     switch (direction) {
     case WEST:
@@ -82,7 +82,7 @@ int getDirectionMultiplier(int direction)
     }
 }
 
-Vector2 getFarSideCartBorder(PositionC &position, int direction)
+Vector2 CartManager::getFarSideCartBorder(PositionC &position, int direction)
 {
     Vector2 cartPos;
     switch (direction) {
@@ -105,7 +105,7 @@ Vector2 getFarSideCartBorder(PositionC &position, int direction)
     return cartPos;
 }
 
-Vector2 getNearSideCartBorder(PositionC &position, int direction)
+Vector2 CartManager::getNearSideCartBorder(PositionC &position, int direction)
 {
     Vector2 cartPos;
     switch (direction) {
@@ -126,16 +126,6 @@ Vector2 getNearSideCartBorder(PositionC &position, int direction)
         break;
     }
     return cartPos;
-}
-
-void CartManager::createCart(Vector2 position, InputSystem &input, entt::basic_registry<> &registry)
-{
-    entt::entity entity = registry.create();
-
-    registry.emplace<SpriteC>(entity, Rectangle{67, 88, 16, 16});
-    registry.emplace<PositionC>(entity, Vector2{position.x * 16, position.y * 16});
-    registry.emplace<OrecartC>(entity, CART_H, EAST, NULL_ITEM, position);
-    registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 15, 15, Rectangle{0, 0, 16, 16}, true);
 }
 
 void CartManager::getPlayerInteraction(InputSystem &input, InventoryC &inventory, Camera2D &camera,
@@ -327,7 +317,18 @@ void CartManager::updateCarts(entt::basic_registry<> &registry, TileManager &til
         sprite.atlasPos = Rectangle{e.x, e.y, 16, 16};
     }
 }
+
+void CartManager::createCart(Vector2 position, InputSystem &input, entt::basic_registry<> &registry)
+{
+    entt::entity entity = registry.create();
+
+    registry.emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{67, 88, 16, 16});
+    registry.emplace<PositionC>(entity, Vector2{position.x * 16, position.y * 16});
+    registry.emplace<OrecartC>(entity, CART_H, EAST, NULL_ITEM, position);
+    registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 15, 15, Rectangle{0, 0, 16, 16}, true);
+}
 void CartManager::update(TileManager &tileManager, InputSystem &input, Scene &scene)
+
 {
     getPlayerInteraction(input, scene.EntityRegistry.get<InventoryC>(scene.player), scene.camera, scene.EntityRegistry);
     updateCarts(scene.EntityRegistry, tileManager);

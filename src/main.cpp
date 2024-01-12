@@ -13,6 +13,7 @@
 #include "player_inventory_system.hpp"
 #include "npc_system.hpp"
 #include "entity_data.hpp"
+#include "collision_system.hpp"
 #include "entt/entity/registry.hpp"
 
 int main()
@@ -22,7 +23,7 @@ int main()
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
     /* SetTargetFPS(60); */
 
-    Atlas atlas("res/real_atlas.png");
+    Atlas atlas("res/real_atlas.png", 16, 16);
 
     SetRandomSeed(30);
     TileManager tileManager(GetRandomValue(0, 3000));
@@ -31,12 +32,13 @@ int main()
     UI userInterface;
     CartManager cartManager;
 
-    SpriteDrawSystem drawSystem;
+    SpriteDrawSystem smallDrawSystem;
     AnimationSystem animationSystem;
     PlayerInventorySystem inventorySystem;
+    CollisionSystem collisionSystem;
 
     Scene scene;
-    scene.addPlayer({0, 0}, {4, 4, 16, 16}, 4);
+    scene.addPlayer(AtlasType::MEDIUM, {0, 0}, {4, 4, 32, 32}, 4, 4);
 
     NPCSystem npcSystem;
 
@@ -64,11 +66,13 @@ int main()
         inventorySystem.update(scene, input);
         animationSystem.update(input, scene.EntityRegistry, scene.player);
 
-        drawSystem.drawSprites(atlas.texture, scene.EntityRegistry);
+        smallDrawSystem.drawSprites(atlas, scene.EntityRegistry);
+
+        collisionSystem.update(scene.EntityRegistry);
+
         playerMovementSystem.update(input, scene.player, scene.EntityRegistry);
 
-        inventorySystem.drawCurItem(scene.camera, atlas.texture, scene.EntityRegistry.get<InventoryC>(scene.player));
-
+        inventorySystem.drawCurItem(atlas, scene.camera, scene.EntityRegistry.get<InventoryC>(scene.player));
         drawMouseGridOutline(scene.camera, WHITE);
         EndMode2D();
 

@@ -7,8 +7,15 @@
 #include <time.h> /* time */
 #include <vector>
 
-/* Sprite Atlas Info */
-#define SPRITE_PADDING 5
+/* Animation Info */
+#define ANIMATION_SPEED 13.0f
+#define ATLAS_SPRITE_PADDING 5.0f
+#define ATLAS_SPRITE_MARGIN 4.0f
+#define ORECART_STORAGE_SIZE 20
+
+enum class directionState { WEST, EAST, NORTH, SOUTH };
+enum class emotionState { SAD = 0, HAPPY };
+enum AtlasType { SMALL, MEDIUM };
 
 /* Window info*/
 #define WINDOW_WIDTH 864
@@ -20,6 +27,7 @@
 #define RENDER_DISTANCE 3 // the amount of chunks near the player the tile manager will render
 
 /* Player Info */
+#define PLAYER_SPRITE_SIZE 32
 #define NUM_INVENTORY 50
 #define NUM_HOTBAR 6
 

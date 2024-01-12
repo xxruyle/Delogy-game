@@ -1,5 +1,6 @@
 #include "scene.hpp"
 #include "components.hpp"
+#include "macros_util.hpp"
 #include "raylib.h"
 
 void Scene::setPlayerFocus()
@@ -12,12 +13,12 @@ void Scene::setPlayerFocus()
 
 void Scene::updateCamera()
 {
-    camera.target = Vector2Add(camera.target, {8.0f, 8.0f}); // center target
+    camera.target = Vector2Add(camera.target, {12.0f, 12.0f}); // center target
 
     // update camera zoom
     camera.zoom += GetMouseWheelMove();
-    if (camera.zoom > 7.0f)
-        camera.zoom = 7.0f;
+    if (camera.zoom > 10.0f)
+        camera.zoom = 10.0f;
 
     if (camera.zoom < 0.3f)
         camera.zoom = 0.3f;
@@ -27,15 +28,16 @@ void Scene::updateCamera()
     camera.offset = Vector2{round((float)(windowWidth / 2)), round((float)(windowHeight / 2))};
 }
 
-void Scene::addPlayer(Vector2 spawnPos, Rectangle frameSrc, int numFrames)
+void Scene::addPlayer(AtlasType atlasid, Vector2 spawnPos, Rectangle frameSrc, int numFrames, int framesPerRow)
 {
     entt::entity entity = EntityRegistry.create();
     player = entity;
 
     EntityRegistry.emplace<PlayerC>(entity, 0);
-    EntityRegistry.emplace<SpriteC>(entity, frameSrc);
+    EntityRegistry.emplace<SpriteC>(entity, atlasid, frameSrc);
     EntityRegistry.emplace<PositionC>(entity, spawnPos);
-    EntityRegistry.emplace<AnimationC>(entity, frameSrc, (unsigned int)numFrames);
-    EntityRegistry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 100, 100, Rectangle{0, 0, 16, 16}, false);
+    EntityRegistry.emplace<AnimationC>(entity, frameSrc, (unsigned int)numFrames, (unsigned int)framesPerRow);
+    EntityRegistry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 100, 100,
+                                     Rectangle{15 - ATLAS_SPRITE_MARGIN, 31 - ATLAS_SPRITE_MARGIN, 11, 5}, false);
     EntityRegistry.emplace<InventoryC>(entity);
 }

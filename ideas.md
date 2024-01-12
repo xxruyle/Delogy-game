@@ -26,3 +26,4 @@
 - faults 
     - detail where ore deposits are 
 - tipping rail switch will empties orecart storage into storage box 
+    - hoppers into storage box 

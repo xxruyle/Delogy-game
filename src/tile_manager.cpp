@@ -3,6 +3,7 @@
 #include "input_system.hpp"
 #include "raylib.h"
 #include "raymath.h"
+#include "tile_data.hpp"
 
 int getIndex(int x, int y) { return (CHUNK_SIZE * y) + x; };
 
@@ -59,8 +60,8 @@ void TileChunk::drunkardWalk()
     while (floorCount < 500) {
         if (curTile.x >= 0 && curTile.y >= 0 && curTile.y < 32 && curTile.x < 32) {
             int index = getIndex(curTile.x, curTile.y);
-            if (tileID[index] != TILE_CAVE_FLOOR_MIDDLE.id) {
-                tileID[index] = TILE_CAVE_FLOOR_MIDDLE.id;
+            if (tileID[index] != DIRT_FLOOR_MIDDLE) {
+                tileID[index] = TILE_DIRT_FLOOR_MIDDLE.id;
                 tileZ[index] = 0;
                 floorCount++;
             }
@@ -70,7 +71,7 @@ void TileChunk::drunkardWalk()
             while (!foundNew) {
                 Vector2 randomSpot = Vector2{GetRandomValue(0, 32), GetRandomValue(0, 32)};
                 int index = getIndex(randomSpot.x, randomSpot.y);
-                if (tileID[index] == TILE_CAVE_FLOOR_MIDDLE.id) {
+                if (tileID[index] == TILE_DIRT_FLOOR_MIDDLE.id) {
                     foundNew = true;
                     curTile = randomSpot;
                 }
@@ -150,7 +151,7 @@ void TileChunk::deleteAtTile(int x, int y)
 
         int zLevel = tileZ[index]; // only delete the tile if z level is > 0
         if (zLevel > 0) {
-            tileID[index] = TILE_CAVE_FLOOR_MIDDLE.id;
+            tileID[index] = TILE_DIRT_FLOOR_MIDDLE.id;
             tileZ[index] = 0;
         }
         else {
@@ -162,7 +163,7 @@ void TileChunk::deleteAtTile(int x, int y)
 void TileChunk::updateTile(int x, int y)
 {
     int index = getIndex(x, y);
-    tileID[index] = TILE_COAL1.id;
+    tileID[index] = TILE_CAVE_FLOOR_MIDDLE.id;
     // we don't need to change z level because we are just replacing the highest block
 }
 

@@ -12,18 +12,6 @@
 enum cartState { MOVE, DERAILED };
 enum cartDirection { WEST = 0, EAST = 1, NORTH = 2, SOUTH = 3 };
 
-int getDirectionMultiplier(int direction);
-
-std::unordered_set<int> getValidRails(
-    int rail,
-    int direction); // given a current rail return all the valid future rail connections depending on cart direction
-
-Vector2 getFarSideCartBorder(PositionC &position,
-                             int direction); // e.g if car is going EAST then it returns the left side of the cart's BB
-Vector2
-getNearSideCartBorder(PositionC &position,
-                      int direction); // e.g if car is going EAST then it returns the right side of the cart's BB
-
 class CartManager {
   public:
     void createCart(Vector2 position, InputSystem &input, entt::basic_registry<> &registry);
@@ -35,4 +23,17 @@ class CartManager {
     void getPlayerInteraction(InputSystem &input, InventoryC &inventory, Camera2D &camera,
                               entt::basic_registry<> &registry);
     void update(TileManager &tileManager, InputSystem &input, Scene &scene);
+
+  private:
+    int getDirectionMultiplier(int direction);
+    std::unordered_set<int> getValidRails(
+        int rail,
+        int direction); // given a current rail return all the valid future rail connections depending on cart direction
+
+    Vector2
+    getFarSideCartBorder(PositionC &position,
+                         int direction); // e.g if car is going EAST then it returns the left side of the cart's BB
+    Vector2
+    getNearSideCartBorder(PositionC &position,
+                          int direction); // e.g if car is going EAST then it returns the right side of the cart's BB
 };

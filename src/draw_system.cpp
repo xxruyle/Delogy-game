@@ -3,7 +3,7 @@
 #include "raylib.h"
 #include <iostream>
 
-void SpriteDrawSystem::drawSprites(Texture2D &atlas, entt::basic_registry<> &registry)
+void SpriteDrawSystem::drawSprites(Atlas &atlas, entt::basic_registry<> &registry)
 {
 
     auto view = registry.view<SpriteC, PositionC>();
@@ -13,6 +13,15 @@ void SpriteDrawSystem::drawSprites(Texture2D &atlas, entt::basic_registry<> &reg
         auto &position = view.get<PositionC>(entity);
         /* std::cout << position.pos.x << " " << position.pos.y << std::endl; */
 
-        DrawTexturePro(atlas, sprite.atlasPos, Rectangle{position.pos.x, position.pos.y, 16, 16}, {0, 0}, 0.0f, WHITE);
+        if (sprite.atlasID == AtlasType::SMALL) {
+
+            DrawTexturePro(smallAtlas.texture, sprite.atlasPos,
+                           Rectangle{position.pos.x, position.pos.y, smallAtlas.width, smallAtlas.height}, {0, 0}, 0.0f,
+                           WHITE);
+        }
+        else if (sprite.atlasID == AtlasType::MEDIUM) {
+            DrawTexturePro(mediumAtlas.texture, sprite.atlasPos,
+                           Rectangle{position.pos.x, position.pos.y, 32.0f, 32.0f}, {0, 0}, 0.0f, WHITE);
+        }
     }
 }

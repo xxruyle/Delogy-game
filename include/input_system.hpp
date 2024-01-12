@@ -23,4 +23,9 @@ class InputSystem {
     int getMovementDirection();
     Vector2 getDirectionVector(); // get a sum of all movement vectors for each cardinal direction
     float getScrollAmount();
+
+    bool getMoveLeft();
+    bool getMoveRight();
+    bool getMoveUp();
+    bool getMoveDown();
 };

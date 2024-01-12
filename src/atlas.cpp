@@ -2,8 +2,10 @@
 #include "macros_util.hpp"
 #include "raylib.h"
 
-Atlas::Atlas(const char *filePath)
+Atlas::Atlas(const char *filePath, int spriteWidth, int spriteHeight)
 {
+    width = spriteWidth;
+    height = spriteHeight;
     assert(FileExists(filePath));
 
     std::cout << "ATLAS: Loading Atlas from: [" << filePath << "]" << std::endl;
