@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cassert>
 #include <iostream>
 #include <math.h>
@@ -8,7 +9,7 @@
 #include <vector>
 
 /* Animation Info */
-#define ANIMATION_SPEED 13.0f
+#define ANIMATION_SPEED 15.0f
 #define ATLAS_SPRITE_PADDING 5.0f
 #define ATLAS_SPRITE_MARGIN 4.0f
 #define ORECART_STORAGE_SIZE 20

@@ -1,8 +1,11 @@
-HEADERS := $(wildcard include/*.h)
+HEADERS := $(wildcard include/*.hpp)
+ENTHEADERS := $(wildcard include/entt/entity/registry.hpp)
 
-debug: src/*.cpp $(HEADERS)
-	time g++ -std=c++2a src/*.cpp -o bin/main.exe -g -O1 -Wall -Wno-narrowing -Wno-unused-variable -Wno-enum-compare -I include/ -L /lib/ -lraylib -lrayguidll -lopengl32 -lgdi32 -lwinmm
+debug: src/*.cpp $(HEADERS) $(ENTHEADERS)
+	time g++ -std=c++2a src/*.cpp -o bin/main.exe -g  -O1 -Wall -Wno-narrowing -Wno-unused-variable -Wno-enum-compare -I include/ -L /lib/ -lraylib -lrayguidll -lopengl32 -lgdi32 -lwinmm
 
 	./bin/main
+build: src/*.cpp $(HEADERS)
+	time g++ -std=c++2a src/*.cpp -o bin/main.exe -g -O1 -Wall -Wno-narrowing -Wno-unused-variable -Wno-enum-compare -I include/ -L /lib/ -lraylib -lrayguidll -lopengl32 -lgdi32 -lwinmm
 run: 
 	./bin/main

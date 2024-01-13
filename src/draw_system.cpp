@@ -1,9 +1,9 @@
 #include "draw_system.hpp"
-#include "components.hpp"
-#include "raylib.h"
-#include <iostream>
 
-void SpriteDrawSystem::drawSprites(Atlas &atlas, entt::basic_registry<> &registry)
+#include "components.hpp"
+#include "macros_util.hpp"
+#include "raylib.h"
+void SpriteDrawSystem::drawSprites(entt::basic_registry<> &registry)
 {
 
     auto view = registry.view<SpriteC, PositionC>();

@@ -1,7 +1,5 @@
 #pragma once
 #include "entt/entity/registry.hpp"
-#include "macros_util.hpp"
-#include "raylib.h"
 #include "tile_manager.hpp"
 
 class CollisionSystem {

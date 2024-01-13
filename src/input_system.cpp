@@ -1,6 +1,4 @@
 #include "input_system.hpp"
-#include "raylib.h"
-#include <iostream>
 
 int InputSystem::getUserKeypress()
 {
@@ -11,6 +9,10 @@ int InputSystem::getUserKeypress()
 
     if (IsKeyPressed(Keys[ITEM_ROTATION])) {
         return ITEM_ROTATION;
+    }
+
+    if (IsKeyPressed(Keys[DEBUG_WIREFRAME])) {
+        return DEBUG_WIREFRAME;
     }
 
     return NULL_PRESS;
@@ -83,3 +85,4 @@ int InputSystem::getUserMouseInteraction()
 
     return NULL_PRESS;
 }
+void InputSystem::changeKeyBinding(int keybindID, int newKey) { Keys[keybindID] = newKey; }

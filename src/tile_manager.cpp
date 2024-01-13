@@ -1,9 +1,10 @@
 #include "tile_manager.hpp"
-#include "FastNoiseLite.h"
+
+#include "dev_util.hpp"
 #include "input_system.hpp"
-#include "raylib.h"
-#include "raymath.h"
+#include "item_data.hpp"
 #include "tile_data.hpp"
+#include "FastNoiseLite.h"
 
 int getIndex(int x, int y) { return (CHUNK_SIZE * y) + x; };
 
@@ -208,9 +209,9 @@ int TileManager::getChunkIndex(int x, int y)
     return x + (y * (stride + 1));
 }
 
-void TileManager::checkPlayerInteraction(InputSystem input, Camera2D &camera, UI &ui, InventoryC &playerInventory)
+void TileManager::checkPlayerInteraction(Camera2D &camera, UI &ui, InventoryC &playerInventory)
 {
-    int interactKey = input.getUserMouseInteraction();
+    int interactKey = InputSystem::getUserMouseInteraction();
     if (interactKey) {
         Vector2 mousePos = getMouseGridPosition(camera);
         Vector2 chunkPos = getMouseChunkPosition(camera);
@@ -272,13 +273,13 @@ void TileManager::drawAllChunks(Atlas &atlas, Vector2 &playerPos)
     }
 }
 
-void TileManager::update(Atlas &atlas, InputSystem input, UI &ui, Scene &scene)
+void TileManager::update(Atlas &atlas, UI &ui, Scene &scene)
 {
 
     PositionC &position = scene.EntityRegistry.get<PositionC>(scene.player);
     InventoryC &inventory = scene.EntityRegistry.get<InventoryC>(scene.player);
     drawAllChunks(atlas, position.pos);
-    checkPlayerInteraction(input, scene.camera, ui, inventory);
+    checkPlayerInteraction(scene.camera, ui, inventory);
 }
 
 int TileManager::getItemUnder(Vector2 pos)

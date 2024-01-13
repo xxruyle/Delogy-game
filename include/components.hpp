@@ -18,11 +18,15 @@ struct PositionC {
     Vector2 pos;
 };
 
+struct CollisionC {
+    Rectangle aabb;
+    bool isCollided = false;
+};
+
 struct PhysicsC {
     Vector2 velocity;
     int speed;
     int maxSpeed;
-    Rectangle aabb;
     bool moving;
 };
 

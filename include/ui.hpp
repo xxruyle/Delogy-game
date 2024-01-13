@@ -1,7 +1,6 @@
 #include "atlas.hpp"
 #include "components.hpp"
-#include "macros_util.hpp"
-#include "raylib.h"
+#include "ui_util.hpp"
 
 class UI {
   public:

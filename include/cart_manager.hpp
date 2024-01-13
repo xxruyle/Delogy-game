@@ -1,10 +1,5 @@
-#include "atlas.hpp"
 #include "components.hpp"
 #include "entt/entity/registry.hpp"
-#include "input_system.hpp"
-#include "item_data.hpp"
-#include "macros_util.hpp"
-#include "raylib.h"
 #include "scene.hpp"
 #include "tile_manager.hpp"
 #include <unordered_set>
@@ -14,15 +9,14 @@ enum cartDirection { WEST = 0, EAST = 1, NORTH = 2, SOUTH = 3 };
 
 class CartManager {
   public:
-    void createCart(Vector2 position, InputSystem &input, entt::basic_registry<> &registry);
+    void createCart(Vector2 position, entt::basic_registry<> &registry);
     void changeCartDirection(PositionC &position, OrecartC &orecart, PhysicsC &physics, int itemUnder,
                              int prevItemUnder, int futureItemUnder);
     void changeCartVelocity(PhysicsC &physics, OrecartC &orecart);
     void changeCartPosition(PositionC &position, PhysicsC &physics);
     void updateCarts(entt::basic_registry<> &registry, TileManager &tileManager);
-    void getPlayerInteraction(InputSystem &input, InventoryC &inventory, Camera2D &camera,
-                              entt::basic_registry<> &registry);
-    void update(TileManager &tileManager, InputSystem &input, Scene &scene);
+    void getPlayerInteraction(InventoryC &inventory, Camera2D &camera, entt::basic_registry<> &registry);
+    void update(TileManager &tileManager, Scene &scene);
 
   private:
     int getDirectionMultiplier(int direction);

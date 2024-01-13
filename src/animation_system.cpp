@@ -1,8 +1,8 @@
 #include "animation_system.hpp"
-#include "components.hpp"
+
+#include "input_system.hpp"
 #include "macros_util.hpp"
 #include "raymath.h"
-#include <iostream>
 
 void AnimationSystem::incrementAnimation(AnimationC &animation)
 {
@@ -19,10 +19,10 @@ void AnimationSystem::incrementAnimation(AnimationC &animation)
     }
 }
 
-void AnimationSystem::updatePlayerAnimation(InputSystem input, AnimationC &animation, bool movementState)
+void AnimationSystem::updatePlayerAnimation(AnimationC &animation, bool movementState)
 {
     /* int playerAnimation = input.getMovementDirection(); */
-    Vector2 direction = input.getDirectionVector();
+    Vector2 direction = InputSystem::getDirectionVector();
 
     if (direction.x < 0 && !(direction.y > 0 || direction.y < 0)) {
         animation.curFrameSrc = (int)animationDirection::LEFT;
@@ -58,12 +58,12 @@ void AnimationSystem::updateSprites(entt::basic_registry<> &registry)
     }
 }
 
-void AnimationSystem::update(InputSystem input, entt::basic_registry<> &registry, entt::entity player)
+void AnimationSystem::update(entt::basic_registry<> &registry, entt::entity player)
 {
     // test
     AnimationC &animation = registry.get<AnimationC>(player);
     PhysicsC &physics = registry.get<PhysicsC>(player);
-    updatePlayerAnimation(input, animation, physics.moving);
+    updatePlayerAnimation(animation, physics.moving);
 
     updateSprites(registry);
 }

@@ -5,19 +5,19 @@
 #include "raylib.h"
 #include <iostream>
 
-void PlayerInventorySystem::updateInventorySelection(InventoryC &inventory, InputSystem &input)
+void PlayerInventorySystem::updateInventorySelection(InventoryC &inventory)
 {
-    int key = input.getUserKeypress();
+    int key = InputSystem::getUserKeypress();
 
     if (key > 0 && key < NUM_HOTBAR + 1) { // make sure keys are not negative
         inventory.curItem = key - 1;       // set cur hot bar item
     }
 }
 
-void PlayerInventorySystem::updateItemRotation(InventoryC &inventory, InputSystem &input)
+void PlayerInventorySystem::updateItemRotation(InventoryC &inventory)
 {
 
-    int rotationKey = input.getUserKeypress();
+    int rotationKey = InputSystem::getUserKeypress();
 
     if (rotationKey == ITEM_ROTATION) {
         int curItemID = inventory.hotbar[inventory.curItem];
@@ -44,10 +44,10 @@ void PlayerInventorySystem::drawCurItem(Atlas &atlas, Camera2D &camera, Inventor
                    Color{255, 255, 255, 170});
 }
 
-void PlayerInventorySystem::update(Scene &scene, InputSystem &input)
+void PlayerInventorySystem::update(Scene &scene)
 {
     InventoryC &inv = scene.EntityRegistry.get<InventoryC>(scene.player);
 
-    updateInventorySelection(inv, input);
-    updateItemRotation(inv, input);
+    updateInventorySelection(inv);
+    updateItemRotation(inv);
 }

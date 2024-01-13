@@ -23,8 +23,6 @@ int main()
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
     /* SetTargetFPS(60); */
 
-    Atlas atlas("res/real_atlas.png", 16, 16);
-
     SetRandomSeed(30);
     TileManager tileManager(GetRandomValue(0, 3000));
     tileManager.generateChunks();
@@ -32,7 +30,7 @@ int main()
     UI userInterface;
     CartManager cartManager;
 
-    SpriteDrawSystem smallDrawSystem;
+    SpriteDrawSystem drawSystem;
     AnimationSystem animationSystem;
     PlayerInventorySystem inventorySystem;
     CollisionSystem collisionSystem;
@@ -42,7 +40,7 @@ int main()
 
     NPCSystem npcSystem;
 
-    InputSystem input;
+    /* InputSystem input; */
     PlayerMovementSystem playerMovementSystem;
 
     /* npcSystem.update(scene); */
@@ -57,28 +55,29 @@ int main()
         BeginMode2D(scene.camera);
 
         /* Handle Tile Manager */
-        tileManager.update(atlas, input, userInterface, scene);
+        tileManager.update(drawSystem.smallAtlas, userInterface, scene);
         /* Handle Carts */
-        cartManager.update(tileManager, input, scene);
+        cartManager.update(tileManager, scene);
 
         /* Systems */
         npcSystem.moveNPCs(scene.EntityRegistry);
-        inventorySystem.update(scene, input);
-        animationSystem.update(input, scene.EntityRegistry, scene.player);
+        inventorySystem.update(scene);
+        animationSystem.update(scene.EntityRegistry, scene.player);
 
-        smallDrawSystem.drawSprites(atlas, scene.EntityRegistry);
+        drawSystem.drawSprites(scene.EntityRegistry);
 
         collisionSystem.update(scene.EntityRegistry);
 
-        playerMovementSystem.update(input, scene.player, scene.EntityRegistry);
+        playerMovementSystem.update(scene.player, scene.EntityRegistry);
 
-        inventorySystem.drawCurItem(atlas, scene.camera, scene.EntityRegistry.get<InventoryC>(scene.player));
+        inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera,
+                                    scene.EntityRegistry.get<InventoryC>(scene.player));
         drawMouseGridOutline(scene.camera, WHITE);
         EndMode2D();
 
         /* Draw UI */
         drawGameInfo(scene.camera, scene.playerPosition);
-        userInterface.hotBar(atlas, scene.EntityRegistry.get<InventoryC>(scene.player));
+        userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player));
 
         EndDrawing();
     }

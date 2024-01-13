@@ -54,6 +54,6 @@ void UIRowGridNumbers(Rectangle cellSrc, float spacing, int numCells)
     cellSrc.x -= cellSrc.width; // re-orient cellSrc to prepare for additions in the loop
     for (int i = 0; i < numCells; i++) {
         cellSrc.x += cellSrc.width + spacing; // incrememnt the x src each iteration
-        DrawText(std::to_string(i + 1).c_str(), cellSrc.x, cellSrc.y, 13, BLACK);
+        DrawText(std::to_string(i + 1).c_str(), cellSrc.x, cellSrc.y, 18, WHITE);
     }
 }

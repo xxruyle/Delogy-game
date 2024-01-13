@@ -1,11 +1,10 @@
 #include "player_movement_system.hpp"
-#include "raylib.h"
-#include <iostream>
+#include "input_system.hpp"
 
-void PlayerMovementSystem::updatePhysics(InputSystem input, PhysicsC &physics, PositionC &position)
+void PlayerMovementSystem::updatePhysics(PhysicsC &physics, PositionC &position)
 {
 
-    Vector2 movementDirection = input.getDirectionVector();
+    Vector2 movementDirection = InputSystem::getDirectionVector();
     physics.velocity.x = movementDirection.x * physics.speed;
     physics.velocity.y = movementDirection.y * physics.speed;
 
@@ -17,18 +16,18 @@ void PlayerMovementSystem::updatePhysics(InputSystem input, PhysicsC &physics, P
     }
 }
 
-void PlayerMovementSystem::updatePosition(InputSystem input, PhysicsC &physics, PositionC &position)
+void PlayerMovementSystem::updatePosition(PhysicsC &physics, PositionC &position)
 {
     position.pos.x += physics.velocity.x * GetFrameTime();
     position.pos.y += physics.velocity.y * GetFrameTime();
 }
 
-void PlayerMovementSystem::update(InputSystem input, entt::entity player, entt::basic_registry<> &sceneRegistry)
+void PlayerMovementSystem::update(entt::entity player, entt::basic_registry<> &sceneRegistry)
 {
     // getting player physics and position components
     PhysicsC &physics = sceneRegistry.get<PhysicsC>(player);
     PositionC &position = sceneRegistry.get<PositionC>(player);
 
-    updatePhysics(input, physics, position);
-    updatePosition(input, physics, position);
+    updatePhysics(physics, position);
+    updatePosition(physics, position);
 }

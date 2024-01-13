@@ -1,9 +1,11 @@
 #include "cart_manager.hpp"
-#include "components.hpp"
-#include "entity_data.hpp"
+
+#include "input_system.hpp"
 #include "item_data.hpp"
 #include "raylib.h"
-#include <string>
+#include "macros_util.hpp"
+#include "entity_data.hpp"
+#include "dev_util.hpp"
 
 std::unordered_set<int> CartManager::getValidRails(int rail, int direction)
 {
@@ -128,14 +130,13 @@ Vector2 CartManager::getNearSideCartBorder(PositionC &position, int direction)
     return cartPos;
 }
 
-void CartManager::getPlayerInteraction(InputSystem &input, InventoryC &inventory, Camera2D &camera,
-                                       entt::basic_registry<> &registry)
+void CartManager::getPlayerInteraction(InventoryC &inventory, Camera2D &camera, entt::basic_registry<> &registry)
 {
-    if (input.getUserMouseInteraction() == PLAYER_CREATE) {
+    if (InputSystem::getUserMouseInteraction() == PLAYER_CREATE) {
         int inventoryItem = inventory.hotbar[inventory.curItem];
         if (inventoryItem == CART) {
             Vector2 mouseGridPos = getMouseGridPosition(camera);
-            createCart(mouseGridPos, input, registry);
+            createCart(mouseGridPos, registry);
         };
     }
 }
@@ -294,13 +295,14 @@ void CartManager::changeCartPosition(PositionC &position, PhysicsC &physics)
 
 void CartManager::updateCarts(entt::basic_registry<> &registry, TileManager &tileManager)
 {
-    auto view = registry.view<SpriteC, PhysicsC, PositionC, OrecartC>();
+    auto view = registry.view<SpriteC, PhysicsC, PositionC, OrecartC, CollisionC>();
 
     for (auto entity : view) {
         auto &sprite = view.get<SpriteC>(entity);
         auto &physics = view.get<PhysicsC>(entity);
         auto &position = view.get<PositionC>(entity);
         auto &orecart = view.get<OrecartC>(entity);
+        auto &collision = view.get<CollisionC>(entity);
 
         Vector2 farSideAABB = getFarSideCartBorder(position, orecart.movementDirection);
         int itemUnder = tileManager.getItemUnder(farSideAABB);
@@ -318,18 +320,19 @@ void CartManager::updateCarts(entt::basic_registry<> &registry, TileManager &til
     }
 }
 
-void CartManager::createCart(Vector2 position, InputSystem &input, entt::basic_registry<> &registry)
+void CartManager::createCart(Vector2 position, entt::basic_registry<> &registry)
 {
     entt::entity entity = registry.create();
 
     registry.emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{67, 88, 16, 16});
     registry.emplace<PositionC>(entity, Vector2{position.x * 16, position.y * 16});
     registry.emplace<OrecartC>(entity, CART_H, EAST, NULL_ITEM, position);
-    registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 15, 15, Rectangle{0, 0, 16, 16}, true);
+    registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 15, 15, true);
+    registry.emplace<CollisionC>(entity, Rectangle{4, 4, 8, 8});
 }
-void CartManager::update(TileManager &tileManager, InputSystem &input, Scene &scene)
+void CartManager::update(TileManager &tileManager, Scene &scene)
 
 {
-    getPlayerInteraction(input, scene.EntityRegistry.get<InventoryC>(scene.player), scene.camera, scene.EntityRegistry);
+    getPlayerInteraction(scene.EntityRegistry.get<InventoryC>(scene.player), scene.camera, scene.EntityRegistry);
     updateCarts(scene.EntityRegistry, tileManager);
 }
