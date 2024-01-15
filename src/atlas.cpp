@@ -1,6 +1,8 @@
 #include "atlas.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
+#include <cassert>
+#include <iostream>
 
 Atlas::Atlas(const char *filePath, int spriteWidth, int spriteHeight)
 {

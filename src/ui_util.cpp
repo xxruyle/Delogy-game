@@ -1,5 +1,6 @@
 #include "ui_util.hpp"
 #include "item_data.hpp"
+#include <string>
 
 int UIRowGridRec(Rectangle cellSrc, float thickness, float spacing, int numCells, int cellSelected, Color color,
                  Color backgroundColor)

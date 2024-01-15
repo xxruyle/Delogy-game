@@ -52,4 +52,10 @@ class TileManager {
     void drawAllChunks(Atlas &atlas, Vector2 &playerPos);
     int getItemUnder(Vector2 pos);
     void update(Atlas &atlas, UI &ui, Scene &scene);
+    std::vector<Vector2> getNeighbors(int x, int y,
+                                      int radius); // find neighbors around an absolute grid space coordinate
+    bool isValidCoordinate(int x, int y);
+
+    Vector2
+    getIndexPair(int x, int y); // returns chunk index and relative grid pos index  given absolute grid space coordinate
 };

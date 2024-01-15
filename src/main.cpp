@@ -56,7 +56,7 @@ int main()
 
         /* Handle Tile Manager */
         tileManager.update(drawSystem.smallAtlas, userInterface, scene);
-        /* Handle Carts */
+        /* Hhttps://twitter.com/kevinwildes/status/1746658360483606778andle Carts */
         cartManager.update(tileManager, scene);
 
         /* Systems */
@@ -66,13 +66,15 @@ int main()
 
         drawSystem.drawSprites(scene.EntityRegistry);
 
-        collisionSystem.update(scene.EntityRegistry);
+        collisionSystem.update(scene, tileManager);
 
         playerMovementSystem.update(scene.player, scene.EntityRegistry);
 
         inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera,
                                     scene.EntityRegistry.get<InventoryC>(scene.player));
         drawMouseGridOutline(scene.camera, WHITE);
+        /* Vector2 playerPos = getGridPosition(scene.playerPosition); */
+        /* tileManager.getNeighbors(playerPos.x, playerPos.y, 3); */
         EndMode2D();
 
         /* Draw UI */

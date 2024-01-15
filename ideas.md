@@ -13,7 +13,7 @@
 - engineering progression tree 
 - prestige system 
 - relationship system with villages 
-- weight system (give items weight which slow maxSpeed) 
+- weight system (give items weight which lowers speed) 
 - map system 
 - orecarts linking together
 - explosives 
@@ -28,3 +28,9 @@
 - tipping rail switch will empties orecart storage into storage box 
     - hoppers into storage box 
 - pressure rails, levers, circuit 
+- salt 
+    - evaporating water for salt 
+    - pump water out of undergroudn springs, evaporwate with heated sluices 
+    - use salt to keep preserve meat 
+- hunting 
+    - furs 

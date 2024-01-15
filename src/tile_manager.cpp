@@ -3,8 +3,10 @@
 #include "dev_util.hpp"
 #include "input_system.hpp"
 #include "item_data.hpp"
+#include "macros_util.hpp"
 #include "tile_data.hpp"
 #include "FastNoiseLite.h"
+#include <iostream>
 
 int getIndex(int x, int y) { return (CHUNK_SIZE * y) + x; };
 
@@ -284,12 +286,46 @@ void TileManager::update(Atlas &atlas, UI &ui, Scene &scene)
 
 int TileManager::getItemUnder(Vector2 pos)
 {
-    Vector2 centeredPos = {pos.x, pos.y};
-    Vector2 gridPos = getGridPosition(centeredPos);
-    /* std::cout << gridPos.x << " " << gridPos.y << std::endl; */
+    /* Vector2 centeredPos = {pos.x, pos.y}; */
+    /* Vector2 gridPos = getGridPosition(centeredPos); */
+    /* Vector2 chunkPos = getChunkPosition(gridPos); */
+    /* std::vector<Vector2>::size_type index = getChunkIndex(chunkPos.x, chunkPos.y); */
+    /* Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, gridPos); */
+    /* int relativeChunkIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y); */
+    Vector2 indexPair = getIndexPair(pos.x, pos.y);
+    return chunks[(int)indexPair.x].itemID[(int)indexPair.y];
+}
+
+std::vector<Vector2> TileManager::getNeighbors(int x, int y, int radius)
+{
+    std::vector<Vector2> neighbors; // pairs of chunk index and relative chunk index
+
+    for (int row = y - radius; row < y + radius; row++) {
+        for (int col = x - radius; col < x + radius; col++) {
+            if (isValidCoordinate(col, row)) {
+                neighbors.push_back(Vector2{col, row});
+                /* std::cout << col << " " << row << std::endl; */
+            }
+        }
+    }
+    /* std::cout << std::endl; */
+
+    return neighbors;
+}
+
+bool TileManager::isValidCoordinate(int x, int y)
+{
+    int worldBound = CHUNK_SIZE * WORLD_SIZE;
+    return ((x >= -worldBound && y >= -worldBound) && (x < worldBound && y < worldBound));
+}
+
+Vector2 TileManager::getIndexPair(int x, int y)
+{
+    Vector2 gridPos = getGridPosition(Vector2{x, y});
     Vector2 chunkPos = getChunkPosition(gridPos);
-    std::vector<Vector2>::size_type index = getChunkIndex(chunkPos.x, chunkPos.y);
+    int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y);
     Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, gridPos);
     int relativeChunkIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y);
-    return chunks[index].itemID[relativeChunkIndex];
+
+    return Vector2{chunkIndex, relativeChunkIndex};
 }

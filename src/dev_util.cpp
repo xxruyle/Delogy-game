@@ -1,6 +1,8 @@
 #include "dev_util.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
+#include <math.h>
+#include <string>
 
 void drawGameInfo(Camera2D &camera, Vector2 playerPos)
 {
