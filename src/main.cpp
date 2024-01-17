@@ -36,7 +36,7 @@ int main()
     CollisionSystem collisionSystem;
 
     Scene scene;
-    scene.addPlayer(AtlasType::MEDIUM, {0, 0}, {4, 4, 32, 32}, 4, 4);
+    scene.addPlayer(AtlasType::MEDIUM, {-6 * 16, 5 * 16}, {4, 4, 32, 32}, 4, 4);
 
     NPCSystem npcSystem;
 
@@ -60,12 +60,14 @@ int main()
         cartManager.update(tileManager, scene);
 
         /* Systems */
+
         npcSystem.moveNPCs(scene.EntityRegistry);
         inventorySystem.update(scene);
         animationSystem.update(scene.EntityRegistry, scene.player);
 
         drawSystem.drawSprites(scene.EntityRegistry);
 
+        /* Collisions */
         collisionSystem.update(scene, tileManager);
 
         playerMovementSystem.update(scene.player, scene.EntityRegistry);

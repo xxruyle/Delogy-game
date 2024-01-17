@@ -5,6 +5,11 @@
 #include "scene.hpp"
 #include "ui.hpp"
 
+struct IndexPair {
+    int x;
+    int y;
+};
+
 int getIndex(int x, int y);
 
 class TileChunk {
@@ -56,6 +61,6 @@ class TileManager {
                                       int radius); // find neighbors around an absolute grid space coordinate
     bool isValidCoordinate(int x, int y);
 
-    Vector2
+    IndexPair
     getIndexPair(int x, int y); // returns chunk index and relative grid pos index  given absolute grid space coordinate
 };

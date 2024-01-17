@@ -20,6 +20,7 @@ struct PositionC {
 
 struct CollisionC {
     Rectangle aabb;
+    Vector2 normal;
     bool isCollided = false;
 };
 

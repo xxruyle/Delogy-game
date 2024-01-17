@@ -286,14 +286,22 @@ void TileManager::update(Atlas &atlas, UI &ui, Scene &scene)
 
 int TileManager::getItemUnder(Vector2 pos)
 {
-    /* Vector2 centeredPos = {pos.x, pos.y}; */
-    /* Vector2 gridPos = getGridPosition(centeredPos); */
-    /* Vector2 chunkPos = getChunkPosition(gridPos); */
-    /* std::vector<Vector2>::size_type index = getChunkIndex(chunkPos.x, chunkPos.y); */
-    /* Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, gridPos); */
-    /* int relativeChunkIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y); */
-    Vector2 indexPair = getIndexPair(pos.x, pos.y);
-    return chunks[(int)indexPair.x].itemID[(int)indexPair.y];
+    Vector2 centeredPos = {pos.x, pos.y};
+    Vector2 gridPos = getGridPosition(centeredPos);
+    Vector2 chunkPos = getChunkPosition(gridPos);
+    std::vector<Vector2>::size_type index = getChunkIndex(chunkPos.x, chunkPos.y);
+    Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, gridPos);
+    int relativeChunkIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y);
+
+    /* IndexPair indexPair = getIndexPair((int)pos.x, (int)pos.y); */
+    /* std::cout << indexPair.x << " " << indexPair.y << " | " << index << " " << relativeChunkIndex << std::endl; */
+
+    /* if (indexPair.x != index || indexPair.y != relativeChunkIndex) { */
+    /*     std::cout << indexPair.x << " " << indexPair.y << " | " << index << " " << relativeChunkIndex << std::endl;
+     */
+    /* } */
+
+    return chunks[index].itemID[relativeChunkIndex];
 }
 
 std::vector<Vector2> TileManager::getNeighbors(int x, int y, int radius)
@@ -319,13 +327,20 @@ bool TileManager::isValidCoordinate(int x, int y)
     return ((x >= -worldBound && y >= -worldBound) && (x < worldBound && y < worldBound));
 }
 
-Vector2 TileManager::getIndexPair(int x, int y)
+IndexPair TileManager::getIndexPair(int x, int y)
 {
-    Vector2 gridPos = getGridPosition(Vector2{x, y});
-    Vector2 chunkPos = getChunkPosition(gridPos);
-    int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y);
-    Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, gridPos);
-    int relativeChunkIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y);
+    /* Vector2 gridPos = getGridPosition(Vector2{x, y}); */
+    /* Vector2 chunkPos = getChunkPosition(gridPos); */
+    /* int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y); */
+    /* Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, gridPos); */
+    /* int relativeChunkIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y); */
 
-    return Vector2{chunkIndex, relativeChunkIndex};
+    Vector2 centeredPos = {x, y};
+    Vector2 gridPos = getGridPosition(centeredPos);
+    Vector2 chunkPos = getChunkPosition(gridPos);
+    int index = getChunkIndex(chunkPos.x, chunkPos.y);
+    Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, gridPos);
+    int relativeChunkIndex = getIndex((int)relativeChunkGridPos.x, (int)relativeChunkGridPos.y);
+
+    return IndexPair{index, relativeChunkIndex};
 }

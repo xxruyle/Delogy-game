@@ -37,7 +37,7 @@ void Scene::addPlayer(AtlasType atlasid, Vector2 spawnPos, Rectangle frameSrc, i
     EntityRegistry.emplace<SpriteC>(entity, atlasid, frameSrc);
     EntityRegistry.emplace<PositionC>(entity, spawnPos);
     EntityRegistry.emplace<AnimationC>(entity, frameSrc, (unsigned int)numFrames, (unsigned int)framesPerRow);
-    EntityRegistry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 100, 100, false);
+    EntityRegistry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 80, 80, false);
     EntityRegistry.emplace<CollisionC>(entity, Rectangle{15 - ATLAS_SPRITE_MARGIN, 29 - ATLAS_SPRITE_MARGIN, 11, 7});
     EntityRegistry.emplace<InventoryC>(entity);
 }

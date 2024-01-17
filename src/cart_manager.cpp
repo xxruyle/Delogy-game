@@ -6,6 +6,7 @@
 #include "macros_util.hpp"
 #include "entity_data.hpp"
 #include "dev_util.hpp"
+#include <iostream>
 
 std::unordered_set<int> CartManager::getValidRails(int rail, int direction)
 {
@@ -95,7 +96,7 @@ Vector2 CartManager::getFarSideCartBorder(PositionC &position, int direction)
         cartPos = {position.pos.x, position.pos.y + 8.0f};
         break;
     case NORTH:
-        cartPos = {position.pos.x + 8.0f, position.pos.y + 15.0f}; // put position on the right side
+        cartPos = {position.pos.x + 8.0f, position.pos.y + 15.5f}; // put position on the right side
         break;
     case SOUTH:
         cartPos = {position.pos.x, position.pos.y}; // put position on the right side
@@ -242,6 +243,7 @@ void CartManager::changeCartDirection(PositionC &position, OrecartC &orecart, Ph
         physics.velocity.y = 0;
         break;
     }
+    /* std::cout << itemUnder << std::endl; */
 }
 
 void CartManager::changeCartVelocity(PhysicsC &physics, OrecartC &orecart)
@@ -327,7 +329,7 @@ void CartManager::createCart(Vector2 position, entt::basic_registry<> &registry)
     registry.emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{67, 88, 16, 16});
     registry.emplace<PositionC>(entity, Vector2{position.x * 16, position.y * 16});
     registry.emplace<OrecartC>(entity, CART_H, EAST, NULL_ITEM, position);
-    registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 15, 15, true);
+    registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 120, 120, true);
     registry.emplace<CollisionC>(entity, Rectangle{4, 4, 8, 8});
 }
 void CartManager::update(TileManager &tileManager, Scene &scene)
