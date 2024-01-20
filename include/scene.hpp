@@ -21,6 +21,8 @@ class Scene {
     Camera2D camera = {Vector2{WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2}, {0.0f, 0.0f}, 0.0f, 2.0f};
     entt::entity player;
     Vector2 playerPosition = {0, 0};
+    Vector2 curTarget = {0, 0};
+    Vector2 prevCameraTarget = {0, 0};
 
     void updateCamera();
     void setPlayerFocus();

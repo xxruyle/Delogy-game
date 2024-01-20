@@ -290,7 +290,6 @@ void CartManager::changeCartVelocity(PhysicsC &physics, OrecartC &orecart)
 
 void CartManager::changeCartPosition(PositionC &position, PhysicsC &physics)
 {
-    /* std::cout << physics.velocity.x << " " << physics.velocity.y << std::endl; */
     position.pos.x += physics.velocity.x * GetFrameTime();
     position.pos.y += physics.velocity.y * GetFrameTime();
 }
@@ -317,8 +316,8 @@ void CartManager::updateCarts(entt::basic_registry<> &registry, TileManager &til
         changeCartPosition(position, physics);
 
         // change sprite based on cart orientation
-        Entity e = entityids[orecart.orientation];
-        sprite.atlasPos = Rectangle{e.x, e.y, 16, 16};
+        Entity ent = entityids[orecart.orientation];
+        sprite.atlasPos = Rectangle{ent.x, ent.y, 16, 16};
     }
 }
 

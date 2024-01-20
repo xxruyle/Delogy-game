@@ -5,9 +5,9 @@
 #include "raylib.h"
 #include <vector>
 
-struct DirectionStateC {};
-
-struct SpriteAtlasC {};
+struct DirectionStateC {
+    int curDirection;
+};
 
 struct SpriteC {
     AtlasType atlasID; // the atlas the sprite is located on
@@ -29,6 +29,7 @@ struct PhysicsC {
     int speed;
     int maxSpeed;
     bool moving;
+    bool isCollided = false;
 };
 
 struct AnimationC {

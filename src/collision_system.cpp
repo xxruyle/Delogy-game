@@ -87,8 +87,8 @@ float CollisionSystem::sweptAABB(CollisionC &collision, PhysicsC &physics, Recta
     return entryTime;
 }
 
-void CollisionSystem::collisionResponse(PhysicsC &physics, PositionC &position, Rectangle playerCollisionRec,
-                                        Rectangle targetCollision)
+void CollisionSystem::collisionResponse(DirectionStateC &direction, PhysicsC &physics, PositionC &position,
+                                        Rectangle playerCollisionRec, Rectangle targetCollision)
 {
     playerCollisionRec =
         Rectangle{playerCollisionRec.x, playerCollisionRec.y, playerCollisionRec.x + playerCollisionRec.width,
@@ -121,28 +121,40 @@ void CollisionSystem::collisionResponse(PhysicsC &physics, PositionC &position, 
         }
     }
 
-    if (collisionNormal.x == -1.0f && collisionNormal.y == 0.0f && physics.velocity.x > 0.0f) {
-        physics.velocity.x = 0.0f;
-        position.pos = Vector2{position.pos.x - 0.3f, position.pos.y};
+    float collisionOffset = 0.35f * GetFrameTime();
+    float potentialOffset;
+    float offsetSpeed = -0.2;
+    /* std::cout << collisionNormal.x << " " << collisionNormal.y << std::endl; */
+
+    if (collisionNormal.x == -1.0f && collisionNormal.y == 0.0f && physics.velocity.x >= 0.0f) {
+        potentialOffset = playerCollisionRec.width - targetCollision.x;
+        physics.velocity.x *= offsetSpeed;
+
+        /* position.pos = Vector2{position.pos.x - collisionOffset, position.pos.y}; */
     }
-    else if (collisionNormal.x == 1.0f && collisionNormal.y == 0.0f && physics.velocity.x < 0.0f) {
-        physics.velocity.x = 0.0f;
-        position.pos = Vector2{position.pos.x + 0.3f, position.pos.y};
+    else if (collisionNormal.x == 1.0f && collisionNormal.y == 0.0f && physics.velocity.x <= 0.0f) {
+        potentialOffset = targetCollision.width - playerCollisionRec.x;
+        physics.velocity.x *= offsetSpeed;
+        /* position.pos = Vector2{position.pos.x + collisionOffset, position.pos.y}; */
     }
 
-    if (collisionNormal.x == 0.0f && collisionNormal.y == -1.0f && physics.velocity.y > 0.0f) {
-        physics.velocity.y = 0.0f;
-        position.pos = Vector2{position.pos.x, position.pos.y - 0.3f};
+    if (collisionNormal.x == 0.0f && collisionNormal.y == -1.0f && physics.velocity.y >= 0.0f) {
+        potentialOffset = playerCollisionRec.height - targetCollision.y;
+        physics.velocity.y *= offsetSpeed;
+        /* position.pos = Vector2{position.pos.x, position.pos.y - collisionOffset}; */
     }
-    else if (collisionNormal.x == 0.0f && collisionNormal.y == 1.0f && physics.velocity.y < 0.0f) {
-        physics.velocity.y = 0.0f;
-        position.pos = Vector2{position.pos.x, position.pos.y + 0.3f};
+    else if (collisionNormal.x == 0.0f && collisionNormal.y == 1.0f && physics.velocity.y <= 0.0f) {
+        potentialOffset = targetCollision.height - playerCollisionRec.y;
+        physics.velocity.y *= offsetSpeed;
+        /* position.pos = Vector2{position.pos.x, position.pos.y + collisionOffset}; */
     }
+
     /* std::cout << physics.velocity.x << " " << physics.velocity.y << std::endl; */
 }
 
 bool CollisionSystem::checkCollision(TileManager &tileManager, Vector2 playerPos, Rectangle playerCollisionRec,
-                                     CollisionC &playerCollision, PhysicsC &playerPhysics, PositionC &playerPosition)
+                                     CollisionC &playerCollision, PhysicsC &playerPhysics, PositionC &playerPosition,
+                                     DirectionStateC &direction)
 {
     Vector2 playerGridPos = getGridPosition(playerPos);
     std::vector<Vector2> gridPositions = tileManager.getNeighbors(playerGridPos.x, playerGridPos.y, 4);
@@ -157,11 +169,13 @@ bool CollisionSystem::checkCollision(TileManager &tileManager, Vector2 playerPos
             Rectangle tileRec = {position.x * 16, position.y * 16, 16, 16};
             if (CheckCollisionRecs(tileRec, playerCollisionRec)) {
                 /* std::cout << tileRec.x / 16 << " " << tileRec.y / 16 << std::endl; */
-                collisionResponse(playerPhysics, playerPosition, playerCollisionRec, tileRec);
+                collisionResponse(direction, playerPhysics, playerPosition, playerCollisionRec, tileRec);
+                playerPhysics.isCollided = true;
                 return true;
             }
         }
     }
+    playerPhysics.isCollided = false;
     return false;
 }
 
@@ -171,22 +185,22 @@ void CollisionSystem::update(Scene &scene, TileManager &tileManager)
         showWireFrame ? showWireFrame = false : showWireFrame = true;
     }
 
-    auto view = scene.EntityRegistry.view<PositionC, PhysicsC, CollisionC>();
+    auto view = scene.EntityRegistry.view<PositionC, PhysicsC, CollisionC, DirectionStateC>();
 
     for (auto entity : view) {
         auto &position = view.get<PositionC>(entity);
         auto &physics = view.get<PhysicsC>(entity);
         auto &collision = view.get<CollisionC>(entity);
+        auto &direction = view.get<DirectionStateC>(entity);
 
         Rectangle collisionRec = Rectangle{position.pos.x + collision.aabb.x, position.pos.y + collision.aabb.y,
                                            collision.aabb.width, collision.aabb.height};
 
-        Color collisionColor = WHITE;
-        bool result = checkCollision(tileManager, scene.playerPosition, collisionRec, collision, physics, position);
-        result ? collisionColor = RED : collisionColor = WHITE;
-
         if (showWireFrame) {
             DrawRectangleLinesEx(collisionRec, 0.2f, collisionColor);
         }
+        bool result =
+            checkCollision(tileManager, scene.playerPosition, collisionRec, collision, physics, position, direction);
+        result ? collisionColor = RED : collisionColor = WHITE;
     }
 }

@@ -1,5 +1,7 @@
 #include "player_movement_system.hpp"
+#include "components.hpp"
 #include "input_system.hpp"
+#include "macros_util.hpp"
 
 void PlayerMovementSystem::updatePhysics(PhysicsC &physics, PositionC &position)
 {
@@ -16,6 +18,23 @@ void PlayerMovementSystem::updatePhysics(PhysicsC &physics, PositionC &position)
     }
 }
 
+void PlayerMovementSystem::updateDirection(DirectionStateC &direction, PhysicsC &physics)
+{
+    if (physics.velocity.x > 0) {
+        direction.curDirection = (int)directionState::EAST;
+    }
+    else if (physics.velocity.x < 0) {
+        direction.curDirection = (int)directionState::WEST;
+    }
+
+    if (physics.velocity.y > 0) {
+        direction.curDirection = (int)directionState::SOUTH;
+    }
+    else if (physics.velocity.y < 0) {
+        direction.curDirection = (int)directionState::NORTH;
+    }
+}
+
 void PlayerMovementSystem::updatePosition(PhysicsC &physics, PositionC &position)
 {
     position.pos.x += physics.velocity.x * GetFrameTime();
@@ -27,7 +46,13 @@ void PlayerMovementSystem::update(entt::entity player, entt::basic_registry<> &s
     // getting player physics and position components
     PhysicsC &physics = sceneRegistry.get<PhysicsC>(player);
     PositionC &position = sceneRegistry.get<PositionC>(player);
+    DirectionStateC &direction = sceneRegistry.get<DirectionStateC>(player);
+    CollisionC &collision = sceneRegistry.get<CollisionC>(player);
 
-    updatePhysics(physics, position);
+    if (!physics.isCollided) {
+        updatePhysics(physics, position);
+    }
+
+    updateDirection(direction, physics);
     updatePosition(physics, position);
 }

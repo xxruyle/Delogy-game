@@ -2,10 +2,10 @@
 #include "raylib.h"
 
 /* Drawing Dev Utility  Functions*/
-void drawGameInfo(Camera2D &camera,
-                  Vector2 playerPos); // draws version info, fps, etc void drawMouseGridOutline(Camera2D
-                                      // &camera, Color color); // draw the outline of a grid depending on
-                                      // // the coordinate the mouse is hovering over
+void drawGameInfo(Camera2D &camera, Vector2 playerPos,
+                  Vector2 &playerVelocity); // draws version info, fps, etc void drawMouseGridOutline(Camera2D
+                                            // &camera, Color color); // draw the outline of a grid depending on
+                                            // // the coordinate the mouse is hovering over
 void drawMouseChunkPosition(Camera2D &camera);
 void drawMouseGridPosition(Camera2D &camera);
 void drawPlayerGridPosition(Vector2 playerPos);

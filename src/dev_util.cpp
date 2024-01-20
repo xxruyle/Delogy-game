@@ -4,13 +4,17 @@
 #include <math.h>
 #include <string>
 
-void drawGameInfo(Camera2D &camera, Vector2 playerPos)
+void drawGameInfo(Camera2D &camera, Vector2 playerPos, Vector2 &playerVelocity)
 {
     DrawText("Delogy Indev 1.0", 3, 0, UI_FONT_SIZE, RAYWHITE);
     DrawFPS(2, 25);
     drawMouseChunkPosition(camera);
     drawMouseGridPosition(camera);
     drawPlayerGridPosition(playerPos);
+
+    std::string playerVelocityStr =
+        "Velocity: (" + std::to_string((int)playerVelocity.x) + ", " + std::to_string((int)playerVelocity.y) + ")";
+    DrawText(playerVelocityStr.c_str(), 3, 125, UI_FONT_SIZE, RAYWHITE);
 }
 
 void drawMouseGridOutline(Camera2D &camera, Color color)

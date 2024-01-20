@@ -8,10 +8,12 @@
 class CollisionSystem {
   public:
     bool showWireFrame = true;
-    void collisionResponse(PhysicsC &physics, PositionC &position, Rectangle playerCollisionRec,
-                           Rectangle targetCollision);
+    Color collisionColor = WHITE;
+    void collisionResponse(DirectionStateC &direction, PhysicsC &physics, PositionC &position,
+                           Rectangle playerCollisionRec, Rectangle targetCollision);
     float sweptAABB(CollisionC &collision, PhysicsC &physics, Rectangle playerCollisionRec, Rectangle targetCollision);
     bool checkCollision(TileManager &tileManager, Vector2 playerPos, Rectangle playerCollisionRec,
-                        CollisionC &playerCollision, PhysicsC &playerPhysics, PositionC &playerPosition);
+                        CollisionC &playerCollision, PhysicsC &playerPhysics, PositionC &playerPosition,
+                        DirectionStateC &direction);
     void update(Scene &scene, TileManager &tileManager);
 };

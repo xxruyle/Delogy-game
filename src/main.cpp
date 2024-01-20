@@ -1,3 +1,4 @@
+#include "components.hpp"
 #include "macros_util.hpp"
 #include <utility>
 #define RAYGUI_IMPLEMENTATION
@@ -21,7 +22,7 @@ int main()
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
-    /* SetTargetFPS(60); */
+    SetTargetFPS(60);
 
     SetRandomSeed(30);
     TileManager tileManager(GetRandomValue(0, 3000));
@@ -56,31 +57,30 @@ int main()
 
         /* Handle Tile Manager */
         tileManager.update(drawSystem.smallAtlas, userInterface, scene);
-        /* Hhttps://twitter.com/kevinwildes/status/1746658360483606778andle Carts */
+        /* Handle Carts */
         cartManager.update(tileManager, scene);
 
         /* Systems */
-
         npcSystem.moveNPCs(scene.EntityRegistry);
         inventorySystem.update(scene);
         animationSystem.update(scene.EntityRegistry, scene.player);
 
-        drawSystem.drawSprites(scene.EntityRegistry);
-
+        /* Player Movement */
+        playerMovementSystem.update(scene.player, scene.EntityRegistry);
         /* Collisions */
         collisionSystem.update(scene, tileManager);
 
-        playerMovementSystem.update(scene.player, scene.EntityRegistry);
+        /* Draw */
+        drawSystem.drawSprites(scene.EntityRegistry);
 
         inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera,
                                     scene.EntityRegistry.get<InventoryC>(scene.player));
         drawMouseGridOutline(scene.camera, WHITE);
-        /* Vector2 playerPos = getGridPosition(scene.playerPosition); */
-        /* tileManager.getNeighbors(playerPos.x, playerPos.y, 3); */
         EndMode2D();
 
         /* Draw UI */
-        drawGameInfo(scene.camera, scene.playerPosition);
+        PhysicsC physicsComponent = scene.EntityRegistry.get<PhysicsC>(scene.player);
+        drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
         userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player));
 
         EndDrawing();

@@ -9,6 +9,7 @@ class InputSystem;
 class PlayerMovementSystem {
   public:
     void updatePhysics(PhysicsC &physics, PositionC &position);
+    void updateDirection(DirectionStateC &direction, PhysicsC &physics);
     void updatePosition(PhysicsC &physics, PositionC &position);
     void update(entt::entity player, entt::basic_registry<> &sceneRegistry);
 };

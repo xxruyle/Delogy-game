@@ -34,3 +34,10 @@
     - use salt to keep preserve meat 
 - hunting 
     - furs 
+- real icebreakers 
+- biomes
+    - ice 
+    - stalagmite, limestone
+    - volcano, lava
+    - talus  
+    - jungle 
