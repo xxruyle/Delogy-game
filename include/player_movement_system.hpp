@@ -3,13 +3,25 @@
 #include "input_system.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
+#include "tile_manager.hpp"
 #include <entt/entity/registry.hpp>
 
 class InputSystem;
 class PlayerMovementSystem {
-  public:
-    void updatePhysics(PhysicsC &physics, PositionC &position);
-    void updateDirection(DirectionStateC &direction, PhysicsC &physics);
-    void updatePosition(PhysicsC &physics, PositionC &position);
-    void update(entt::entity player, entt::basic_registry<> &sceneRegistry);
+public:
+  Color collisionColor = WHITE;
+  void updatePhysics(PhysicsC &physics, PositionC &position);
+  void updateDirection(DirectionStateC &direction, PhysicsC &physics);
+  void updatePosition(PhysicsC &physics, CollisionC &collision,
+                      PositionC &position, TileManager &tileManager);
+  float moveX(int amount, PhysicsC &physics, CollisionC &collision,
+              PositionC &position, TileManager &tileManager);
+
+  float moveY(int amount, PhysicsC &physics, CollisionC &collision,
+              PositionC &position, TileManager &tileManager);
+
+  bool isCollided(PhysicsC &physics, CollisionC &collision,
+                  Vector2 futurePosition, TileManager &tileManager);
+  void update(entt::entity player, entt::basic_registry<> &sceneRegistry,
+              TileManager &tileManager);
 };

@@ -169,13 +169,13 @@ bool CollisionSystem::checkCollision(TileManager &tileManager, Vector2 playerPos
             Rectangle tileRec = {position.x * 16, position.y * 16, 16, 16};
             if (CheckCollisionRecs(tileRec, playerCollisionRec)) {
                 /* std::cout << tileRec.x / 16 << " " << tileRec.y / 16 << std::endl; */
-                collisionResponse(direction, playerPhysics, playerPosition, playerCollisionRec, tileRec);
-                playerPhysics.isCollided = true;
+                /* collisionResponse(direction, playerPhysics, playerPosition, playerCollisionRec, tileRec); */
+                /* playerPhysics.isCollided = true; */
                 return true;
             }
         }
     }
-    playerPhysics.isCollided = false;
+    /* playerPhysics.isCollided = false; */
     return false;
 }
 

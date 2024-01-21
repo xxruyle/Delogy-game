@@ -22,7 +22,7 @@ int main()
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
-    SetTargetFPS(60);
+    SetTargetFPS(30);
 
     SetRandomSeed(30);
     TileManager tileManager(GetRandomValue(0, 3000));
@@ -66,9 +66,9 @@ int main()
         animationSystem.update(scene.EntityRegistry, scene.player);
 
         /* Player Movement */
-        playerMovementSystem.update(scene.player, scene.EntityRegistry);
+        playerMovementSystem.update(scene.player, scene.EntityRegistry, tileManager);
         /* Collisions */
-        collisionSystem.update(scene, tileManager);
+        /* collisionSystem.update(scene, tileManager); */
 
         /* Draw */
         drawSystem.drawSprites(scene.EntityRegistry);
