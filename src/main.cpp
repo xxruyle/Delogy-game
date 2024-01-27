@@ -1,6 +1,7 @@
 #include "components.hpp"
 #include "macros_util.hpp"
 #include <utility>
+#include <iostream>
 #define RAYGUI_IMPLEMENTATION
 #include "dev_util.hpp"
 #include "raylib.h"
@@ -19,7 +20,7 @@
 
 int main()
 {
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    SetConfigFlags(FLAG_WINDOW_ALWAYS_RUN);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
     SetTargetFPS(30);
@@ -45,7 +46,10 @@ int main()
     PlayerMovementSystem playerMovementSystem;
 
     /* npcSystem.update(scene); */
+    int count = 0;
     while (!WindowShouldClose()) {
+        std::cout << GetFrameTime() << " " << count << std::endl;
+        count++;
         BeginDrawing();
 
         ClearBackground(BLACK);

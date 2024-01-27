@@ -53,7 +53,7 @@ bool PlayerMovementSystem::isCollided(PhysicsC &physics, CollisionC &collision, 
         int id = tileManager.chunks[(int)indexPair.x].tileID[(int)indexPair.y];
 
         if (id == 0) {
-            Rectangle tileRec = {position.x * 16, position.y * 16, 16, 16};
+            Rectangle tileRec = {(position.x * 16), (position.y * 16), 16, 16};
             if (CheckCollisionRecs(tileRec, playerCollisionRec)) {
                 return true;
             }
@@ -68,16 +68,16 @@ float PlayerMovementSystem::moveX(int amount, PhysicsC &physics, CollisionC &col
 {
     float remainderX = 0.0f;
 
-    float sign = 1.0f;
+    int sign = 1;
     if (amount < 0) {
-        sign = -1.0f;
+        sign = -1;
     }
 
     if (amount != 0) {
-        while (abs(remainderX) < abs(amount)) {
+        while (abs(remainderX) <= abs(amount)) {
             if (!isCollided(physics, collision, Vector2{position.pos.x + sign, position.pos.y}, tileManager)) {
                 collisionColor = WHITE;
-                remainderX += sign;
+                remainderX += 0.1f * sign;
             }
             else {
                 collisionColor = RED;
@@ -94,16 +94,16 @@ float PlayerMovementSystem::moveY(int amount, PhysicsC &physics, CollisionC &col
 {
     float remainderY = 0.0f;
 
-    float sign = 1.0f;
+    int sign = 1;
     if (amount < 0) {
-        sign = -1.0f;
+        sign = -1;
     }
 
     if (amount != 0) {
-        while (abs(remainderY) < abs(amount)) {
+        while (abs(remainderY) <= abs(amount)) {
             if (!isCollided(physics, collision, Vector2{position.pos.x, position.pos.y + sign}, tileManager)) {
                 collisionColor = WHITE;
-                remainderY += sign;
+                remainderY += 0.1f * sign;
             }
             else {
                 collisionColor = RED;
