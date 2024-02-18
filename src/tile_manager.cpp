@@ -4,6 +4,7 @@
 #include "input_system.hpp"
 #include "item_data.hpp"
 #include "macros_util.hpp"
+#include "raylib.h"
 #include "tile_data.hpp"
 #include "FastNoiseLite.h"
 
@@ -212,8 +213,19 @@ int TileManager::getChunkIndex(int x, int y)
     return x + (y * (stride + 1));
 }
 
+void TileManager::checkDevInput()
+{
+    if (IsKeyDown(KEY_UP)) {
+        renderDistance++;
+    }
+    else if (IsKeyDown(KEY_DOWN)) {
+        renderDistance--;
+    }
+}
+
 void TileManager::checkPlayerInteraction(Camera2D &camera, UI &ui, InventoryC &playerInventory)
 {
+
     int interactKey = InputSystem::getUserMouseInteraction();
     if (interactKey) {
         Vector2 mousePos = getMouseGridPosition(camera);
@@ -249,8 +261,8 @@ std::vector<Vector2> TileManager::getNearbyChunks(Vector2 playerPos)
     playerPos = getChunkPosition(playerPos); // convert player absolute position to chunk position
     std::vector<Vector2> chunkBuffer;
 
-    for (int i = -RENDER_DISTANCE; i < RENDER_DISTANCE; i++) {
-        for (int j = -RENDER_DISTANCE; j < RENDER_DISTANCE; j++) {
+    for (int i = -renderDistance; i < renderDistance; i++) {
+        for (int j = -renderDistance; j < renderDistance; j++) {
             Vector2 nearChunk = {playerPos.x + j, playerPos.y + i};
             chunkBuffer.push_back(nearChunk);
         }
@@ -268,7 +280,7 @@ void TileManager::drawAllChunks(Atlas &atlas, Vector2 &playerPos)
         std::vector<Vector2>::size_type index = getChunkIndex(chunkBuffer[i].x, chunkBuffer[i].y);
 
         if (index < chunks.size() && index >= 0 && chunkExists(chunkBuffer[i])) {
-            if (Vector2Distance(chunkPos, playerPos) < RENDER_DISTANCE * CHUNK_SIZE * 16) {
+            if (Vector2Distance(chunkPos, playerPos) < renderDistance * CHUNK_SIZE * 16) {
                 chunks[index].draw(atlas);
                 /* drawChunkInfo(chunkPos); */
             }
@@ -283,6 +295,7 @@ void TileManager::update(Atlas &atlas, UI &ui, Scene &scene)
     InventoryC &inventory = scene.EntityRegistry.get<InventoryC>(scene.player);
     drawAllChunks(atlas, position.pos);
     checkPlayerInteraction(scene.camera, ui, inventory);
+    checkDevInput();
 }
 
 int TileManager::getItemUnder(Vector2 pos)
@@ -350,59 +363,55 @@ void TileManager::drunkardGenerateAll()
 {
     enum cardinalDirection { NORTH, EAST, SOUTH, WEST };
 
-    int floorCount = 0;
     int worldLength = CHUNK_SIZE * WORLD_SIZE;
     int totalTileCount = worldLength * worldLength;
-    Vector2 curTile = {0, 0};
-    while (floorCount < totalTileCount / 1.5f) {
+    for (int i = 0; i < WORLD_SIZE * 2; i++) {
+        std::cout << i << std::endl;
+        int floorCount = 0;
+        Vector2 curTile = Vector2{GetRandomValue(-worldLength, worldLength), GetRandomValue(-worldLength, worldLength)};
+        while (floorCount < 15000) {
 
-        /* if (floorCount % 13 == 0) { */
-        /*     std::cout << floorCount << " " << totalTileCount / 1.5f << std::endl; */
-        /* } */
-        Vector2 chunkPos = getChunkPosition(curTile);
-        int chunkIndex = getChunkIndex((int)chunkPos.x, (int)chunkPos.y);
-        Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, curTile);
-        int tileIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y);
-
-        if (curTile.x >= -worldLength && curTile.y >= -worldLength && curTile.y < worldLength &&
-            curTile.x < worldLength) {
-
-            if (chunks[chunkIndex].tileID[tileIndex] != DIRT_FLOOR_MIDDLE) {
-                chunks[chunkIndex].tileID[tileIndex] = TILE_DIRT_FLOOR_MIDDLE.id;
-                chunks[chunkIndex].tileZ[tileIndex] = 0;
-                floorCount++;
-            }
-        }
-        else {
-            /* curTile = Vector2{GetRandomValue(-worldLength, worldLength), GetRandomValue(-worldLength, worldLength)};
-             */
-            curTile = Vector2{0, 0};
-            /* bool foundNew = false; */
-            /* while (!foundNew) { */
-            /*     Vector2 randomSpot = */
-            /*         Vector2{GetRandomValue(-worldLength, worldLength), GetRandomValue(-worldLength, worldLength)}; */
-            /*     int index = getIndex(randomSpot.x, randomSpot.y); */
-            /*     if (chunks[chunkIndex].tileID[tileIndex] == TILE_DIRT_FLOOR_MIDDLE.id) { */
-            /*         foundNew = true; */
-            /*         curTile = randomSpot; */
-            /*     } */
+            /* if (floorCount % 13 == 0) { */
+            /*     std::cout << floorCount << " " << totalTileCount / 2.1f << std::endl; */
             /* } */
-        }
 
-        int randomDirection = GetRandomValue(0, 3);
-        switch (randomDirection) {
-        case NORTH:
-            curTile.y -= 1;
-            break;
-        case EAST:
-            curTile.x += 1;
-            break;
-        case SOUTH:
-            curTile.y += 1;
-            break;
-        case WEST:
-            curTile.x -= 1;
-            break;
+            Vector2 chunkPos = getChunkPosition(curTile);
+            int chunkIndex = getChunkIndex((int)chunkPos.x, (int)chunkPos.y);
+            Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, curTile);
+            int tileIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y);
+
+            if (curTile.x >= -worldLength && curTile.y >= -worldLength && curTile.y < worldLength &&
+                curTile.x < worldLength) {
+
+                if (chunks[chunkIndex].tileID[tileIndex] != DIRT_FLOOR_MIDDLE) {
+                    chunks[chunkIndex].tileID[tileIndex] = TILE_DIRT_FLOOR_MIDDLE.id;
+                    chunks[chunkIndex].tileZ[tileIndex] = 0;
+                    floorCount++;
+                }
+            }
+            else {
+                /* curTile = Vector2{GetRandomValue(-worldLength, worldLength), GetRandomValue(-worldLength,
+                 * worldLength)};
+                 */
+                /* curTile = Vector2{0, 0}; */
+                break;
+            }
+
+            int randomDirection = GetRandomValue(0, 3);
+            switch (randomDirection) {
+            case NORTH:
+                curTile.y -= 1;
+                break;
+            case EAST:
+                curTile.x += 1;
+                break;
+            case SOUTH:
+                curTile.y += 1;
+                break;
+            case WEST:
+                curTile.x -= 1;
+                break;
+            }
         }
     }
 }

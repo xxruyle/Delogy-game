@@ -14,15 +14,16 @@ enum AtlasType { SMALL, MEDIUM };
 #define WINDOW_HEIGHT 576
 
 /* Game World Info*/
-#define WORLD_SIZE 10
+#define WORLD_SIZE 50
 #define CHUNK_SIZE 32
 #define RENDER_DISTANCE                                                        \
-  10 // the amount of chunks near the player the tile manager will render
+  5 // the amount of chunks near the player the tile manager will render
 
 /* Player Info */
 #define PLAYER_SPRITE_SIZE 32
 #define NUM_INVENTORY 50
 #define NUM_HOTBAR 6
+#define COLLISION_ENABLED false
 
 /* Entity Object Info */
 #define ENTITY_STORAGE_SIZE 50

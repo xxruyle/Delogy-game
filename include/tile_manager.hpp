@@ -45,6 +45,7 @@ public:
 class TileManager {
 public:
   int world_seed;
+  int renderDistance = RENDER_DISTANCE;
   TileManager(int random_seed) : world_seed(random_seed) {
     std::cout << "World seed: " << random_seed << std::endl;
   };
@@ -64,10 +65,11 @@ public:
       InventoryC
           &playerInventory); // change player state based on player interaction
 
+  void checkDevInput();
+
   std::vector<Vector2> getNearbyChunks(Vector2 playerPos);
   void drawAllChunks(Atlas &atlas, Vector2 &playerPos);
   int getItemUnder(Vector2 pos);
-  void update(Atlas &atlas, UI &ui, Scene &scene);
   std::vector<Vector2> getNeighbors(
       int x, int y,
       int radius); // find neighbors around an absolute grid space coordinate
@@ -76,4 +78,6 @@ public:
   IndexPair getIndexPair(int x,
                          int y); // returns chunk index and relative grid pos
                                  // index  given absolute grid space coordinate
+
+  void update(Atlas &atlas, UI &ui, Scene &scene);
 };

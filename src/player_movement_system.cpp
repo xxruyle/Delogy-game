@@ -75,7 +75,8 @@ float PlayerMovementSystem::moveX(int amount, PhysicsC &physics, CollisionC &col
 
     if (amount != 0) {
         while (abs(remainderX) <= abs(amount)) {
-            if (!isCollided(physics, collision, Vector2{position.pos.x + sign, position.pos.y}, tileManager)) {
+            if (!isCollided(physics, collision, Vector2{position.pos.x + sign, position.pos.y}, tileManager) ||
+                !COLLISION_ENABLED) {
                 collisionColor = WHITE;
                 remainderX += 0.1f * sign;
             }
@@ -101,7 +102,8 @@ float PlayerMovementSystem::moveY(int amount, PhysicsC &physics, CollisionC &col
 
     if (amount != 0) {
         while (abs(remainderY) <= abs(amount)) {
-            if (!isCollided(physics, collision, Vector2{position.pos.x, position.pos.y + sign}, tileManager)) {
+            if (!isCollided(physics, collision, Vector2{position.pos.x, position.pos.y + sign}, tileManager) ||
+                !COLLISION_ENABLED) {
                 collisionColor = WHITE;
                 remainderY += 0.1f * sign;
             }
