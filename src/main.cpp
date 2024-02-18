@@ -21,11 +21,14 @@
 int main()
 {
     SetConfigFlags(FLAG_WINDOW_ALWAYS_RUN);
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
-    SetTargetFPS(30);
+    SetTargetFPS(60);
 
-    SetRandomSeed(30);
+    /* SetRandomSeed(30); */
+
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
+
     TileManager tileManager(GetRandomValue(0, 3000));
     tileManager.generateChunks();
 
@@ -48,8 +51,8 @@ int main()
     /* npcSystem.update(scene); */
     int count = 0;
     while (!WindowShouldClose()) {
-        std::cout << GetFrameTime() << " " << count << std::endl;
-        count++;
+        // std::cout << GetFrameTime() << " " << count << std::endl;
+        // count++;
         BeginDrawing();
 
         ClearBackground(BLACK);

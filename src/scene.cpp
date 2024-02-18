@@ -23,11 +23,11 @@ void Scene::updateCamera()
 
     // update camera zoom
     camera.zoom += GetMouseWheelMove();
-    if (camera.zoom > 10.0f)
+    if (camera.zoom > 10.0f) // zoom in limit
         camera.zoom = 10.0f;
 
-    if (camera.zoom < 0.3f)
-        camera.zoom = 0.3f;
+    if (camera.zoom < 0.1) // zoom out limit
+        camera.zoom = 0.1f;
 
     windowWidth = GetScreenWidth();
     windowHeight = GetScreenHeight();
