@@ -41,7 +41,7 @@ int main()
     CollisionSystem collisionSystem;
 
     Scene scene;
-    scene.addPlayer(AtlasType::MEDIUM, {-6 * 16, 5 * 16}, {4, 4, 32, 32}, 4, 4);
+    scene.addPlayer(AtlasType::MEDIUM, {1 * 16, 1 * 16}, {4, 4, 32, 32}, 4, 4);
 
     NPCSystem npcSystem;
 

@@ -67,6 +67,8 @@ float PlayerMovementSystem::moveX(int amount, PhysicsC &physics, CollisionC &col
                                   TileManager &tileManager)
 {
     float remainderX = 0.0f;
+    /* float step = (amount * GetFrameTime()) / 10; */
+    float step = 1.0f;
 
     int sign = 1;
     if (amount < 0) {
@@ -74,11 +76,14 @@ float PlayerMovementSystem::moveX(int amount, PhysicsC &physics, CollisionC &col
     }
 
     if (amount != 0) {
-        while (abs(remainderX) <= abs(amount)) {
-            if (!isCollided(physics, collision, Vector2{position.pos.x + sign, position.pos.y}, tileManager) ||
+        while (abs(remainderX * GetFrameTime()) <= abs(amount * GetFrameTime())) {
+            if (!isCollided(
+                    physics, collision,
+                    Vector2{position.pos.x + ((((step + 1.0f) * sign) + remainderX) * GetFrameTime()), position.pos.y},
+                    tileManager) ||
                 !COLLISION_ENABLED) {
                 collisionColor = WHITE;
-                remainderX += 0.1f * sign;
+                remainderX += step * sign;
             }
             else {
                 collisionColor = RED;
@@ -94,6 +99,8 @@ float PlayerMovementSystem::moveY(int amount, PhysicsC &physics, CollisionC &col
                                   TileManager &tileManager)
 {
     float remainderY = 0.0f;
+    /* float step = (amount * GetFrameTime()) / 10; */
+    float step = 1.0f;
 
     int sign = 1;
     if (amount < 0) {
@@ -101,11 +108,14 @@ float PlayerMovementSystem::moveY(int amount, PhysicsC &physics, CollisionC &col
     }
 
     if (amount != 0) {
-        while (abs(remainderY) <= abs(amount)) {
-            if (!isCollided(physics, collision, Vector2{position.pos.x, position.pos.y + sign}, tileManager) ||
+        while (abs(remainderY * GetFrameTime()) <= abs(amount * GetFrameTime())) {
+            if (!isCollided(physics, collision,
+                            Vector2{position.pos.x,
+                                    (position.pos.y + ((((step + 1.0f) * sign) + remainderY) * GetFrameTime()))},
+                            tileManager) ||
                 !COLLISION_ENABLED) {
                 collisionColor = WHITE;
-                remainderY += 0.1f * sign;
+                remainderY += step * sign;
             }
             else {
                 collisionColor = RED;

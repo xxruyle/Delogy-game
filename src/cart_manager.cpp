@@ -90,13 +90,13 @@ Vector2 CartManager::getFarSideCartBorder(PositionC &position, int direction)
     Vector2 cartPos;
     switch (direction) {
     case WEST:
-        cartPos = {position.pos.x + 15.0f, position.pos.y + 8.0f}; // put position on the right side
+        cartPos = {position.pos.x + 15, position.pos.y + 8}; // put position on the right side
         break;
     case EAST:
-        cartPos = {position.pos.x, position.pos.y + 8.0f};
+        cartPos = {position.pos.x, position.pos.y + 8};
         break;
     case NORTH:
-        cartPos = {position.pos.x + 8.0f, position.pos.y + 15.5f}; // put position on the right side
+        cartPos = {position.pos.x + 8, position.pos.y + 15}; // put position on the right side
         break;
     case SOUTH:
         cartPos = {position.pos.x, position.pos.y}; // put position on the right side
@@ -182,8 +182,8 @@ void CartManager::changeCartDirection(PositionC &position, OrecartC &orecart, Ph
         else if (orecart.movementDirection == NORTH) {
             orecart.orientation = WEST;
         }
-        break;
         orecart.previousRail = RAIL_H;
+        break;
     case RAIL_NE:
         if (orecart.movementDirection == EAST) {
             physics.velocity.x = 0;
@@ -193,8 +193,8 @@ void CartManager::changeCartDirection(PositionC &position, OrecartC &orecart, Ph
             physics.velocity.y = 0;
             orecart.movementDirection = WEST;
         }
-        break;
         orecart.previousRail = RAIL_NE;
+        break;
     case RAIL_V:
         if (orecart.movementDirection == EAST) {
             orecart.movementDirection = SOUTH;
@@ -202,8 +202,8 @@ void CartManager::changeCartDirection(PositionC &position, OrecartC &orecart, Ph
         else if (orecart.movementDirection == WEST) {
             orecart.movementDirection = NORTH;
         }
-        break;
         orecart.previousRail = RAIL_V;
+        break;
     case RAIL_SE:
         if (orecart.movementDirection == SOUTH) {
             physics.velocity.y = 0;
@@ -328,7 +328,7 @@ void CartManager::createCart(Vector2 position, entt::basic_registry<> &registry)
     registry.emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{67, 88, 16, 16});
     registry.emplace<PositionC>(entity, Vector2{position.x * 16, position.y * 16});
     registry.emplace<OrecartC>(entity, CART_H, EAST, NULL_ITEM, position);
-    registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 60, 60, true);
+    registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 30, 60, true);
     registry.emplace<CollisionC>(entity, Rectangle{4, 4, 8, 8});
 }
 void CartManager::update(TileManager &tileManager, Scene &scene)

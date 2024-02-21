@@ -366,15 +366,19 @@ void TileManager::drunkardGenerateAll()
     int worldLength = CHUNK_SIZE * WORLD_SIZE;
     int totalTileCount = worldLength * worldLength;
     for (int i = 0; i < WORLD_SIZE * 2; i++) {
-        std::cout << i << std::endl;
+        /* std::cout << i << std::endl; */
         int floorCount = 0;
-        Vector2 curTile = Vector2{GetRandomValue(-worldLength, worldLength), GetRandomValue(-worldLength, worldLength)};
+        int trappedCount = 0;
+        Vector2 curTile;
+        if (i == 0) {
+            Vector2 curTile = Vector2{1, 1};
+        }
+        else {
+            Vector2 curTile =
+                Vector2{GetRandomValue(-worldLength, worldLength), GetRandomValue(-worldLength, worldLength)};
+        }
+
         while (floorCount < 15000) {
-
-            /* if (floorCount % 13 == 0) { */
-            /*     std::cout << floorCount << " " << totalTileCount / 2.1f << std::endl; */
-            /* } */
-
             Vector2 chunkPos = getChunkPosition(curTile);
             int chunkIndex = getChunkIndex((int)chunkPos.x, (int)chunkPos.y);
             Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, curTile);
@@ -387,6 +391,12 @@ void TileManager::drunkardGenerateAll()
                     chunks[chunkIndex].tileID[tileIndex] = TILE_DIRT_FLOOR_MIDDLE.id;
                     chunks[chunkIndex].tileZ[tileIndex] = 0;
                     floorCount++;
+                }
+                else {
+                    trappedCount++;
+                    if (trappedCount > 5000) {
+                        break;
+                    }
                 }
             }
             else {

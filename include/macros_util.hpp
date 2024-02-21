@@ -23,7 +23,7 @@ enum AtlasType { SMALL, MEDIUM };
 #define PLAYER_SPRITE_SIZE 32
 #define NUM_INVENTORY 50
 #define NUM_HOTBAR 6
-#define COLLISION_ENABLED false
+#define COLLISION_ENABLED true
 
 /* Entity Object Info */
 #define ENTITY_STORAGE_SIZE 50

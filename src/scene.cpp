@@ -10,16 +10,18 @@ void Scene::setPlayerFocus()
 
     PositionC &p1 = EntityRegistry.get<PositionC>(player);
     playerPosition = p1.pos;
-    curTarget = playerPosition;
+    curTarget = Vector2Add(playerPosition, Vector2{16.0f, 16.0f});
 }
 
 void Scene::updateCamera()
 {
 
-    Vector2 lerpTarget = Vector2Lerp(prevCameraTarget, curTarget, 0.05f);
-    prevCameraTarget = lerpTarget;
-    camera.target = Vector2Add(lerpTarget, Vector2{16.0f, 16.0f});
-    curTarget = camera.target;
+    /* Vector2 lerpTarget = Vector2Lerp(prevCameraTarget, curTarget, 0.05f); */
+    /* prevCameraTarget = lerpTarget; */
+    /* camera.target = Vector2Add(lerpTarget, Vector2{16.0f, 16.0f}); */
+    /* curTarget = camera.target; */
+
+    camera.target = curTarget;
 
     // update camera zoom
     camera.zoom += GetMouseWheelMove() * 0.5f;
