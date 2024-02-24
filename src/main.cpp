@@ -15,7 +15,6 @@
 #include "player_inventory_system.hpp"
 #include "npc_system.hpp"
 #include "entity_data.hpp"
-#include "collision_system.hpp"
 #include "entt/entity/registry.hpp"
 
 int main()
@@ -38,20 +37,17 @@ int main()
     SpriteDrawSystem drawSystem;
     AnimationSystem animationSystem;
     PlayerInventorySystem inventorySystem;
-    CollisionSystem collisionSystem;
 
     Scene scene;
     scene.addPlayer(AtlasType::MEDIUM, {1 * 16, 1 * 16}, {4, 4, 32, 32}, 4, 4);
 
     NPCSystem npcSystem;
 
-    /* InputSystem input; */
     PlayerMovementSystem playerMovementSystem;
 
     /* npcSystem.update(scene); */
     int count = 0;
     while (!WindowShouldClose()) {
-        // std::cout << GetFrameTime() << " " << count << std::endl;
         // count++;
         BeginDrawing();
 
@@ -75,7 +71,6 @@ int main()
         /* Player Movement */
         playerMovementSystem.update(scene.player, scene.EntityRegistry, tileManager);
         /* Collisions */
-        /* collisionSystem.update(scene, tileManager); */
 
         /* Draw */
         drawSystem.drawSprites(scene.EntityRegistry);
