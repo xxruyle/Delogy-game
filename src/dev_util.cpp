@@ -36,7 +36,7 @@ void drawMouseGridOutline(Camera2D &camera, Color color)
         mousePos.y = (int)(mousePos.y / 16) * 16;
     }
 
-    DrawRectangleLinesEx(Rectangle{mousePos.x, mousePos.y, 16, 16}, 0.4f, WHITE);
+    DrawRectangleLinesEx(Rectangle{mousePos.x, mousePos.y, 16, 16}, 0.4f, color);
 }
 
 void drawMouseChunkPosition(Camera2D &camera)

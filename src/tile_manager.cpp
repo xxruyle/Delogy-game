@@ -378,7 +378,7 @@ void TileManager::drunkardGenerateAll()
                 Vector2{GetRandomValue(-worldLength, worldLength), GetRandomValue(-worldLength, worldLength)};
         }
 
-        while (floorCount < 15000) {
+        while (floorCount < 17000) {
             Vector2 chunkPos = getChunkPosition(curTile);
             int chunkIndex = getChunkIndex((int)chunkPos.x, (int)chunkPos.y);
             Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, curTile);

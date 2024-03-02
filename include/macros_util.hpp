@@ -17,7 +17,7 @@ enum AtlasType { SMALL, MEDIUM };
 #define WORLD_SIZE 50
 #define CHUNK_SIZE 32
 #define RENDER_DISTANCE                                                        \
-  5 // the amount of chunks near the player the tile manager will render
+  3 // the amount of chunks near the player the tile manager will render
 
 /* Player Info */
 #define PLAYER_SPRITE_SIZE 32

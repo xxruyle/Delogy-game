@@ -77,7 +77,8 @@ int main()
 
         inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera,
                                     scene.EntityRegistry.get<InventoryC>(scene.player));
-        drawMouseGridOutline(scene.camera, WHITE);
+
+        drawMouseGridOutline(scene.camera, RED);
         EndMode2D();
 
         /* Draw UI */
