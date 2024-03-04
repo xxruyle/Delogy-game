@@ -1,5 +1,6 @@
 #include "ui_util.hpp"
 #include "item_data.hpp"
+#include "raylib.h"
 #include <string>
 
 int UIRowGridRec(Rectangle cellSrc, float thickness, float spacing, int numCells, int cellSelected, Color color,
@@ -57,4 +58,12 @@ void UIRowGridNumbers(Rectangle cellSrc, float spacing, int numCells)
         cellSrc.x += cellSrc.width + spacing; // incrememnt the x src each iteration
         DrawText(std::to_string(i + 1).c_str(), cellSrc.x, cellSrc.y, 18, WHITE);
     }
+}
+
+void UIWindowOutline(Rectangle cellSrc)
+{
+
+    /* DrawRectangleGradientEx(cellSrc, BLACK, GRAY, GREEN, PURPLE); */
+    DrawRectangleRoundedLines(cellSrc, 0.01f, 1, 2.0f, WHITE);
+    /* DrawRectangleLinesEx(cellSrc, 2.0f, WHITE); } */
 }

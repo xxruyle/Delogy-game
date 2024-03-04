@@ -1,4 +1,5 @@
 #include "input_system.hpp"
+#include "raylib.h"
 
 int InputSystem::getUserKeypress()
 {
@@ -13,6 +14,10 @@ int InputSystem::getUserKeypress()
 
     if (IsKeyPressed(Keys[DEBUG_WIREFRAME])) {
         return DEBUG_WIREFRAME;
+    }
+
+    if (IsKeyPressed(Keys[OPEN_MINIMAP])) {
+        return OPEN_MINIMAP;
     }
 
     return NULL_PRESS;

@@ -14,6 +14,8 @@
 #include "player_movement_system.hpp"
 #include "player_inventory_system.hpp"
 #include "npc_system.hpp"
+#include "minimap.hpp"
+
 #include "entity_data.hpp"
 #include "entt/entity/registry.hpp"
 
@@ -32,6 +34,8 @@ int main()
     tileManager.generateChunks();
 
     UI userInterface;
+    MiniMap miniMap(300, 300);
+
     CartManager cartManager;
 
     SpriteDrawSystem drawSystem;
@@ -85,6 +89,8 @@ int main()
         PhysicsC physicsComponent = scene.EntityRegistry.get<PhysicsC>(scene.player);
         drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
         userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player));
+
+        miniMap.draw();
 
         EndDrawing();
     }
