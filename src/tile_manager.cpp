@@ -282,7 +282,6 @@ void TileManager::drawAllChunks(Atlas &atlas, Vector2 &playerPos)
         if (index < chunks.size() && index >= 0 && chunkExists(chunkBuffer[i])) {
             if (Vector2Distance(chunkPos, playerPos) < renderDistance * CHUNK_SIZE * 16) {
                 chunks[index].draw(atlas);
-                /* drawChunkInfo(chunkPos); */
             }
         }
     }
@@ -306,14 +305,6 @@ int TileManager::getItemUnder(Vector2 pos)
     std::vector<Vector2>::size_type index = getChunkIndex(chunkPos.x, chunkPos.y);
     Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, gridPos);
     int relativeChunkIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y);
-
-    /* IndexPair indexPair = getIndexPair((int)pos.x, (int)pos.y); */
-    /* std::cout << indexPair.x << " " << indexPair.y << " | " << index << " " << relativeChunkIndex << std::endl; */
-
-    /* if (indexPair.x != index || indexPair.y != relativeChunkIndex) { */
-    /*     std::cout << indexPair.x << " " << indexPair.y << " | " << index << " " << relativeChunkIndex << std::endl;
-     */
-    /* } */
 
     return chunks[index].itemID[relativeChunkIndex];
 }
@@ -343,20 +334,14 @@ bool TileManager::isValidCoordinate(int x, int y)
 
 IndexPair TileManager::getIndexPair(int x, int y)
 {
-    /* Vector2 gridPos = getGridPosition(Vector2{x, y}); */
-    /* Vector2 chunkPos = getChunkPosition(gridPos); */
-    /* int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y); */
-    /* Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, gridPos); */
-    /* int relativeChunkIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y); */
-
     Vector2 centeredPos = {x, y};
     Vector2 gridPos = getGridPosition(centeredPos);
     Vector2 chunkPos = getChunkPosition(gridPos);
-    int index = getChunkIndex(chunkPos.x, chunkPos.y);
+    int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y);
     Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, gridPos);
-    int relativeChunkIndex = getIndex((int)relativeChunkGridPos.x, (int)relativeChunkGridPos.y);
+    int tileIndex = getIndex((int)relativeChunkGridPos.x, (int)relativeChunkGridPos.y);
 
-    return IndexPair{index, relativeChunkIndex};
+    return IndexPair{chunkIndex, tileIndex};
 }
 
 void TileManager::drunkardGenerateAll()
@@ -400,10 +385,6 @@ void TileManager::drunkardGenerateAll()
                 }
             }
             else {
-                /* curTile = Vector2{GetRandomValue(-worldLength, worldLength), GetRandomValue(-worldLength,
-                 * worldLength)};
-                 */
-                /* curTile = Vector2{0, 0}; */
                 break;
             }
 

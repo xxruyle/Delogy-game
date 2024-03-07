@@ -6,9 +6,10 @@ CXXFLAGS = -std=c++2a -g -O1 -Wall  -I./include
 
 # Source and object files
 SRC_DIR = ./src
-OBJ_DIR = ./bin
 INCLUDE_DIR = ./include
+OBJ_DIR = ./bin
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
+HEADER_FILES = $(wildcard $(INCLUDE_DIR)/*.hpp)
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 
 # Target executable
@@ -20,7 +21,7 @@ $(TARGET): $(OBJ_FILES)
 	./bin/Delogy.exe
 
 # Object file rule
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp ./include/*.hpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADER_FILES)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 # Phony targets

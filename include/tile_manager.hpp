@@ -7,8 +7,8 @@
 #include <iostream>
 
 struct IndexPair {
-  int x;
-  int y;
+  int chunk; // the index of the chunk contained in tilemanager
+  int tile;  // the index of the tile contained in tileIDs in tilechunk
 };
 
 int getIndex(int x, int y);
@@ -25,8 +25,8 @@ public:
   /* The coordinate locations of the tiles in the default atlas */
   int tileZ[CHUNK_SIZE * CHUNK_SIZE]; // the z level the current tile is on
 
-  int itemID[CHUNK_SIZE * CHUNK_SIZE] = {
-      0}; // the item ids, they always have the highest implicit z level
+  int itemID[CHUNK_SIZE * CHUNK_SIZE] = {0}; // the item ids, they always have
+                                             // the highest implicit z level
   void
   generateNoise(int seed); // generate a chunk's tiles given tile manager's seed
   void drunkardWalk();

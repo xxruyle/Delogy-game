@@ -50,7 +50,7 @@ bool PlayerMovementSystem::isCollided(PhysicsC &physics, CollisionC &collision, 
 
     for (Vector2 position : gridPositions) {
         IndexPair indexPair = tileManager.getIndexPair(position.x * 16, position.y * 16);
-        int id = tileManager.chunks[(int)indexPair.x].tileID[(int)indexPair.y];
+        int id = tileManager.chunks[indexPair.chunk].tileID[indexPair.tile];
 
         if (id == 0) {
             Rectangle tileRec = {(position.x * 16), (position.y * 16), 16, 16};

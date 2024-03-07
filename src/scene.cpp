@@ -48,7 +48,7 @@ void Scene::addPlayer(AtlasType atlasid, Vector2 spawnPos, Rectangle frameSrc, i
 
     EntityRegistry.emplace<DirectionStateC>(entity, (int)directionState::SOUTH);
 
-    EntityRegistry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 80, 80, false);
+    EntityRegistry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 110, 110, false);
     EntityRegistry.emplace<CollisionC>(entity, Rectangle{15 - ATLAS_SPRITE_MARGIN, 29 - ATLAS_SPRITE_MARGIN, 11, 7});
     EntityRegistry.emplace<InventoryC>(entity);
 }

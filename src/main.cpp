@@ -24,7 +24,7 @@ int main()
     SetConfigFlags(FLAG_WINDOW_ALWAYS_RUN);
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
-    SetTargetFPS(60);
+    /* SetTargetFPS(60); */
 
     /* SetRandomSeed(30); */
 
@@ -90,7 +90,7 @@ int main()
         drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
         userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player));
 
-        miniMap.draw();
+        miniMap.draw(tileManager, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16});
 
         EndDrawing();
     }
