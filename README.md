@@ -1,4 +1,12 @@
 # Delogy 
-Delogy is an underground survival automation adventure game
+Delogy is an underground survival sandbox focused on automation 
+
+![](res/title.png)
+
+## Libraries Used 
+- <a href="https://github.com/skypjack/entt">entt</a>
+- <a href="https://github.com/raysan5/raylib">raylib</a>
+
+
 
 
