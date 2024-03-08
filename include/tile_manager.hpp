@@ -12,14 +12,12 @@ struct IndexPair {
 };
 
 int getIndex(int x, int y);
+Vector2 getRandomDirection();
 
 class TileChunk {
 public:
   Vector2 srcCoordinate; // the src coordinate in chunk coordinates
-  TileChunk(Vector2 src, int seed) : srcCoordinate(src) {
-    wallGeneration();
-    /* drunkardWalk(); */
-  };
+  TileChunk(Vector2 src, int seed) : srcCoordinate(src) { wallGeneration(); };
 
   int tileID[CHUNK_SIZE * CHUNK_SIZE]; // the id of the tile
   /* The coordinate locations of the tiles in the default atlas */
@@ -27,9 +25,6 @@ public:
 
   int itemID[CHUNK_SIZE * CHUNK_SIZE] = {0}; // the item ids, they always have
                                              // the highest implicit z level
-  void
-  generateNoise(int seed); // generate a chunk's tiles given tile manager's seed
-  void drunkardWalk();
   void wallGeneration();
 
   void drawTile(Atlas &atlas, int x, int y); // draw  an existing tile
@@ -74,10 +69,13 @@ public:
       int x, int y,
       int radius); // find neighbors around an absolute grid space coordinate
   bool isValidCoordinate(int x, int y);
+  void generateOres();
 
   IndexPair getIndexPair(int x,
                          int y); // returns chunk index and relative grid pos
                                  // index  given absolute grid space coordinate
+
+  IndexPair getGridIndexPair(int x, int y);
 
   void update(Atlas &atlas, UI &ui, Scene &scene);
 };

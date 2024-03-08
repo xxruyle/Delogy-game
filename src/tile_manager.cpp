@@ -5,10 +5,31 @@
 #include "item_data.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
+#include "raymath.h"
 #include "tile_data.hpp"
 #include "FastNoiseLite.h"
 
 int getIndex(int x, int y) { return (CHUNK_SIZE * y) + x; };
+Vector2 getRandomDirection()
+{
+    enum cardinalDirection { NORTH, EAST, SOUTH, WEST };
+
+    int randomDirection = GetRandomValue(0, 3);
+    switch (randomDirection) {
+    case NORTH:
+        return Vector2{0, -1};
+        break;
+    case EAST:
+        return Vector2{1, 0};
+        break;
+    case SOUTH:
+        return Vector2{0, 1};
+        break;
+    case WEST:
+        return Vector2{-1, 0};
+        break;
+    }
+}
 
 /* ---------------- TileChunk Methods  ----------------*/
 void TileChunk::wallGeneration()
@@ -19,82 +40,6 @@ void TileChunk::wallGeneration()
             int index = getIndex(x, y);
             tileID[index] = TILE_WALL_FRONT.id;
             tileZ[index] = 1;
-        }
-    }
-}
-
-void TileChunk::generateNoise(int seed)
-{
-    const int xs = CHUNK_SIZE;
-    const int ys = CHUNK_SIZE;
-
-    FastNoiseLite caveNoise;
-    caveNoise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-    caveNoise.SetFractalType(FastNoiseLite::FractalType_FBm);
-    caveNoise.SetFrequency(.001);
-    caveNoise.SetFractalOctaves(4);
-    caveNoise.SetSeed(seed);
-    for (int y = 0; y < ys; y++) {
-        for (int x = 0; x < xs; x++) {
-            float val = caveNoise.GetNoise((float)(srcCoordinate.x * CHUNK_SIZE * 16 + x * 16),
-                                           (float)(srcCoordinate.y * CHUNK_SIZE * 16 + y * 16));
-
-            int index = getIndex(x, y);
-
-            if (val > .0017) {
-                tileID[index] = TILE_WALL_FRONT.id;
-                tileZ[index] = 1;
-            }
-            else {
-                tileID[index] = TILE_CAVE_FLOOR_MIDDLE.id;
-                tileZ[index] = 0;
-            }
-        }
-    }
-}
-
-void TileChunk::drunkardWalk()
-{
-
-    enum cardinalDirection { NORTH, EAST, SOUTH, WEST };
-
-    int floorCount = 0;
-    Vector2 curTile = {15, 15};
-    while (floorCount < 500) {
-        if (curTile.x >= 0 && curTile.y >= 0 && curTile.y < 32 && curTile.x < 32) {
-            int index = getIndex(curTile.x, curTile.y);
-            if (tileID[index] != DIRT_FLOOR_MIDDLE) {
-                tileID[index] = TILE_DIRT_FLOOR_MIDDLE.id;
-                tileZ[index] = 0;
-                floorCount++;
-            }
-        }
-        else {
-            bool foundNew = false;
-            while (!foundNew) {
-                Vector2 randomSpot = Vector2{GetRandomValue(0, 32), GetRandomValue(0, 32)};
-                int index = getIndex(randomSpot.x, randomSpot.y);
-                if (tileID[index] == TILE_DIRT_FLOOR_MIDDLE.id) {
-                    foundNew = true;
-                    curTile = randomSpot;
-                }
-            }
-        }
-
-        int randomDirection = GetRandomValue(0, 3);
-        switch (randomDirection) {
-        case NORTH:
-            curTile.y -= 1;
-            break;
-        case EAST:
-            curTile.x += 1;
-            break;
-        case SOUTH:
-            curTile.y += 1;
-            break;
-        case WEST:
-            curTile.x -= 1;
-            break;
         }
     }
 }
@@ -197,6 +142,36 @@ void TileManager::generateChunks()
     }
 
     drunkardGenerateAll();
+    generateOres();
+}
+
+void TileManager::generateOres()
+{
+    for (int y = -WORLD_SIZE * CHUNK_SIZE; y < WORLD_SIZE * CHUNK_SIZE; y++) {
+        for (int x = -WORLD_SIZE * CHUNK_SIZE; x < WORLD_SIZE * CHUNK_SIZE; x++) {
+            int rand = GetRandomValue(0, 10000);
+            if (rand < 3) {
+                int randOreSize = GetRandomValue(5, 15);
+
+                Vector2 curTile = {x, y};
+                while (randOreSize >= 0) {
+                    IndexPair index = getGridIndexPair(curTile.x, curTile.y);
+                    if (chunks[index.chunk].tileID[index.tile] == WALL_FRONT) { // if a wall
+                        chunks[index.chunk].tileID[index.tile] = CAVE_FLOOR_MIDDLE;
+                        randOreSize--;
+                    }
+                    else if (chunks[index.chunk].tileID[index.tile] == DIRT_FLOOR_MIDDLE) {
+                        break;
+                    }
+
+                    curTile = Vector2Add(curTile, getRandomDirection());
+                    if (!isValidCoordinate(curTile.x, curTile.y)) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool TileManager::chunkExists(Vector2 chunkPos)
@@ -317,11 +292,9 @@ std::vector<Vector2> TileManager::getNeighbors(int x, int y, int radius)
         for (int col = x - radius; col < x + radius; col++) {
             if (isValidCoordinate(col, row)) {
                 neighbors.push_back(Vector2{col, row});
-                /* std::cout << col << " " << row << std::endl; */
             }
         }
     }
-    /* std::cout << std::endl; */
 
     return neighbors;
 }
@@ -344,10 +317,18 @@ IndexPair TileManager::getIndexPair(int x, int y)
     return IndexPair{chunkIndex, tileIndex};
 }
 
+IndexPair TileManager::getGridIndexPair(int x, int y)
+{
+    Vector2 chunkPos = getChunkPosition({x, y});
+    int chunkIndex = getChunkIndex((int)chunkPos.x, (int)chunkPos.y);
+    Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, {x, y});
+    int tileIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y);
+
+    return IndexPair{chunkIndex, tileIndex};
+}
+
 void TileManager::drunkardGenerateAll()
 {
-    enum cardinalDirection { NORTH, EAST, SOUTH, WEST };
-
     int worldLength = CHUNK_SIZE * WORLD_SIZE;
     int totalTileCount = worldLength * worldLength;
     for (int i = 0; i < WORLD_SIZE * 2; i++) {
@@ -388,21 +369,7 @@ void TileManager::drunkardGenerateAll()
                 break;
             }
 
-            int randomDirection = GetRandomValue(0, 3);
-            switch (randomDirection) {
-            case NORTH:
-                curTile.y -= 1;
-                break;
-            case EAST:
-                curTile.x += 1;
-                break;
-            case SOUTH:
-                curTile.y += 1;
-                break;
-            case WEST:
-                curTile.x -= 1;
-                break;
-            }
+            curTile = Vector2Add(curTile, getRandomDirection());
         }
     }
 }
