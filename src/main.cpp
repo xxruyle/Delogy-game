@@ -64,6 +64,7 @@ int main()
 
         /* Handle Tile Manager */
         tileManager.update(drawSystem.smallAtlas, userInterface, scene);
+
         /* Handle Carts */
         cartManager.update(tileManager, scene);
 
@@ -74,7 +75,6 @@ int main()
 
         /* Player Movement */
         playerMovementSystem.update(scene.player, scene.EntityRegistry, tileManager);
-        /* Collisions */
 
         /* Draw */
         drawSystem.drawSprites(scene.EntityRegistry);
@@ -87,10 +87,10 @@ int main()
 
         /* Draw UI */
         PhysicsC physicsComponent = scene.EntityRegistry.get<PhysicsC>(scene.player);
-        // drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
-        // userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player));
+        drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
+        userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player));
 
-        miniMap.draw(tileManager, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16});
+        miniMap.draw(tileManager, userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16});
 
         EndDrawing();
     }

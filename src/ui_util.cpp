@@ -62,8 +62,6 @@ void UIRowGridNumbers(Rectangle cellSrc, float spacing, int numCells)
 
 void UIWindowOutline(Rectangle cellSrc)
 {
-
     /* DrawRectangleGradientEx(cellSrc, BLACK, GRAY, GREEN, PURPLE); */
     DrawRectangleRoundedLines(cellSrc, 0.01f, 1, 2.0f, WHITE);
-    /* DrawRectangleLinesEx(cellSrc, 2.0f, WHITE); } */
 }

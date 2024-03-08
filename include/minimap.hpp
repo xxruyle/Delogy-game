@@ -26,7 +26,7 @@ public:
       : width(init_width), height(init_height){};
 
   void populateMap(TileManager &tileManager, Vector2 playerPos);
-  void draw(TileManager &tileManager, Vector2 playerPos);
+  void draw(TileManager &tileManager, UI &ui, Vector2 playerPos);
   void drawMinimap(Vector2 playerPos);
   void drawFullscreenMinimap(Vector2 playerPos);
 

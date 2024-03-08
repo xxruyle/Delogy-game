@@ -1,7 +1,7 @@
 #include "ui.hpp"
-
 #include "raylib.h"
 #include "macros_util.hpp"
+#include "ui_util.hpp"
 
 void UI::hotBar(Atlas &atlas, InventoryC &inventory)
 {
@@ -12,8 +12,24 @@ void UI::hotBar(Atlas &atlas, InventoryC &inventory)
     UIRowGridIcon(atlas, inventory, {0, (float)(GetScreenHeight() - 48), 48, 48}, 1.0f, gridSpacing, NUM_HOTBAR);
     UIRowGridNumbers({5, (float)(GetScreenHeight() - 65), 48, 48}, gridSpacing, NUM_HOTBAR);
 
-    bounds = {0, (float)(GetScreenHeight() - 48), (NUM_HOTBAR * 48) + (gridSpacing * NUM_HOTBAR), NUM_HOTBAR * 48};
+    Rectangle bound = {0, (float)(GetScreenHeight() - 48), (NUM_HOTBAR * 48) + (gridSpacing * NUM_HOTBAR),
+                       NUM_HOTBAR * 48};
+    bounds[HOTBAR] = bound;
     /* DrawRectangle(bounds.x, bounds.y, bounds.width, bounds.height, PURPLE); */
 }
 
-bool UI::mouseOutOfBounds() { return !CheckCollisionPointRec(GetMousePosition(), bounds); }
+void UI::miniMap(Rectangle mapSrc)
+{
+    UIWindowOutline(mapSrc);
+    bounds[MINIMAP] = mapSrc;
+}
+
+bool UI::mouseOutOfBounds()
+{
+    for (int i = 0; i < 2; i++) {
+        if (CheckCollisionPointRec(GetMousePosition(), bounds[i])) {
+            return false;
+        }
+    }
+    return true;
+}

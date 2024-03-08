@@ -2,7 +2,6 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "tile_manager.hpp"
-#include "ui_util.hpp"
 #include "macros_util.hpp"
 #include "input_system.hpp"
 #include <vector>
@@ -120,12 +119,12 @@ void MiniMap::populateMap(TileManager &tileManager, Vector2 playerPos)
     }
 }
 
-void MiniMap::draw(TileManager &tileManager, Vector2 playerPos)
+void MiniMap::draw(TileManager &tileManager, UI &ui, Vector2 playerPos)
 {
     float padding = 10.0f;
 
-    populateMap(tileManager, playerPos);
     if (updateMap) {
+        populateMap(tileManager, playerPos);
         updateMap = false;
     }
 
@@ -146,14 +145,14 @@ void MiniMap::draw(TileManager &tileManager, Vector2 playerPos)
 
     if (!fullScreen) {
         position = Rectangle{GetScreenWidth() - width - padding, padding, width, height};
-        UIWindowOutline(position);
+        ui.miniMap(position);
         drawMinimap(playerPos);
     }
     else {
         float size = GetScreenHeight() - padding * 2;
 
         position = Rectangle{GetScreenWidth() - size - padding, 0 + padding, size, size};
-        UIWindowOutline(position);
+        ui.miniMap(position);
         drawFullscreenMinimap(playerPos);
     }
 }
