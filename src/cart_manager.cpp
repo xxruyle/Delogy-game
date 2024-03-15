@@ -290,8 +290,8 @@ void CartManager::changeCartVelocity(PhysicsC &physics, OrecartC &orecart)
 
 void CartManager::changeCartPosition(PositionC &position, PhysicsC &physics)
 {
-    position.pos.x += physics.velocity.x * GameTime::getDT();
-    position.pos.y += physics.velocity.y * GameTime::getDT();
+    /* position.pos.x += physics.velocity.x * GameTime::getDT(); */
+    /* position.pos.y += physics.velocity.y * GameTime::getDT(); */
 }
 
 void CartManager::updateCarts(entt::basic_registry<> &registry, TileManager &tileManager)

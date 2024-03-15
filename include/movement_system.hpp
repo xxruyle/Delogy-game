@@ -7,11 +7,12 @@
 #include <entt/entity/registry.hpp>
 
 class InputSystem;
-class PlayerMovementSystem {
+
+// includes collision detection
+class MovementSystem {
 public:
   Color collisionColor = WHITE;
   void updatePhysics(PhysicsC &physics, PositionC &position);
-  void updateDirection(DirectionStateC &direction, PhysicsC &physics);
   void updatePosition(PhysicsC &physics, CollisionC &collision,
                       PositionC &position, TileManager &tileManager);
   float moveX(int amount, PhysicsC &physics, CollisionC &collision,

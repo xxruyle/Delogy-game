@@ -16,11 +16,7 @@ void Scene::setPlayerFocus()
 void Scene::updateCamera()
 {
 
-    /* Vector2 lerpTarget = Vector2Lerp(prevCameraTarget, curTarget, 0.05f); */
-    /* prevCameraTarget = lerpTarget; */
-    /* camera.target = Vector2Add(lerpTarget, Vector2{16.0f, 16.0f}); */
-    /* curTarget = camera.target; */
-
+    setPlayerFocus();
     camera.target = curTarget;
 
     // update camera zoom

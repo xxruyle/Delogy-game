@@ -1,4 +1,4 @@
-#include "player_movement_system.hpp"
+#include "movement_system.hpp"
 #include "dev_util.hpp"
 #include "components.hpp"
 #include "input_system.hpp"
@@ -7,7 +7,7 @@
 #include <cmath>
 #include <iostream>
 
-void PlayerMovementSystem::updatePhysics(PhysicsC &physics, PositionC &position)
+void MovementSystem::updatePhysics(PhysicsC &physics, PositionC &position)
 {
 
     Vector2 movementDirection = InputSystem::getDirectionVector();
@@ -22,25 +22,8 @@ void PlayerMovementSystem::updatePhysics(PhysicsC &physics, PositionC &position)
     }
 }
 
-void PlayerMovementSystem::updateDirection(DirectionStateC &direction, PhysicsC &physics)
-{
-    if (physics.velocity.x > 0) {
-        direction.curDirection = (int)directionState::EAST;
-    }
-    else if (physics.velocity.x < 0) {
-        direction.curDirection = (int)directionState::WEST;
-    }
-
-    if (physics.velocity.y > 0) {
-        direction.curDirection = (int)directionState::SOUTH;
-    }
-    else if (physics.velocity.y < 0) {
-        direction.curDirection = (int)directionState::NORTH;
-    }
-}
-
-bool PlayerMovementSystem::isCollided(PhysicsC &physics, CollisionC &collision, Vector2 futurePosition,
-                                      TileManager &tileManager)
+bool MovementSystem::isCollided(PhysicsC &physics, CollisionC &collision, Vector2 futurePosition,
+                                TileManager &tileManager)
 {
     Vector2 playerGridPos = getGridPosition(futurePosition);
     std::vector<Vector2> gridPositions = tileManager.getNeighbors(playerGridPos.x, playerGridPos.y, 4);
@@ -63,11 +46,10 @@ bool PlayerMovementSystem::isCollided(PhysicsC &physics, CollisionC &collision, 
     return false;
 }
 
-float PlayerMovementSystem::moveX(int amount, PhysicsC &physics, CollisionC &collision, PositionC &position,
-                                  TileManager &tileManager)
+float MovementSystem::moveX(int amount, PhysicsC &physics, CollisionC &collision, PositionC &position,
+                            TileManager &tileManager)
 {
     float remainderX = 0.0f;
-    /* float step = (amount * GetFrameTime()) / 10; */
     float step = 1.0f;
 
     int sign = 1;
@@ -95,12 +77,11 @@ float PlayerMovementSystem::moveX(int amount, PhysicsC &physics, CollisionC &col
     return remainderX;
 }
 
-float PlayerMovementSystem::moveY(int amount, PhysicsC &physics, CollisionC &collision, PositionC &position,
-                                  TileManager &tileManager)
+float MovementSystem::moveY(int amount, PhysicsC &physics, CollisionC &collision, PositionC &position,
+                            TileManager &tileManager)
 {
     float remainderY = 0.0f;
-    /* float step = (amount * GetFrameTime()) / 10; */
-    float step = 1.0f;
+    float step = 2.0f;
 
     int sign = 1;
     if (amount < 0) {
@@ -127,8 +108,8 @@ float PlayerMovementSystem::moveY(int amount, PhysicsC &physics, CollisionC &col
     return remainderY;
 }
 
-void PlayerMovementSystem::updatePosition(PhysicsC &physics, CollisionC &collision, PositionC &position,
-                                          TileManager &tileManager)
+void MovementSystem::updatePosition(PhysicsC &physics, CollisionC &collision, PositionC &position,
+                                    TileManager &tileManager)
 {
 
     position.pos.x += moveX(physics.velocity.x, physics, collision, position, tileManager) * GetFrameTime();
@@ -139,15 +120,29 @@ void PlayerMovementSystem::updatePosition(PhysicsC &physics, CollisionC &collisi
                          0.2f, collisionColor);
 }
 
-void PlayerMovementSystem::update(entt::entity player, entt::basic_registry<> &sceneRegistry, TileManager &tileManager)
+void MovementSystem::update(entt::entity player, entt::basic_registry<> &sceneRegistry, TileManager &tileManager)
 {
-    // getting player physics and position components
-    PhysicsC &physics = sceneRegistry.get<PhysicsC>(player);
-    PositionC &position = sceneRegistry.get<PositionC>(player);
-    DirectionStateC &direction = sceneRegistry.get<DirectionStateC>(player);
-    CollisionC &collision = sceneRegistry.get<CollisionC>(player);
 
-    updatePhysics(physics, position);
-    updateDirection(direction, physics);
-    updatePosition(physics, collision, position, tileManager);
+    auto view = sceneRegistry.view<PositionC, PhysicsC, CollisionC>();
+
+    for (auto entity : view) {
+
+        PhysicsC &physics = view.get<PhysicsC>(entity);
+        PositionC &position = view.get<PositionC>(entity);
+        CollisionC &collision = view.get<CollisionC>(entity);
+
+        if (entity == player) {
+            updatePhysics(physics, position);
+        }
+
+        updatePosition(physics, collision, position, tileManager);
+    }
+
+    // getting player physics and position components
+    /* PhysicsC &physics = sceneRegistry.get<PhysicsC>(player); */
+    /* PositionC &position = sceneRegistry.get<PositionC>(player); */
+    /* CollisionC &collision = sceneRegistry.get<CollisionC>(player); */
+    /**/
+    /* updatePhysics(physics, position); */
+    /* updatePosition(physics, collision, position, tileManager); */
 }

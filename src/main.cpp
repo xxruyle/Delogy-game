@@ -11,7 +11,7 @@
 #include "draw_system.hpp"
 #include "input_system.hpp"
 #include "animation_system.hpp"
-#include "player_movement_system.hpp"
+#include "movement_system.hpp"
 #include "player_inventory_system.hpp"
 #include "npc_system.hpp"
 #include "minimap.hpp"
@@ -46,44 +46,40 @@ int main()
 
     NPCSystem npcSystem;
 
-    PlayerMovementSystem playerMovementSystem;
+    MovementSystem movementSystem;
 
     tileManager.generateChunks();
     tileManager.generateOres();
 
     /* npcSystem.update(scene); */
-    int count = 0;
     while (!WindowShouldClose()) {
         BeginDrawing();
-
         ClearBackground(BLACK);
-
-        scene.setPlayerFocus();
         scene.updateCamera();
-
         BeginMode2D(scene.camera);
+        {
+            /* Handle Tile Manager */
+            tileManager.update(drawSystem.smallAtlas, userInterface, scene);
 
-        /* Handle Tile Manager */
-        tileManager.update(drawSystem.smallAtlas, userInterface, scene);
+            /* Handle Carts */
+            cartManager.update(tileManager, scene);
 
-        /* Handle Carts */
-        cartManager.update(tileManager, scene);
+            /* Systems */
+            npcSystem.moveNPCs(scene.EntityRegistry);
+            inventorySystem.update(scene);
+            animationSystem.update(scene.EntityRegistry, scene.player);
 
-        /* Systems */
-        npcSystem.moveNPCs(scene.EntityRegistry);
-        inventorySystem.update(scene);
-        animationSystem.update(scene.EntityRegistry, scene.player);
+            /* Player Movement */
+            movementSystem.update(scene.player, scene.EntityRegistry, tileManager);
 
-        /* Player Movement */
-        playerMovementSystem.update(scene.player, scene.EntityRegistry, tileManager);
+            /* Draw */
+            drawSystem.drawSprites(scene.EntityRegistry);
 
-        /* Draw */
-        drawSystem.drawSprites(scene.EntityRegistry);
+            inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera,
+                                        scene.EntityRegistry.get<InventoryC>(scene.player));
 
-        inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera,
-                                    scene.EntityRegistry.get<InventoryC>(scene.player));
-
-        drawMouseGridOutline(scene.camera, RED);
+            drawMouseGridOutline(scene.camera, RED);
+        }
         EndMode2D();
 
         /* Draw UI */
