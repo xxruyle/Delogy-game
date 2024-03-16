@@ -63,7 +63,7 @@ float MovementSystem::moveX(int amount, PhysicsC &physics, CollisionC &collision
                     physics, collision,
                     Vector2{position.pos.x + ((((step + 1.0f) * sign) + remainderX) * GetFrameTime()), position.pos.y},
                     tileManager) ||
-                !COLLISION_ENABLED) {
+                !physics.is_solid || !COLLISION_ENABLED) {
                 collisionColor = WHITE;
                 remainderX += step * sign;
             }
@@ -94,7 +94,7 @@ float MovementSystem::moveY(int amount, PhysicsC &physics, CollisionC &collision
                             Vector2{position.pos.x,
                                     (position.pos.y + ((((step + 1.0f) * sign) + remainderY) * GetFrameTime()))},
                             tileManager) ||
-                !COLLISION_ENABLED) {
+                !physics.is_solid || !COLLISION_ENABLED) {
                 collisionColor = WHITE;
                 remainderY += step * sign;
             }
@@ -111,13 +111,8 @@ float MovementSystem::moveY(int amount, PhysicsC &physics, CollisionC &collision
 void MovementSystem::updatePosition(PhysicsC &physics, CollisionC &collision, PositionC &position,
                                     TileManager &tileManager)
 {
-
     position.pos.x += moveX(physics.velocity.x, physics, collision, position, tileManager) * GetFrameTime();
     position.pos.y += moveY(physics.velocity.y, physics, collision, position, tileManager) * GetFrameTime();
-
-    DrawRectangleLinesEx(Rectangle{position.pos.x + collision.aabb.x, position.pos.y + collision.aabb.y,
-                                   collision.aabb.width, collision.aabb.height},
-                         0.2f, collisionColor);
 }
 
 void MovementSystem::update(entt::entity player, entt::basic_registry<> &sceneRegistry, TileManager &tileManager)
@@ -137,12 +132,4 @@ void MovementSystem::update(entt::entity player, entt::basic_registry<> &sceneRe
 
         updatePosition(physics, collision, position, tileManager);
     }
-
-    // getting player physics and position components
-    /* PhysicsC &physics = sceneRegistry.get<PhysicsC>(player); */
-    /* PositionC &position = sceneRegistry.get<PositionC>(player); */
-    /* CollisionC &collision = sceneRegistry.get<CollisionC>(player); */
-    /**/
-    /* updatePhysics(physics, position); */
-    /* updatePosition(physics, collision, position, tileManager); */
 }

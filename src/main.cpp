@@ -15,6 +15,7 @@
 #include "player_inventory_system.hpp"
 #include "npc_system.hpp"
 #include "minimap.hpp"
+#include "wireframe.hpp"
 
 #include "entity_data.hpp"
 #include "entt/entity/registry.hpp"
@@ -78,6 +79,8 @@ int main()
             inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera,
                                         scene.EntityRegistry.get<InventoryC>(scene.player));
 
+            WireFrame::draw(scene.EntityRegistry);
+
             drawMouseGridOutline(scene.camera, RED);
         }
         EndMode2D();
@@ -87,7 +90,8 @@ int main()
         drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
         userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player));
 
-        miniMap.draw(tileManager, userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16});
+        miniMap.update(tileManager, userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16},
+                       drawSystem.mediumAtlas.texture);
 
         EndDrawing();
     }
