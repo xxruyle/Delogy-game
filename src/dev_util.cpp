@@ -4,6 +4,11 @@
 #include <math.h>
 #include <string>
 
+std::string getVector2String(Vector2 vec)
+{
+    return "(" + std::to_string((int)vec.x) + ", " + std::to_string((int)vec.y) + ")";
+}
+
 void drawGameInfo(Camera2D &camera, Vector2 playerPos, Vector2 &playerVelocity)
 {
     DrawText("Delogy Indev 1.0", 3, 0, UI_FONT_SIZE, RAYWHITE);

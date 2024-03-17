@@ -13,19 +13,21 @@ void Scene::setPlayerFocus()
     curTarget = Vector2Add(playerPosition, Vector2{16.0f, 16.0f});
 }
 
-void Scene::updateCamera()
+void Scene::updateCamera(UI &ui)
 {
 
     setPlayerFocus();
     camera.target = curTarget;
 
     // update camera zoom
-    camera.zoom += GetMouseWheelMove() * 0.5f;
-    if (camera.zoom > 10.0f) // zoom in limit
-        camera.zoom = 10.0f;
+    if (ui.mouseOutOfBounds()) {
+        camera.zoom += GetMouseWheelMove() * 0.5f;
+        if (camera.zoom > 10.0f) // zoom in limit
+            camera.zoom = 10.0f;
 
-    if (camera.zoom < 0.05f) // zoom out limit
-        camera.zoom = 0.05f;
+        if (camera.zoom < 0.05f) // zoom out limit
+            camera.zoom = 0.05f;
+    }
 
     windowWidth = GetScreenWidth();
     windowHeight = GetScreenHeight();
@@ -44,7 +46,7 @@ void Scene::addPlayer(AtlasType atlasid, Vector2 spawnPos, Rectangle frameSrc, i
 
     EntityRegistry.emplace<DirectionStateC>(entity, (int)directionState::SOUTH);
 
-    EntityRegistry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 110, 110, false, true);
+    EntityRegistry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 300, 110, false, false);
     EntityRegistry.emplace<CollisionC>(entity, Rectangle{15 - ATLAS_SPRITE_MARGIN, 29 - ATLAS_SPRITE_MARGIN, 11, 7});
     EntityRegistry.emplace<InventoryC>(entity);
 }

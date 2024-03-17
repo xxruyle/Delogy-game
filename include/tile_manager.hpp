@@ -3,7 +3,6 @@
 #include "components.hpp"
 #include "macros_util.hpp"
 #include "scene.hpp"
-#include "ui.hpp"
 #include <iostream>
 
 struct IndexPair {

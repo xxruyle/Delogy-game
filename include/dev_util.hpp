@@ -1,5 +1,8 @@
 #pragma once
 #include "raylib.h"
+#include <string>
+
+std::string getVector2String(Vector2 vec);
 
 /* Drawing Dev Utility  Functions*/
 void drawGameInfo(

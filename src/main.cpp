@@ -27,11 +27,10 @@ int main()
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     /* SetTargetFPS(60); */
 
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
     /* SetRandomSeed(30); */
 
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
-
-    TileManager tileManager(GetRandomValue(0, 3000));
+    TileManager tileManager(31);
 
     UI userInterface;
     MiniMap miniMap(300, 300);
@@ -56,7 +55,7 @@ int main()
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(BLACK);
-        scene.updateCamera();
+        scene.updateCamera(userInterface);
         BeginMode2D(scene.camera);
         {
             /* Handle Tile Manager */
