@@ -62,7 +62,7 @@ public:
 
   void checkDevInput();
 
-  std::vector<Vector2> getNearbyChunks(Vector2 playerPos);
+  std::vector<Vector2> getNearbyChunks(Vector2 playerPos, int distance);
   void drawAllChunks(Atlas &atlas, Vector2 &playerPos);
   int getItemUnder(Vector2 pos);
   std::vector<Vector2> getNeighbors(

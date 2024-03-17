@@ -88,6 +88,7 @@ int main()
         /* Draw UI */
         PhysicsC physicsComponent = scene.EntityRegistry.get<PhysicsC>(scene.player);
         drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
+        drawCounter("Cart Count: ", cartManager.cartCount);
         userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player));
 
         miniMap.update(tileManager, userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16},

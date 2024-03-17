@@ -324,12 +324,13 @@ void CartManager::updateCarts(entt::basic_registry<> &registry, TileManager &til
 void CartManager::createCart(Vector2 position, entt::basic_registry<> &registry)
 {
     entt::entity entity = registry.create();
-
     registry.emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{67, 88, 16, 16});
     registry.emplace<PositionC>(entity, Vector2{position.x * 16, position.y * 16});
     registry.emplace<OrecartC>(entity, CART_H, EAST, NULL_ITEM, position);
     registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 30, 60, true, true);
     registry.emplace<CollisionC>(entity, Rectangle{4, 4, 8, 8});
+
+    cartCount++;
 }
 void CartManager::update(TileManager &tileManager, Scene &scene)
 

@@ -17,6 +17,13 @@ void drawGameInfo(Camera2D &camera, Vector2 playerPos, Vector2 &playerVelocity)
     DrawText(playerVelocityStr.c_str(), 3, 125, UI_FONT_SIZE, RAYWHITE);
 }
 
+void drawCounter(const char *text, int count)
+{
+    std::string strCount = std::to_string(count);
+    std::string final = text + strCount;
+    DrawText(final.c_str(), 3, 145, UI_FONT_SIZE, RAYWHITE);
+}
+
 void drawMouseGridOutline(Camera2D &camera, Color color)
 {
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
@@ -124,7 +131,7 @@ Vector2 getMouseChunkPosition(Camera2D &camera)
     return getChunkPosition(mousePos);
 }
 
-Vector2 getChunkPosition(Vector2 gridPosition)
+Vector2 getChunkPosition(Vector2 gridPosition) // given a grid position find the chunk position
 {
     return Vector2{(float)floor(gridPosition.x / CHUNK_SIZE), (float)floor(gridPosition.y / CHUNK_SIZE)};
 }

@@ -230,16 +230,26 @@ void TileManager::checkPlayerInteraction(Camera2D &camera, UI &ui, InventoryC &p
     }
 }
 
-std::vector<Vector2> TileManager::getNearbyChunks(Vector2 playerPos)
+std::vector<Vector2> TileManager::getNearbyChunks(Vector2 playerPos, int distance)
 {
-    playerPos = getGridPosition(playerPos);
-    playerPos = getChunkPosition(playerPos); // convert player absolute position to chunk position
+    // getting which chunk the player is in
+    Vector2 playerChunkLocation = getChunkPosition(getGridPosition(playerPos));
     std::vector<Vector2> chunkBuffer;
 
-    for (int i = -renderDistance; i < renderDistance; i++) {
-        for (int j = -renderDistance; j < renderDistance; j++) {
-            Vector2 nearChunk = {playerPos.x + j, playerPos.y + i};
-            chunkBuffer.push_back(nearChunk);
+    // getting the chunk positions around the player
+    for (int i = playerChunkLocation.y - distance; i < playerChunkLocation.y + distance; i++) {
+        for (int j = playerChunkLocation.x - distance; j < playerChunkLocation.x + distance; j++) {
+            // getting the chunk world position
+            Vector2 chunkPos = chunkToWorldSpace(Vector2{j, i});
+
+            // put the chunk position in the middle of the chunk
+            chunkPos.x += (float)CHUNK_SIZE / 2 * 16;
+            chunkPos.y += (float)CHUNK_SIZE / 2 * 16;
+
+            if (Vector2Distance(chunkPos, playerPos) < distance * CHUNK_SIZE * 16) {
+                Vector2 nearChunk = {j, i};
+                chunkBuffer.push_back(nearChunk);
+            }
         }
     }
     return chunkBuffer;
@@ -247,17 +257,15 @@ std::vector<Vector2> TileManager::getNearbyChunks(Vector2 playerPos)
 
 void TileManager::drawAllChunks(Atlas &atlas, Vector2 &playerPos)
 {
-    std::vector<Vector2> chunkBuffer = getNearbyChunks(playerPos);
+    std::vector<Vector2> chunkBuffer = getNearbyChunks(playerPos, renderDistance);
 
     for (std::vector<Vector2>::size_type i = 0; i < chunkBuffer.size(); i++) {
         Vector2 chunkPos = chunkToWorldSpace(chunkBuffer[i]);
 
         std::vector<Vector2>::size_type index = getChunkIndex(chunkBuffer[i].x, chunkBuffer[i].y);
 
-        if (index < chunks.size() && index >= 0 && chunkExists(chunkBuffer[i])) {
-            if (Vector2Distance(chunkPos, playerPos) < renderDistance * CHUNK_SIZE * 16) {
-                chunks[index].draw(atlas);
-            }
+        if (index < chunks.size() && index >= 0 && chunkExists(chunkBuffer[i])) { // checking out of bounds
+            chunks[index].draw(atlas);
         }
     }
 }

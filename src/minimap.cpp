@@ -9,111 +9,8 @@
 #include <vector>
 #include "dev_util.hpp"
 
-void MiniMap::drawMinimap(Vector2 playerPos, Texture2D &medium)
+void MiniMap::getMapChangeInput()
 {
-
-    unsigned char alphaValue = 255;
-    if (fullScreen) {
-        alphaValue = 220;
-    }
-
-    float cellSize = position.width / (mapRadius * 2);
-    for (MapCell cell : cellInfo) {
-        int id = cell.id;
-        int itemID = cell.item;
-        int xPos = cell.screenX;
-        int yPos = cell.screenY;
-
-        if (id == WALL_FRONT) {
-            DrawRectangleRec({(xPos * cellSize) + position.x, (yPos * cellSize) + position.y, cellSize, cellSize},
-                             Color{46, 34, 47, alphaValue});
-        }
-        else if (id == CAVE_FLOOR_MIDDLE) {
-            DrawRectangleRec({(xPos * cellSize) + position.x, (yPos * cellSize) + position.y, cellSize, cellSize},
-                             Color{132, 145, 151, alphaValue});
-        }
-        else if (id == DIRT_FLOOR_MIDDLE) {
-            DrawRectangleRec({(xPos * cellSize) + position.x, (yPos * cellSize) + position.y, cellSize, cellSize},
-                             Color{72, 48, 40, alphaValue});
-        }
-
-        if (itemID >= RAIL_NW && itemID <= RAIL_SW) {
-            DrawRectangleRec({(xPos * cellSize) + position.x, (yPos * cellSize) + position.y, cellSize, cellSize},
-                             Color{74, 79, 86, alphaValue});
-        }
-
-        if (itemID == STORAGE_BOX) {
-            DrawRectangleRec({(xPos * cellSize) + position.x, (yPos * cellSize) + position.y, cellSize, cellSize},
-                             Color{171, 148, 122, alphaValue});
-        }
-    }
-
-    Vector2 playerGrid = {playerPos.x / 16, playerPos.y / 16};
-    Vector2 projectedPos = {position.x + (playerGrid.x - cellInfo[0].gridPos.x) * cellSize,
-                            position.y + (playerGrid.y - cellInfo[0].gridPos.y) * cellSize};
-
-    /* DrawTextureRec(medium, Rectangle{12, 167, 16.0f, 14.0f}, Vector2{projectedPos.x, projectedPos.y}, WHITE); */
-    DrawTexturePro(medium, Rectangle{12, 167, 16.0f, 14.0f}, Rectangle{projectedPos.x - 8, projectedPos.y - 4, 16, 14},
-                   {0, 0}, 0.0f, WHITE);
-    camera.target = Vector2{projectedPos.x - 4, projectedPos.y - 2};
-}
-
-void MiniMap::populateMap(TileManager &tileManager, Vector2 playerPos)
-{
-    cellInfo.clear();
-
-    Vector2 playerGrid = getGridPosition(playerPos);
-
-    std::vector<Vector2> gridPositions = tileManager.getNeighbors(playerGrid.x, playerGrid.y, mapRadius);
-
-    int xMapPos = 0;
-    int yMapPos = 0;
-    int prevY = gridPositions[0].y * 16;
-    for (Vector2 gridPos : gridPositions) {
-        IndexPair indexPair = tileManager.getIndexPair(gridPos.x * 16, gridPos.y * 16);
-        int id = tileManager.chunks[indexPair.chunk].tileID[indexPair.tile];
-        int item = tileManager.chunks[indexPair.chunk].itemID[indexPair.tile];
-        cellInfo.push_back(MapCell{id, item, xMapPos, yMapPos, gridPos});
-        int curY = gridPos.y * 16;
-
-        if (curY != prevY) {
-            xMapPos = 0;
-            yMapPos++;
-            prevY = curY;
-        }
-        else {
-            xMapPos++;
-        }
-    }
-}
-
-void MiniMap::check_map_update(Vector2 playerPos)
-{
-    Vector2 cells_origin = cellInfo[0].gridPos;
-    Vector2 player_grid_pos = getGridPosition(playerPos);
-
-    float top_edge = Vector2Distance(player_grid_pos, Vector2{player_grid_pos.x, cells_origin.y});
-    float right_edge = Vector2Distance(player_grid_pos, Vector2{cells_origin.x + mapRadius * 2, player_grid_pos.y});
-    float bot_edge = Vector2Distance(player_grid_pos, Vector2{player_grid_pos.x, cells_origin.y + mapRadius * 2});
-    float left_edge = Vector2Distance(player_grid_pos, Vector2{cells_origin.x, player_grid_pos.y});
-
-    if (top_edge < 45 || right_edge < 45 || bot_edge < 45 || left_edge < 45) {
-        updateMap = true;
-    }
-}
-
-void MiniMap::draw(TileManager &tileManager, UI &ui, Vector2 playerPos, Texture2D &medium)
-{
-    if (updateMap) {
-        populateMap(tileManager, playerPos);
-        updateMap = false;
-    }
-
-    if (InputSystem::getUserMouseInteraction() == PLAYER_CREATE ||
-        InputSystem::getUserMouseInteraction() == PLAYER_DESTROY) {
-        updateMap = true;
-    }
-
     if (InputSystem::getUserKeypress() == OPEN_MINIMAP) {
         if (fullScreen) { // switch to minimap
             UnloadRenderTexture(map);
@@ -130,22 +27,107 @@ void MiniMap::draw(TileManager &tileManager, UI &ui, Vector2 playerPos, Texture2
         }
     }
 
-    drawMinimap(playerPos, medium);
-    check_map_update(playerPos);
+    if (InputSystem::getUserMouseInteraction() == PLAYER_CREATE ||
+        InputSystem::getUserMouseInteraction() == PLAYER_DESTROY) {
+        updateMap = true;
+    }
+}
+
+void MiniMap::drawMapChunks(TileManager &tileManager, Vector2 playerPos, Texture2D &medium)
+{
+    unsigned char alphaValue;
+    float tileSize;
+    if (fullScreen) {
+        tileSize = 3.0f;
+        alphaValue = 222;
+        camera.zoom = 1.0f;
+    }
+    else {
+        tileSize = 0.8f;
+        alphaValue = 255;
+        camera.zoom = 2.9f;
+    }
+
+    Vector2 playerGrid = {playerPos.x / 16 * tileSize, playerPos.y / 16 * tileSize};
+    Rectangle playerMapIcon;
+    if (fullScreen) {
+        playerMapIcon = Rectangle{playerGrid.x - 8, playerGrid.y - 4, 16, 14};
+    }
+    else {
+        playerMapIcon = Rectangle{playerGrid.x - 4, playerGrid.y - 2, 8, 7};
+    }
+
+    camera.target = playerGrid;
+
+    std::vector<Vector2> chunkBuffer = tileManager.getNearbyChunks(playerPos, 3);
+
+    for (std::vector<Vector2>::size_type i = 0; i < chunkBuffer.size(); i++) {
+
+        Vector2 chunkPos = chunkToWorldSpace(chunkBuffer[i]);
+
+        std::vector<Vector2>::size_type index = tileManager.getChunkIndex(chunkBuffer[i].x, chunkBuffer[i].y);
+        visitedChunks[index] = 1;
+
+        if (index < tileManager.chunks.size() && index >= 0 && tileManager.chunkExists(chunkBuffer[i])) {
+            for (int y = 0; y < CHUNK_SIZE; y++) {
+                for (int x = 0; x < CHUNK_SIZE; x++) {
+                    int i = getIndex(x, y);
+                    int id = tileManager.chunks[index].tileID[i];
+                    int itemID = tileManager.chunks[index].itemID[i];
+
+                    Vector2 loc;
+                    loc.x = (float)((x + (tileManager.chunks[index].srcCoordinate.x * CHUNK_SIZE)) * tileSize);
+                    loc.y = (float)((y + (tileManager.chunks[index].srcCoordinate.y * CHUNK_SIZE)) * tileSize);
+                    Rectangle tileDest = {loc.x, loc.y, tileSize, tileSize};
+
+                    if (id == WALL_FRONT) {
+                        DrawRectangleRec(tileDest, Color{46, 34, 47, alphaValue});
+                    }
+                    else if (id == CAVE_FLOOR_MIDDLE) {
+                        DrawRectangleRec(tileDest, Color{132, 145, 151, alphaValue});
+                    }
+                    else if (id == DIRT_FLOOR_MIDDLE) {
+                        DrawRectangleRec(tileDest, Color{72, 48, 40, alphaValue});
+                    }
+
+                    if (itemID >= RAIL_NW && itemID <= RAIL_SW) {
+                        DrawRectangleRec(tileDest, Color{74, 79, 86, alphaValue});
+                    }
+
+                    if (itemID == STORAGE_BOX) {
+                        DrawRectangleRec(tileDest, Color{171, 148, 122, alphaValue});
+                    }
+                }
+            }
+        }
+    }
+
+    /* int count = 0; */
+    /* for (int i = 0; i < WORLD_SIZE * 2 * WORLD_SIZE * 2; i++) { */
+    /**/
+    /*     if (visitedChunks[i] == 1) { */
+    /*         if (i < tileManager.chunks.size() && i >= 0) { */
+    /*             count++; */
+    /*         } */
+    /*     } */
+    /* } */
+    /**/
+    /* std::cout << count << std::endl; */
+    DrawTexturePro(medium, Rectangle{12, 167, 16.0f, 14.0f}, playerMapIcon, {0, 0}, 0.0f, WHITE);
 }
 
 void MiniMap::update(TileManager &tileManager, UI &ui, Vector2 playerPos, Texture2D &medium)
 {
-    camera.zoom = 1.5f;
     camera.offset = {position.width / 2, position.height / 2};
     camera.rotation = 180.0f;
 
+    getMapChangeInput();
     BeginTextureMode(map);
-    ClearBackground(BLACK);
+    ClearBackground(Color{0, 0, 0, 222}); // BLACK
 
     BeginMode2D(camera);
     {
-        draw(tileManager, ui, playerPos, medium);
+        drawMapChunks(tileManager, playerPos, medium);
     }
     EndMode2D();
     EndTextureMode();

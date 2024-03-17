@@ -21,6 +21,7 @@ void UI::hotBar(Atlas &atlas, InventoryC &inventory)
 void UI::miniMap(Rectangle mapSrc)
 {
     UIWindowOutline(mapSrc);
+    /* UIWindowOutline(Rectangle{mapSrc.x + 40, mapSrc.y + mapSrc.height + 2, mapSrc.width - 80, 10}); // extra */
     bounds[MINIMAP] = mapSrc;
 }
 

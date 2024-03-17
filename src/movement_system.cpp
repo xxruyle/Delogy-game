@@ -33,9 +33,9 @@ bool MovementSystem::isCollided(PhysicsC &physics, CollisionC &collision, Vector
 
     for (Vector2 position : gridPositions) {
         IndexPair indexPair = tileManager.getIndexPair(position.x * 16, position.y * 16);
-        int id = tileManager.chunks[indexPair.chunk].tileID[indexPair.tile];
+        int id = tileManager.chunks[indexPair.chunk].tileZ[indexPair.tile];
 
-        if (id == 0) {
+        if (id == 1) {
             Rectangle tileRec = {(position.x * 16), (position.y * 16), 16, 16};
             if (CheckCollisionRecs(tileRec, playerCollisionRec)) {
                 return true;
@@ -50,7 +50,7 @@ float MovementSystem::moveX(int amount, PhysicsC &physics, CollisionC &collision
                             TileManager &tileManager)
 {
     float remainderX = 0.0f;
-    float step = 1.0f;
+    float step = 3.0f;
 
     int sign = 1;
     if (amount < 0) {
@@ -81,7 +81,7 @@ float MovementSystem::moveY(int amount, PhysicsC &physics, CollisionC &collision
                             TileManager &tileManager)
 {
     float remainderY = 0.0f;
-    float step = 2.0f;
+    float step = 3.0f;
 
     int sign = 1;
     if (amount < 0) {

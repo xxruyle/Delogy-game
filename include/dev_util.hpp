@@ -9,6 +9,8 @@ void drawGameInfo(
                           // drawMouseGridOutline(Camera2D &camera, Color
                           // color); // draw the outline of a grid depending on
                           // // the coordinate the mouse is hovering over
+
+void drawCounter(const char *text, int count);
 void drawMouseChunkPosition(Camera2D &camera);
 void drawMouseGridPosition(Camera2D &camera);
 void drawPlayerGridPosition(Vector2 playerPos);
@@ -17,7 +19,21 @@ void drawMouseGridOutline(Camera2D &camera, Color color);
 void drawChunkInfo(
     Vector2 chunkWorldPostion); // draws chunk outlines and chunk coordinates
 
-/* Getting Grid Info*/
+/*
+World Space: Where it is in world coordinates (Ex: a player at the cell (1,2)
+would be at (1 * 16, 2 * 16) in absolute world coordinates)
+- used for precise things like collision
+
+Absolute Grid Space: Simply the which absolute cell the player is in (Ex: player
+is in cell (0, 0))
+
+Relative Chunk Grid Position: which tile/cell the player is at relative to the
+chunk the player is in
+- Ex: player could be at 33, 33  in absolute grid space but relative to the
+player's chunk that could be (0, 0)
+*/
+
+/* Getting Grid and world Info*/
 Vector2 getMouseGridPosition(Camera2D &camera);
 Vector2
 getGridPosition(Vector2 screenWorldSpace); // convert absolute coordinate space
