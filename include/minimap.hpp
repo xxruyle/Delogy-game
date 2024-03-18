@@ -39,7 +39,7 @@ public:
   ~MiniMap();
 
   void storeChunkTexture(TileManager &tileManager, int index);
-  void getMapChangeInput(UI &ui);
+  void getMapChangeInput(UI &ui, Vector2 playerPos);
 
   void drawMapChunks(TileManager &tileManager, Vector2 playerPos,
                      Texture2D &medium);

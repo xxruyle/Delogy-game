@@ -30,7 +30,7 @@ int main()
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
     /* SetRandomSeed(30); */
 
-    TileManager tileManager(31);
+    TileManager tileManager(GetRandomValue(0, 10000));
 
     UI userInterface;
     MiniMap miniMap(300, 300);

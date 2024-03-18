@@ -129,6 +129,28 @@ Vector2 getGridPosition(Vector2 screenWorldSpace)
     return screenWorldSpace;
 }
 
+Vector2 getMinimapGridPos(Camera2D &camera, Vector2 screenMousePos, float tileSize)
+{
+    Vector2 mousePos = GetScreenToWorld2D(screenMousePos, camera);
+
+    // help with negative coordinate accuracy
+    if (mousePos.x < 0) {
+        mousePos.x = (int)floor(mousePos.x / tileSize);
+    }
+    else {
+        mousePos.x = (int)(mousePos.x / tileSize);
+    }
+
+    if (mousePos.y < 0) {
+        mousePos.y = (int)floor(mousePos.y / tileSize);
+    }
+    else {
+        mousePos.y = (int)(mousePos.y / tileSize);
+    }
+
+    return mousePos;
+}
+
 Vector2 getMouseChunkPosition(Camera2D &camera)
 {
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);

@@ -9,7 +9,7 @@
 #include <vector>
 #include "dev_util.hpp"
 
-void MiniMap::getMapChangeInput(UI &ui)
+void MiniMap::getMapChangeInput(UI &ui, Vector2 playerPos)
 {
     if (InputSystem::getUserKeypress() == OPEN_MINIMAP) {
         if (fullScreen) { // switch to minimap
@@ -21,30 +21,31 @@ void MiniMap::getMapChangeInput(UI &ui)
         else { // switch to bigger minimap
             UnloadRenderTexture(map);
             fullScreen = true;
+
             float size = GetScreenHeight() - padding * 2;
             position = Rectangle{GetScreenWidth() - size - padding, padding, size, size};
             map = LoadRenderTexture(position.width, position.height);
+
+            // reset the target and offset when switching (Added so player can't get lost)
+            Vector2 playerGrid = {playerPos.x / 16 * fullScreenTileSize, playerPos.y / 16 * fullScreenTileSize};
+            fullScreenTarget = playerGrid;
+            fullScreenOffset = {position.width / 2, position.height / 2};
         }
     }
 
     if (CheckCollisionPointRec(GetMousePosition(), ui.bounds[MINIMAP])) {
         if (fullScreen) {
             fullScreenZoom += GetMouseWheelMove() * 0.2f;
-            if (fullScreenZoom > 10.0f)
-                fullScreenZoom = 10.0f;
+            if (fullScreenZoom > 5.0f)
+                fullScreenZoom = 5.0f;
             else if (fullScreenZoom < 0.5f)
                 fullScreenZoom = 0.5f;
 
             if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
                 Vector2 delta = Vector2Scale(GetMouseDelta(), -1.0f / fullScreenZoom);
                 fullScreenTarget = Vector2Add(fullScreenTarget, delta);
+                fullScreenOffset = {position.width / 2, position.height / 2};
             }
-
-            /* if (GetMouseWheelMove() != 0) { */
-            /*     Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), camera); */
-            /*     fullScreenOffset = mouseWorldPos; */
-            /*     fullScreenTarget = mouseWorldPos; */
-            /* } */
         }
         else {
             defaultZoom += GetMouseWheelMove() * 0.2f;
@@ -163,7 +164,6 @@ void MiniMap::drawMapChunks(TileManager &tileManager, Vector2 playerPos, Texture
     }
     else {
         playerGrid = {playerPos.x / 16 * defaultTileSize, playerPos.y / 16 * defaultTileSize};
-
         camera.zoom = defaultZoom;
         camera.target = playerGrid;
         camera.offset = {position.width / 2, position.height / 2};
@@ -179,12 +179,7 @@ void MiniMap::drawMapChunks(TileManager &tileManager, Vector2 playerPos, Texture
 
     std::vector<Vector2> chunkBuffer = tileManager.getNearbyChunks(playerPos, 3);
 
-    if (fullScreen) {
-        drawVisitedChunks(tileManager, chunkBuffer);
-    }
-    else {
-        drawNearChunks(tileManager, chunkBuffer);
-    }
+    drawVisitedChunks(tileManager, chunkBuffer);
 
     // player icon
     DrawTexturePro(medium, Rectangle{12, 167, 16.0f, 14.0f}, playerMapIcon, {0, 0}, 0.0f, WHITE);
@@ -193,7 +188,7 @@ void MiniMap::drawMapChunks(TileManager &tileManager, Vector2 playerPos, Texture
 void MiniMap::update(TileManager &tileManager, UI &ui, Vector2 playerPos, Texture2D &medium)
 {
 
-    getMapChangeInput(ui);
+    getMapChangeInput(ui, playerPos);
     BeginTextureMode(map);
     if (fullScreen) {
         ClearBackground(Color{0, 0, 0, fullScreenAlphaValue}); // BLACK_TRANSPARENT
