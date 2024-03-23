@@ -121,11 +121,8 @@ void TileChunk::updateItem(int x, int y, int playerItemID)
     int curItemID = itemID[index];
     Item newItem = itemids[playerItemID];
 
-    if (curItemID == 0) { // if there is no existing item here
+    if (curItemID == 0 and tileZ[index] == 0) { // if there is no existing item here
         itemID[index] = newItem.id;
-    }
-    else {
-        /* std::cout << curItemID << std::endl; */
     }
 }
 
@@ -214,12 +211,14 @@ void TileManager::checkPlayerInteraction(Camera2D &camera, UI &ui, InventoryC &p
             switch (interactKey) {
             case PLAYER_DESTROY: {
                 chunks[chunkIndex].deleteAtTile(relativeGridPos.x, relativeGridPos.y);
+                updatedChunks.push_back(chunkIndex);
                 break;
             }
             case PLAYER_CREATE: {
                 int selectedItem = playerInventory.hotbar[playerInventory.curItem];
                 if (selectedItem >= RAIL_NW && selectedItem < CART) {
                     chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y, selectedItem);
+                    updatedChunks.push_back(chunkIndex);
                 }
                 break;
             }

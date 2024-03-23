@@ -43,7 +43,9 @@ public:
   TileManager(int random_seed) : world_seed(random_seed) {
     std::cout << "World seed: " << random_seed << std::endl;
   };
+
   std::vector<TileChunk> chunks;
+  std::vector<int> updatedChunks;
 
   int getChunkIndex(int x, int y); // Given a chunk coordinate, return the index
   // of the chunk in the chunks vector

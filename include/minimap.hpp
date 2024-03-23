@@ -38,7 +38,9 @@ public:
   };
   ~MiniMap();
 
+  void updateChunks(TileManager &tileManager);
   void storeChunkTexture(TileManager &tileManager, int index);
+  void storeNewChunkTextures(TileManager &tileManager, Vector2 playerPos);
   void getMapChangeInput(UI &ui, Vector2 playerPos);
 
   void drawMapChunks(TileManager &tileManager, Vector2 playerPos,
@@ -48,6 +50,8 @@ public:
                       std::vector<Vector2> &chunkBuffer);
   void drawVisitedChunks(TileManager &tileManager,
                          std::vector<Vector2> &chunkBuffer);
+
+  void draw(TileManager &tileManager, Vector2 playerPos, Texture2D &medium);
 
   void update(TileManager &tileManager, UI &ui, Vector2 playerPos,
               Texture2D &medium);
