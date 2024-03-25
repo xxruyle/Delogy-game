@@ -27,7 +27,7 @@ void MiniMap::getMapChangeInput(UI &ui, Vector2 playerPos)
             map = LoadRenderTexture(position.width, position.height);
 
             // reset the target and offset when switching (Added so player can't get lost)
-            Vector2 playerGrid = {playerPos.x / 16 * fullScreenTileSize, playerPos.y / 16 * fullScreenTileSize};
+            Vector2 playerGrid = {playerPos.x / 16 * tileSize, playerPos.y / 16 * tileSize};
             fullScreenTarget = playerGrid;
             fullScreenOffset = {position.width / 2, position.height / 2};
         }
@@ -58,21 +58,21 @@ void MiniMap::getMapChangeInput(UI &ui, Vector2 playerPos)
     }
 }
 
-void MiniMap::storeChunkTexture(TileManager &tileManager, int index)
+void MiniMap::storeChunkTexture(int index)
 {
-    RenderTexture chunkTex = LoadRenderTexture(fullScreenTileSize * CHUNK_SIZE, fullScreenTileSize * CHUNK_SIZE);
+    RenderTexture chunkTex = LoadRenderTexture(tileSize * CHUNK_SIZE, tileSize * CHUNK_SIZE);
     BeginTextureMode(chunkTex);
-    if (index < tileManager.chunks.size() && index >= 0) {
+    if (index < tManager->chunks.size() && index >= 0) {
         for (int y = 0; y < CHUNK_SIZE; y++) {
             for (int x = 0; x < CHUNK_SIZE; x++) {
                 int i = getIndex(x, y);
-                int id = tileManager.chunks[index].tileID[i];
-                int itemID = tileManager.chunks[index].itemID[i];
+                int id = tManager->chunks[index].tileID[i];
+                int itemID = tManager->chunks[index].itemID[i];
 
                 Vector2 loc;
-                loc.x = (float)((x * fullScreenTileSize));
-                loc.y = (float)((y * fullScreenTileSize));
-                Rectangle tileDest = {loc.x, loc.y, fullScreenTileSize, fullScreenTileSize};
+                loc.x = (float)((x * tileSize));
+                loc.y = (float)((y * tileSize));
+                Rectangle tileDest = {loc.x, loc.y, tileSize, tileSize};
 
                 if (id == WALL_FRONT) {
                     DrawRectangleRec(tileDest, Color{46, 34, 47, alphaValue});
@@ -98,128 +98,80 @@ void MiniMap::storeChunkTexture(TileManager &tileManager, int index)
     mapChunks[index] = chunkTex;
 }
 
-void MiniMap::storeNewChunkTextures(TileManager &tileManager, Vector2 playerPos)
+void MiniMap::storeNewChunkTextures(Vector2 playerPos)
 {
-    std::vector<Vector2> chunkBuffer = tileManager.getNearbyChunks(playerPos, 3);
+    std::vector<Vector2> chunkBuffer = tManager->getNearbyChunks(playerPos, 3);
 
     for (std::vector<Vector2>::size_type i = 0; i < chunkBuffer.size(); i++) {
         Vector2 chunkPos = chunkToWorldSpace(chunkBuffer[i]);
-        std::vector<Vector2>::size_type index = tileManager.getChunkIndex(chunkBuffer[i].x, chunkBuffer[i].y);
+        std::vector<Vector2>::size_type index = tManager->getChunkIndex(chunkBuffer[i].x, chunkBuffer[i].y);
 
         if (visitedChunks[index] == 0) {
             visitedChunks[index] = 1;
-            storeChunkTexture(tileManager, index);
+            storeChunkTexture(index);
         }
     }
 }
 
-void MiniMap::drawNearChunks(TileManager &tileManager, std::vector<Vector2> &chunkBuffer)
-{
-    for (std::vector<Vector2>::size_type i = 0; i < chunkBuffer.size(); i++) {
-
-        Vector2 chunkPos = chunkToWorldSpace(chunkBuffer[i]);
-        std::vector<Vector2>::size_type index = tileManager.getChunkIndex(chunkBuffer[i].x, chunkBuffer[i].y);
-
-        if (index < tileManager.chunks.size() && index >= 0 && tileManager.chunkExists(chunkBuffer[i])) {
-            for (int y = 0; y < CHUNK_SIZE; y++) {
-                for (int x = 0; x < CHUNK_SIZE; x++) {
-                    int i = getIndex(x, y);
-                    int id = tileManager.chunks[index].tileID[i];
-                    int itemID = tileManager.chunks[index].itemID[i];
-
-                    Vector2 loc;
-                    loc.x = (float)((x + (tileManager.chunks[index].srcCoordinate.x * CHUNK_SIZE)) * defaultTileSize);
-                    loc.y = (float)((y + (tileManager.chunks[index].srcCoordinate.y * CHUNK_SIZE)) * defaultTileSize);
-                    Rectangle tileDest = {loc.x, loc.y, defaultTileSize, defaultTileSize};
-
-                    if (id == WALL_FRONT) {
-                        DrawRectangleRec(tileDest, Color{46, 34, 47, alphaValue});
-                    }
-                    else if (id == CAVE_FLOOR_MIDDLE) {
-                        DrawRectangleRec(tileDest, Color{132, 145, 151, alphaValue});
-                    }
-                    else if (id == DIRT_FLOOR_MIDDLE) {
-                        DrawRectangleRec(tileDest, Color{72, 48, 40, alphaValue});
-                    }
-
-                    if (itemID >= RAIL_NW && itemID <= RAIL_SW) {
-                        DrawRectangleRec(tileDest, Color{74, 79, 86, alphaValue});
-                        DrawLine(tileDest.x + 8, tileDest.y, tileDest.x, tileDest.height, BROWN);
-                    }
-
-                    if (itemID == STORAGE_BOX) {
-                        DrawRectangleRec(tileDest, Color{171, 148, 122, alphaValue});
-                    }
-                }
-            }
-        }
-    }
-}
-
-void MiniMap::drawVisitedChunks(TileManager &tileManager, std::vector<Vector2> &chunkBuffer)
+void MiniMap::drawVisitedChunks(std::vector<Vector2> &chunkBuffer)
 {
     for (int index = 0; index < WORLD_SIZE * 2 * WORLD_SIZE * 2; index++) {
         if (visitedChunks[index] == 1) {
             Rectangle src = {0.0f, 0.0f, mapChunks[index].texture.width, -mapChunks[index].texture.height};
-            Vector2 chunkSrc = {tileManager.chunks[index].srcCoordinate.x * CHUNK_SIZE * fullScreenTileSize,
-                                tileManager.chunks[index].srcCoordinate.y * CHUNK_SIZE * fullScreenTileSize};
+            Vector2 chunkSrc = {tManager->chunks[index].srcCoordinate.x * CHUNK_SIZE * tileSize,
+                                tManager->chunks[index].srcCoordinate.y * CHUNK_SIZE * tileSize};
             DrawTextureRec(mapChunks[index].texture, src, chunkSrc, WHITE);
         }
     }
 }
 
-void MiniMap::updateChunks(TileManager &tileManager)
+void MiniMap::updateChunks()
 {
-    if (tileManager.updatedChunks.size() > 0) {
-        for (int index : tileManager.updatedChunks) {
+    if (tManager->updatedChunks.size() > 0) {
+        for (int index : tManager->updatedChunks) {
             if (visitedChunks[index] == 1) {
                 UnloadRenderTexture(mapChunks[index]);
-                storeChunkTexture(tileManager, index);
+                storeChunkTexture(index);
             }
         }
 
-        tileManager.updatedChunks.clear();
+        tManager->updatedChunks.clear();
     }
 }
 
-void MiniMap::drawMapChunks(TileManager &tileManager, Vector2 playerPos, Texture2D &medium)
+void MiniMap::drawMapChunks(Vector2 playerPos, Texture2D &medium)
 {
+    Rectangle playerMapIcon;
     Vector2 playerGrid;
     if (fullScreen) {
-        playerGrid = {playerPos.x / 16 * fullScreenTileSize, playerPos.y / 16 * fullScreenTileSize};
+        playerGrid = {playerPos.x / 16 * tileSize, playerPos.y / 16 * tileSize};
+        playerMapIcon = Rectangle{playerGrid.x - 8, playerGrid.y - 4, 16, 14};
 
         camera.zoom = fullScreenZoom;
         camera.target = fullScreenTarget;
         camera.offset = fullScreenOffset;
     }
     else {
-        playerGrid = {playerPos.x / 16 * fullScreenTileSize, playerPos.y / 16 * fullScreenTileSize};
+        playerGrid = {playerPos.x / 16 * tileSize, playerPos.y / 16 * tileSize};
+        playerMapIcon = Rectangle{playerGrid.x - 4, playerGrid.y - 2, 8, 7};
         camera.zoom = defaultZoom;
         camera.target = playerGrid;
         camera.offset = {position.width / 2, position.height / 2};
     }
 
-    Rectangle playerMapIcon;
-    if (fullScreen) {
-        playerMapIcon = Rectangle{playerGrid.x - 8, playerGrid.y - 4, 16, 14};
-    }
-    else {
-        playerMapIcon = Rectangle{playerGrid.x - 4, playerGrid.y - 2, 8, 7};
-    }
+    std::vector<Vector2> chunkBuffer = tManager->getNearbyChunks(playerPos, 3);
 
-    std::vector<Vector2> chunkBuffer = tileManager.getNearbyChunks(playerPos, 3);
-
-    drawVisitedChunks(tileManager, chunkBuffer);
+    drawVisitedChunks(chunkBuffer);
 
     // player icon
     DrawTexturePro(medium, Rectangle{12, 167, 16.0f, 14.0f}, playerMapIcon, {0, 0}, 0.0f, WHITE);
 }
 
-void MiniMap::draw(TileManager &tileManager, Vector2 playerPos, Texture2D &medium)
+void MiniMap::draw(Vector2 playerPos, Texture2D &medium)
 {
     BeginTextureMode(map);
     if (fullScreen) {
-        ClearBackground(Color{0, 0, 0, fullScreenAlphaValue}); // BLACK_TRANSPARENT
+        ClearBackground(Color{0, 0, 0, 222}); // BLACK_TRANSPARENT
     }
     else {
         ClearBackground(BLACK);
@@ -227,7 +179,7 @@ void MiniMap::draw(TileManager &tileManager, Vector2 playerPos, Texture2D &mediu
 
     BeginMode2D(camera);
     {
-        drawMapChunks(tileManager, playerPos, medium);
+        drawMapChunks(playerPos, medium);
     }
     EndMode2D();
     EndTextureMode();
@@ -236,16 +188,16 @@ void MiniMap::draw(TileManager &tileManager, Vector2 playerPos, Texture2D &mediu
                    Vector2{position.x, position.y}, WHITE);
 }
 
-void MiniMap::update(TileManager &tileManager, UI &ui, Vector2 playerPos, Texture2D &medium)
+void MiniMap::update(UI &ui, Vector2 playerPos, Texture2D &medium)
 {
     getMapChangeInput(ui, playerPos);
 
-    draw(tileManager, playerPos, medium);
+    draw(playerPos, medium);
 
     ui.miniMap(position);
 
-    storeNewChunkTextures(tileManager, playerPos);
-    updateChunks(tileManager);
+    storeNewChunkTextures(playerPos);
+    updateChunks();
 }
 
 MiniMap::~MiniMap()

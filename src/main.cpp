@@ -32,8 +32,8 @@ int main()
 
     TileManager tileManager(GetRandomValue(0, 10000));
 
+    MiniMap miniMap(300, 300, &tileManager);
     UI userInterface;
-    MiniMap miniMap(300, 300);
 
     CartManager cartManager;
 
@@ -90,7 +90,7 @@ int main()
         drawCounter("Cart Count: ", cartManager.cartCount);
         userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player));
 
-        miniMap.update(tileManager, userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16},
+        miniMap.update(userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16},
                        drawSystem.mediumAtlas.texture);
 
         EndDrawing();
