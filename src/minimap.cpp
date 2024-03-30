@@ -9,8 +9,18 @@
 #include <vector>
 #include "dev_util.hpp"
 
+void MiniMap::playerPlaceWaypoint()
+{
+    Vector2 miniMapScreenPos = {GetMousePosition().x - position.x, GetMousePosition().y - position.y};
+    Vector2 mouseGridPos = getMinimapGridPos(camera, miniMapScreenPos, tileSize);
+
+    waypoints.push_back(mouseGridPos);
+    std::cout << getVector2String(mouseGridPos) << std::endl;
+}
+
 void MiniMap::getMapChangeInput(UI &ui, Vector2 playerPos)
 {
+
     if (InputSystem::getUserKeypress() == OPEN_MINIMAP) {
         if (fullScreen) { // switch to minimap
             UnloadRenderTexture(map);
@@ -34,6 +44,10 @@ void MiniMap::getMapChangeInput(UI &ui, Vector2 playerPos)
     }
 
     if (CheckCollisionPointRec(GetMousePosition(), ui.bounds[MINIMAP])) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+            playerPlaceWaypoint();
+        }
+
         if (fullScreen) {
             fullScreenZoom += GetMouseWheelMove() * 0.2f;
             if (fullScreenZoom > 5.0f)
@@ -180,6 +194,12 @@ void MiniMap::draw(Vector2 playerPos, Texture2D &medium)
     BeginMode2D(camera);
     {
         drawMapChunks(playerPos, medium);
+        for (Vector2 &waypoint : waypoints) {
+            Rectangle waypointRec = {waypoint.x * tileSize + (tileSize / 2) - (tileSize / 3),
+                                     waypoint.y * tileSize + (tileSize / 2) - (tileSize / 3), (tileSize / 3) * 2,
+                                     (tileSize / 3) * 2};
+            DrawRectangleRec(waypointRec, BLUE);
+        }
     }
     EndMode2D();
     EndTextureMode();

@@ -27,6 +27,8 @@ public:
   int visitedChunks[WORLD_SIZE * 2 * WORLD_SIZE * 2];
   RenderTexture mapChunks[WORLD_SIZE * 2 * WORLD_SIZE * 2];
 
+  std::vector<Vector2> waypoints;
+
   int width;
   int height;
   TileManager *tManager;
@@ -43,6 +45,7 @@ public:
   void storeChunkTexture(int index);
   void storeNewChunkTextures(Vector2 playerPos);
   void getMapChangeInput(UI &ui, Vector2 playerPos);
+  void playerPlaceWaypoint();
 
   void drawMapChunks(Vector2 playerPos, Texture2D &medium);
 
