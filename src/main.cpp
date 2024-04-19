@@ -75,8 +75,7 @@ int main()
             /* Draw */
             drawSystem.drawSprites(scene.EntityRegistry);
 
-            inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera,
-                                        scene.EntityRegistry.get<InventoryC>(scene.player));
+            inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera, scene.EntityRegistry.get<InventoryC>(scene.player));
 
             WireFrame::draw(scene.EntityRegistry);
 
@@ -90,8 +89,7 @@ int main()
         drawCounter("Cart Count: ", cartManager.cartCount);
         userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player));
 
-        miniMap.update(userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16},
-                       drawSystem.mediumAtlas.texture);
+        miniMap.update(userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16}, drawSystem);
 
         EndDrawing();
     }

@@ -2,6 +2,19 @@
 #include "raylib.h"
 #include <string>
 
+struct Vector2Util {
+  size_t operator()(const Vector2 &vec) const {
+    size_t h1 = std::hash<float>{}(vec.x);
+    size_t h2 = std::hash<float>{}(vec.y);
+
+    return h1 ^ (h2 << 1);
+  }
+
+  bool operator()(const Vector2 &vec1, const Vector2 &vec2) const {
+    return vec1.x == vec2.x && vec1.y == vec2.y;
+  }
+};
+
 std::string getVector2String(Vector2 vec);
 
 /* Drawing Dev Utility  Functions*/

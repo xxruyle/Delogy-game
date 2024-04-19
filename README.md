@@ -1,7 +1,7 @@
 # Delogy 
 Delogy is an underground survival sandbox focused on automation 
 
-![](res/title.png)
+![](res/showcase.png)
 
 ## Libraries Used 
 - <a href="https://github.com/skypjack/entt">entt</a>

@@ -1,5 +1,6 @@
 #include "tile_manager.hpp"
 
+#include "FastNoiseLite.h"
 #include "dev_util.hpp"
 #include "input_system.hpp"
 #include "item_data.hpp"
@@ -7,7 +8,6 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "tile_data.hpp"
-#include "FastNoiseLite.h"
 
 int getIndex(int x, int y) { return (CHUNK_SIZE * y) + x; };
 Vector2 getRandomDirection()
@@ -44,7 +44,7 @@ void TileChunk::wallGeneration()
     }
 }
 
-void TileChunk::draw(Atlas &atlas)
+void TileChunk::draw(Atlas& atlas)
 {
     for (int y = 0; y < CHUNK_SIZE; y++) {
         for (int x = 0; x < CHUNK_SIZE; x++) {
@@ -54,7 +54,7 @@ void TileChunk::draw(Atlas &atlas)
     }
 }
 
-void TileChunk::drawTile(Atlas &atlas, int x, int y)
+void TileChunk::drawTile(Atlas& atlas, int x, int y)
 {
     int index = getIndex(x, y);
     int id = tileID[index];
@@ -70,7 +70,7 @@ void TileChunk::drawTile(Atlas &atlas, int x, int y)
     DrawTexturePro(atlas.texture, tileAtlasPos, tileDest, {0, 0}, 0.0f, WHITE);
 }
 
-void TileChunk::drawItem(Atlas &atlas, int x, int y)
+void TileChunk::drawItem(Atlas& atlas, int x, int y)
 {
     int index = getIndex(x, y);
     int itemid = itemID[index];
@@ -96,7 +96,6 @@ void TileChunk::deleteAtTile(int x, int y)
         itemID[index] = 0;
     }
     else {
-
         int zLevel = tileZ[index]; // only delete the tile if z level is > 0
         if (zLevel > 0) {
             tileID[index] = TILE_DIRT_FLOOR_MIDDLE.id;
@@ -112,7 +111,8 @@ void TileChunk::updateTile(int x, int y)
 {
     int index = getIndex(x, y);
     tileID[index] = TILE_CAVE_FLOOR_MIDDLE.id;
-    // we don't need to change z level because we are just replacing the highest block
+    // we don't need to change z level because we are just replacing the highest
+    // block
 }
 
 void TileChunk::updateItem(int x, int y, int playerItemID)
@@ -171,11 +171,7 @@ void TileManager::generateOres()
     }
 }
 
-bool TileManager::chunkExists(Vector2 chunkPos)
-{
-    return (chunkPos.x >= -WORLD_SIZE && chunkPos.x < WORLD_SIZE) &&
-           (chunkPos.y >= -WORLD_SIZE && chunkPos.y < WORLD_SIZE);
-}
+bool TileManager::chunkExists(Vector2 chunkPos) { return (chunkPos.x >= -WORLD_SIZE && chunkPos.x < WORLD_SIZE) && (chunkPos.y >= -WORLD_SIZE && chunkPos.y < WORLD_SIZE); }
 
 int TileManager::getChunkIndex(int x, int y)
 { // given the coordinate of a chunk
@@ -195,9 +191,8 @@ void TileManager::checkDevInput()
     }
 }
 
-void TileManager::checkPlayerInteraction(Camera2D &camera, UI &ui, InventoryC &playerInventory)
+void TileManager::checkPlayerInteraction(Camera2D& camera, UI& ui, InventoryC& playerInventory)
 {
-
     int interactKey = InputSystem::getUserMouseInteraction();
     if (interactKey) {
         Vector2 mousePos = getMouseGridPosition(camera);
@@ -206,8 +201,8 @@ void TileManager::checkPlayerInteraction(Camera2D &camera, UI &ui, InventoryC &p
         int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y);
         Vector2 relativeGridPos = getRelativeChunkGridPosition(chunkPos, mousePos);
 
-        if (chunkExists(chunkPos) &&
-            ui.mouseOutOfBounds()) { // player can interact if chunk exists and mouse is not over ui
+        if (chunkExists(chunkPos) && ui.mouseOutOfBounds()) { // player can interact if chunk exists and
+            // mouse is not over ui
             switch (interactKey) {
             case PLAYER_DESTROY: {
                 chunks[chunkIndex].deleteAtTile(relativeGridPos.x, relativeGridPos.y);
@@ -254,7 +249,7 @@ std::vector<Vector2> TileManager::getNearbyChunks(Vector2 playerPos, int distanc
     return chunkBuffer;
 }
 
-void TileManager::drawAllChunks(Atlas &atlas, Vector2 &playerPos)
+void TileManager::drawAllChunks(Atlas& atlas, Vector2& playerPos)
 {
     std::vector<Vector2> chunkBuffer = getNearbyChunks(playerPos, renderDistance);
 
@@ -269,11 +264,10 @@ void TileManager::drawAllChunks(Atlas &atlas, Vector2 &playerPos)
     }
 }
 
-void TileManager::update(Atlas &atlas, UI &ui, Scene &scene)
+void TileManager::update(Atlas& atlas, UI& ui, Scene& scene)
 {
-
-    PositionC &position = scene.EntityRegistry.get<PositionC>(scene.player);
-    InventoryC &inventory = scene.EntityRegistry.get<InventoryC>(scene.player);
+    PositionC& position = scene.EntityRegistry.get<PositionC>(scene.player);
+    InventoryC& inventory = scene.EntityRegistry.get<InventoryC>(scene.player);
     drawAllChunks(atlas, position.pos);
     checkPlayerInteraction(scene.camera, ui, inventory);
     checkDevInput();
@@ -347,8 +341,7 @@ void TileManager::drunkardGenerateAll()
             Vector2 curTile = Vector2{1, 1};
         }
         else {
-            Vector2 curTile =
-                Vector2{GetRandomValue(-worldLength, worldLength), GetRandomValue(-worldLength, worldLength)};
+            Vector2 curTile = Vector2{GetRandomValue(-worldLength, worldLength), GetRandomValue(-worldLength, worldLength)};
         }
 
         while (floorCount < 17000) {
@@ -357,9 +350,7 @@ void TileManager::drunkardGenerateAll()
             Vector2 relativeChunkGridPos = getRelativeChunkGridPosition(chunkPos, curTile);
             int tileIndex = getIndex(relativeChunkGridPos.x, relativeChunkGridPos.y);
 
-            if (curTile.x >= -worldLength && curTile.y >= -worldLength && curTile.y < worldLength &&
-                curTile.x < worldLength) {
-
+            if (curTile.x >= -worldLength && curTile.y >= -worldLength && curTile.y < worldLength && curTile.x < worldLength) {
                 if (chunks[chunkIndex].tileID[tileIndex] != DIRT_FLOOR_MIDDLE) {
                     chunks[chunkIndex].tileID[tileIndex] = TILE_DIRT_FLOOR_MIDDLE.id;
                     chunks[chunkIndex].tileZ[tileIndex] = 0;

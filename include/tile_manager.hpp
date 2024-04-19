@@ -48,7 +48,7 @@ public:
   std::vector<int> updatedChunks;
 
   int getChunkIndex(int x, int y); // Given a chunk coordinate, return the index
-  // of the chunk in the chunks vector
+                                   // of the chunk in the chunks vector
   bool chunkExists(
       Vector2 chunkPos); // Check if the chunk exists in the chunks vector
 

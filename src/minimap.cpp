@@ -1,4 +1,5 @@
 #include "minimap.hpp"
+#include "dev_util.hpp"
 #include "item_data.hpp"
 #include "raylib.h"
 #include "raymath.h"
@@ -7,18 +8,36 @@
 #include "macros_util.hpp"
 #include "input_system.hpp"
 #include <vector>
-#include "dev_util.hpp"
 
-void MiniMap::playerPlaceWaypoint()
+MiniMap::MiniMap(int init_width, int init_height, TileManager* tileManager) : width(init_width), height(init_height)
 {
-    Vector2 miniMapScreenPos = {GetMousePosition().x - position.x, GetMousePosition().y - position.y};
+    map = LoadRenderTexture(init_width, init_height);
+    position = Rectangle{GetScreenWidth() - width - padding, padding, (float)init_width, (float)init_height};
+    tManager = tileManager;
+};
+
+void MiniMap::createWaypoint()
+{
+    /* Vector2 initial = {GetMousePosition().x - position.x, GetMousePosition().y - position.y}; */
+    /* Vector2 test = GetScreenToWorld2D(initial, camera); */
+    /* test = {test.x / tileSize, test.y / tileSize}; */
+    Vector2 miniMapScreenPos = {(GetMousePosition().x - position.x), (GetMousePosition().y - position.y)};
     Vector2 mouseGridPos = getMinimapGridPos(camera, miniMapScreenPos, tileSize);
 
-    waypoints.push_back(mouseGridPos);
-    std::cout << getVector2String(mouseGridPos) << std::endl;
+    waypoints.insert(mouseGridPos);
+    /* std::cout << getVector2String(miniMapScreenPos) << std::endl; */
 }
 
-void MiniMap::getMapChangeInput(UI &ui, Vector2 playerPos)
+void MiniMap::deleteWaypoint()
+{
+
+    Vector2 miniMapScreenPos = {(GetMousePosition().x - position.x), (GetMousePosition().y - position.y)};
+    Vector2 mouseGridPos = getMinimapGridPos(camera, miniMapScreenPos, tileSize);
+
+    waypoints.erase(mouseGridPos);
+}
+
+void MiniMap::getMapChangeInput(UI& ui, Vector2 playerPos)
 {
 
     if (InputSystem::getUserKeypress() == OPEN_MINIMAP) {
@@ -45,7 +64,11 @@ void MiniMap::getMapChangeInput(UI &ui, Vector2 playerPos)
 
     if (CheckCollisionPointRec(GetMousePosition(), ui.bounds[MINIMAP])) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-            playerPlaceWaypoint();
+            createWaypoint();
+        }
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            deleteWaypoint();
         }
 
         if (fullScreen) {
@@ -127,13 +150,12 @@ void MiniMap::storeNewChunkTextures(Vector2 playerPos)
     }
 }
 
-void MiniMap::drawVisitedChunks(std::vector<Vector2> &chunkBuffer)
+void MiniMap::drawVisitedChunks(std::vector<Vector2>& chunkBuffer)
 {
     for (int index = 0; index < WORLD_SIZE * 2 * WORLD_SIZE * 2; index++) {
         if (visitedChunks[index] == 1) {
             Rectangle src = {0.0f, 0.0f, mapChunks[index].texture.width, -mapChunks[index].texture.height};
-            Vector2 chunkSrc = {tManager->chunks[index].srcCoordinate.x * CHUNK_SIZE * tileSize,
-                                tManager->chunks[index].srcCoordinate.y * CHUNK_SIZE * tileSize};
+            Vector2 chunkSrc = {tManager->chunks[index].srcCoordinate.x * CHUNK_SIZE * tileSize, tManager->chunks[index].srcCoordinate.y * CHUNK_SIZE * tileSize};
             DrawTextureRec(mapChunks[index].texture, src, chunkSrc, WHITE);
         }
     }
@@ -153,7 +175,7 @@ void MiniMap::updateChunks()
     }
 }
 
-void MiniMap::drawMapChunks(Vector2 playerPos, Texture2D &medium)
+void MiniMap::drawMapChunks(Vector2 playerPos, Texture2D& medium)
 {
     Rectangle playerMapIcon;
     Vector2 playerGrid;
@@ -181,7 +203,7 @@ void MiniMap::drawMapChunks(Vector2 playerPos, Texture2D &medium)
     DrawTexturePro(medium, Rectangle{12, 167, 16.0f, 14.0f}, playerMapIcon, {0, 0}, 0.0f, WHITE);
 }
 
-void MiniMap::draw(Vector2 playerPos, Texture2D &medium)
+void MiniMap::draw(Vector2 playerPos, SpriteDrawSystem& drawSystem)
 {
     BeginTextureMode(map);
     if (fullScreen) {
@@ -193,26 +215,26 @@ void MiniMap::draw(Vector2 playerPos, Texture2D &medium)
 
     BeginMode2D(camera);
     {
-        drawMapChunks(playerPos, medium);
-        for (Vector2 &waypoint : waypoints) {
-            Rectangle waypointRec = {waypoint.x * tileSize + (tileSize / 2) - (tileSize / 3),
-                                     waypoint.y * tileSize + (tileSize / 2) - (tileSize / 3), (tileSize / 3) * 2,
-                                     (tileSize / 3) * 2};
-            DrawRectangleRec(waypointRec, BLUE);
+        drawMapChunks(playerPos, drawSystem.mediumAtlas.texture);
+        for (const auto& waypoint : waypoints) {
+
+            int waypointSize = 15;
+            Rectangle waypointRec = {waypoint.x * tileSize + (tileSize / 2) - (waypointSize / 2 + 1), waypoint.y * tileSize + (tileSize / 2) - (waypointSize / 2), waypointSize, waypointSize};
+
+            DrawTexturePro(drawSystem.smallAtlas.texture, Rectangle{25, 214, 16, 16}, waypointRec, {0, 0}, 0.0f, {255, 255, 255, 200});
         }
     }
     EndMode2D();
     EndTextureMode();
 
-    DrawTextureRec(map.texture, Rectangle{0.0f, 0.0f, position.width, -position.height},
-                   Vector2{position.x, position.y}, WHITE);
+    DrawTextureRec(map.texture, Rectangle{0.0f, 0.0f, position.width, -position.height}, Vector2{position.x, position.y}, WHITE);
 }
 
-void MiniMap::update(UI &ui, Vector2 playerPos, Texture2D &medium)
+void MiniMap::update(UI& ui, Vector2 playerPos, SpriteDrawSystem& drawSystem)
 {
     getMapChangeInput(ui, playerPos);
 
-    draw(playerPos, medium);
+    draw(playerPos, drawSystem);
 
     ui.miniMap(position);
 
