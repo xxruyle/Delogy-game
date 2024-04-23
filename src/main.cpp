@@ -44,7 +44,8 @@ int main()
     Scene scene;
     scene.addPlayer(AtlasType::MEDIUM, {1 * 16, 1 * 16}, {4, 4, 32, 32}, 4, 4);
 
-    NPCSystem npcSystem;
+    NPCSystem npcSystem(&tileManager);
+    npcSystem.addNPCs(scene.EntityRegistry);
 
     MovementSystem movementSystem;
 
@@ -59,6 +60,7 @@ int main()
         BeginMode2D(scene.camera);
         {
             /* Handle Tile Manager */
+            npcSystem.moveNPCs(scene.EntityRegistry);
             tileManager.update(drawSystem.smallAtlas, userInterface, scene);
 
             /* Handle Carts */
@@ -80,6 +82,7 @@ int main()
             WireFrame::draw(scene.EntityRegistry);
 
             drawMouseGridOutline(scene.camera, RED);
+            tileManager.clearEntityPositionCache();
         }
         EndMode2D();
 

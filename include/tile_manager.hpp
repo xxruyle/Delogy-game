@@ -1,9 +1,13 @@
 #pragma once
 #include "atlas.hpp"
 #include "components.hpp"
+#include "dev_util.hpp"
+#include "entt/entity/fwd.hpp"
+#include "entt/entity/registry.hpp"
 #include "macros_util.hpp"
 #include "scene.hpp"
 #include <iostream>
+#include <unordered_map>
 
 struct IndexPair {
   int chunk; // the index of the chunk contained in tilemanager
@@ -47,8 +51,13 @@ public:
   std::vector<TileChunk> chunks;
   std::vector<int> updatedChunks;
 
-  int getChunkIndex(int x, int y); // Given a chunk coordinate, return the index
-                                   // of the chunk in the chunks vector
+  std::unordered_map<Vector2, std::vector<entt::entity>, Vector2Util,
+                     Vector2Util>
+      entityPositionCache;
+
+  int getChunkIndex(int x,
+                    int y); // Given a chunk coordinate, return the index
+                            // of the chunk in the chunks vector
   bool chunkExists(
       Vector2 chunkPos); // Check if the chunk exists in the chunks vector
 
@@ -57,9 +66,9 @@ public:
   void drunkardGenerateAll();
 
   void checkPlayerInteraction(
-      Camera2D &camera, UI &ui,
-      InventoryC
-          &playerInventory); // change player state based on player interaction
+      Camera2D &camera, UI &ui, InventoryC &playerInventory,
+      entt::basic_registry<>
+          &registry); // change player state based on player interaction
 
   void checkDevInput();
 
@@ -79,4 +88,5 @@ public:
   IndexPair getGridIndexPair(int x, int y);
 
   void update(Atlas &atlas, UI &ui, Scene &scene);
+  void clearEntityPositionCache();
 };

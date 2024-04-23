@@ -2,6 +2,7 @@
 
 #include "FastNoiseLite.h"
 #include "dev_util.hpp"
+#include "entt/entity/fwd.hpp"
 #include "input_system.hpp"
 #include "item_data.hpp"
 #include "macros_util.hpp"
@@ -191,11 +192,12 @@ void TileManager::checkDevInput()
     }
 }
 
-void TileManager::checkPlayerInteraction(Camera2D& camera, UI& ui, InventoryC& playerInventory)
+void TileManager::checkPlayerInteraction(Camera2D& camera, UI& ui, InventoryC& playerInventory, entt::basic_registry<>& registry)
 {
     int interactKey = InputSystem::getUserMouseInteraction();
     if (interactKey) {
         Vector2 mousePos = getMouseGridPosition(camera);
+
         Vector2 chunkPos = getMouseChunkPosition(camera);
 
         int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y);
@@ -207,6 +209,18 @@ void TileManager::checkPlayerInteraction(Camera2D& camera, UI& ui, InventoryC& p
             case PLAYER_DESTROY: {
                 chunks[chunkIndex].deleteAtTile(relativeGridPos.x, relativeGridPos.y);
                 updatedChunks.push_back(chunkIndex);
+
+                // code to debug to check the entities at grid position
+                if (!entityPositionCache[mousePos].empty()) {
+                    for (entt::entity id : entityPositionCache[mousePos]) {
+                        NeedsC& needs = registry.get<NeedsC>(id);
+                        std::cout << needs.weights[0] << std::endl;
+                    }
+                }
+                else {
+                    std::cout << "Nope" << std::endl;
+                }
+
                 break;
             }
             case PLAYER_CREATE: {
@@ -269,7 +283,7 @@ void TileManager::update(Atlas& atlas, UI& ui, Scene& scene)
     PositionC& position = scene.EntityRegistry.get<PositionC>(scene.player);
     InventoryC& inventory = scene.EntityRegistry.get<InventoryC>(scene.player);
     drawAllChunks(atlas, position.pos);
-    checkPlayerInteraction(scene.camera, ui, inventory);
+    checkPlayerInteraction(scene.camera, ui, inventory, scene.EntityRegistry);
     checkDevInput();
 }
 
@@ -371,3 +385,5 @@ void TileManager::drunkardGenerateAll()
         }
     }
 }
+
+void TileManager::clearEntityPositionCache() { entityPositionCache.clear(); }

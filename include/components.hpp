@@ -82,7 +82,11 @@ struct PlayerC {
   int timePlayed;
 };
 
-struct EmotionC {
-  int emotion;
-  int opinion;
+struct NeedsC {
+  float weights[5];
+  float energy = 0.0f;
+  float hunger = 0.0f;
+  float social = 0.0f;
+  float entertainment = 0.0f;
+  float safety = 0.0f;
 };
