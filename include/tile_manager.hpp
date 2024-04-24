@@ -87,6 +87,8 @@ public:
 
   IndexPair getGridIndexPair(int x, int y);
 
+  void showEntityInfo(Vector2 pos);
+
   void update(Atlas &atlas, UI &ui, Scene &scene);
   void clearEntityPositionCache();
 };

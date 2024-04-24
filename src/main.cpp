@@ -67,7 +67,6 @@ int main()
             cartManager.update(tileManager, scene);
 
             /* Systems */
-            npcSystem.moveNPCs(scene.EntityRegistry);
             inventorySystem.update(scene);
             animationSystem.update(scene.EntityRegistry, scene.player);
 
@@ -82,6 +81,7 @@ int main()
             WireFrame::draw(scene.EntityRegistry);
 
             drawMouseGridOutline(scene.camera, RED);
+            npcSystem.update(scene);
             tileManager.clearEntityPositionCache();
         }
         EndMode2D();

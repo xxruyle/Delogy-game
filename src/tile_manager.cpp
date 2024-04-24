@@ -1,6 +1,7 @@
 #include "tile_manager.hpp"
 
 #include "FastNoiseLite.h"
+#include "components.hpp"
 #include "dev_util.hpp"
 #include "entt/entity/fwd.hpp"
 #include "input_system.hpp"
@@ -209,18 +210,6 @@ void TileManager::checkPlayerInteraction(Camera2D& camera, UI& ui, InventoryC& p
             case PLAYER_DESTROY: {
                 chunks[chunkIndex].deleteAtTile(relativeGridPos.x, relativeGridPos.y);
                 updatedChunks.push_back(chunkIndex);
-
-                // code to debug to check the entities at grid position
-                if (!entityPositionCache[mousePos].empty()) {
-                    for (entt::entity id : entityPositionCache[mousePos]) {
-                        NeedsC& needs = registry.get<NeedsC>(id);
-                        std::cout << needs.weights[0] << std::endl;
-                    }
-                }
-                else {
-                    std::cout << "Nope" << std::endl;
-                }
-
                 break;
             }
             case PLAYER_CREATE: {
