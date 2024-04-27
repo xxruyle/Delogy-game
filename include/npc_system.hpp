@@ -14,6 +14,7 @@ public:
   void moveNPCs(entt::basic_registry<> &registry);
   void update(Scene &scene);
   void cachePosition(Vector2 pos, entt::entity id);
+  void clearCachePosition(Vector2 pos, entt::entity id);
 
-  void showEntityInfo(Camera2D &camera, entt::basic_registry<> &registry);
+  bool showEntityInfo(Camera2D &camera, entt::basic_registry<> &registry);
 };

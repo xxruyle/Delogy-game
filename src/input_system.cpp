@@ -23,6 +23,15 @@ int InputSystem::getUserKeypress()
     return NULL_PRESS;
 }
 
+int InputSystem::getUserKeydown()
+{
+    if (IsKeyDown(Keys[SHOW_INFO])) {
+        return SHOW_INFO;
+    }
+
+    return NULL_PRESS;
+}
+
 bool InputSystem::getMoveRight() { return IsKeyDown(Keys[MOVE_RIGHT]); }
 bool InputSystem::getMoveLeft() { return IsKeyDown(Keys[MOVE_LEFT]); }
 bool InputSystem::getMoveUp() { return IsKeyDown(Keys[MOVE_UP]); }
@@ -31,23 +40,19 @@ bool InputSystem::getMoveDown() { return IsKeyDown(Keys[MOVE_DOWN]); }
 int InputSystem::getMovementDirection()
 {
 
-    if (IsKeyDown(Keys[MOVE_RIGHT]) &&
-        !(IsKeyDown(Keys[MOVE_LEFT]) || IsKeyDown(Keys[MOVE_UP]) || IsKeyDown(Keys[MOVE_DOWN]))) {
+    if (IsKeyDown(Keys[MOVE_RIGHT]) && !(IsKeyDown(Keys[MOVE_LEFT]) || IsKeyDown(Keys[MOVE_UP]) || IsKeyDown(Keys[MOVE_DOWN]))) {
         return MOVE_RIGHT;
     }
 
-    if (IsKeyDown(Keys[MOVE_LEFT]) &&
-        !(IsKeyDown(Keys[MOVE_RIGHT]) || IsKeyDown(Keys[MOVE_UP]) || IsKeyDown(Keys[MOVE_DOWN]))) {
+    if (IsKeyDown(Keys[MOVE_LEFT]) && !(IsKeyDown(Keys[MOVE_RIGHT]) || IsKeyDown(Keys[MOVE_UP]) || IsKeyDown(Keys[MOVE_DOWN]))) {
         return MOVE_LEFT;
     }
 
-    if (IsKeyDown(Keys[MOVE_UP]) &&
-        !(IsKeyDown(Keys[MOVE_LEFT]) || IsKeyDown(Keys[MOVE_RIGHT]) || IsKeyDown(Keys[MOVE_DOWN]))) {
+    if (IsKeyDown(Keys[MOVE_UP]) && !(IsKeyDown(Keys[MOVE_LEFT]) || IsKeyDown(Keys[MOVE_RIGHT]) || IsKeyDown(Keys[MOVE_DOWN]))) {
         return MOVE_UP;
     }
 
-    if (IsKeyDown(Keys[MOVE_DOWN]) &&
-        !(IsKeyDown(Keys[MOVE_LEFT]) || IsKeyDown(Keys[MOVE_RIGHT]) || IsKeyDown(Keys[MOVE_UP]))) {
+    if (IsKeyDown(Keys[MOVE_DOWN]) && !(IsKeyDown(Keys[MOVE_LEFT]) || IsKeyDown(Keys[MOVE_RIGHT]) || IsKeyDown(Keys[MOVE_UP]))) {
         return MOVE_DOWN;
     }
 

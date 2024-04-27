@@ -60,13 +60,13 @@ int main()
         BeginMode2D(scene.camera);
         {
             /* Handle Tile Manager */
-            npcSystem.moveNPCs(scene.EntityRegistry);
             tileManager.update(drawSystem.smallAtlas, userInterface, scene);
 
             /* Handle Carts */
             cartManager.update(tileManager, scene);
 
             /* Systems */
+            npcSystem.moveNPCs(scene.EntityRegistry);
             inventorySystem.update(scene);
             animationSystem.update(scene.EntityRegistry, scene.player);
 
@@ -81,8 +81,8 @@ int main()
             WireFrame::draw(scene.EntityRegistry);
 
             drawMouseGridOutline(scene.camera, RED);
-            npcSystem.update(scene);
-            tileManager.clearEntityPositionCache();
+            npcSystem.showEntityInfo(scene.camera, scene.EntityRegistry);
+            /* tileManager.clearEntityPositionCache(); */
         }
         EndMode2D();
 

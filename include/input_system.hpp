@@ -4,7 +4,7 @@
 #include "raymath.h"
 #include <entt/entity/registry.hpp>
 
-#define NUM_KEYS 10
+#define NUM_KEYS 11
 enum KeyBindings {
   NULL_PRESS,
   MOVE_RIGHT,
@@ -15,16 +15,18 @@ enum KeyBindings {
   PLAYER_CREATE,
   ITEM_ROTATION,
   OPEN_MINIMAP,
+  SHOW_INFO,
   DEBUG_WIREFRAME
 };
 
 static int Keys[NUM_KEYS] = {
-    KEY_NULL,           KEY_D, KEY_A, KEY_W, KEY_S, MOUSE_BUTTON_LEFT,
-    MOUSE_BUTTON_RIGHT, KEY_R, KEY_M, KEY_C};
+    KEY_NULL,           KEY_D, KEY_A, KEY_W,          KEY_S, MOUSE_BUTTON_LEFT,
+    MOUSE_BUTTON_RIGHT, KEY_R, KEY_M, KEY_LEFT_SHIFT, KEY_C};
 
 class InputSystem {
 public:
   static int getUserKeypress();
+  static int getUserKeydown();
   static int getUserMouseInteraction();
   static int getMovementDirection();
   static Vector2 getDirectionVector(); // get a sum of all movement vectors for
