@@ -3,6 +3,7 @@
 #include "item_data.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
+#include <queue>
 #include <vector>
 
 struct DirectionStateC {
@@ -80,6 +81,10 @@ struct OrecartC {
 
 struct PlayerC {
   int timePlayed;
+};
+
+struct PathC {
+  std::queue<Vector2> destQueue; // the destinations in queue
 };
 
 struct NeedsC {

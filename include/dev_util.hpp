@@ -58,6 +58,8 @@ getGridPosition(Vector2 screenWorldSpace); // convert absolute coordinate space
 Vector2 getMinimapGridPos(Camera2D &camera, Vector2 screenMousePos,
                           float tileSize);
 
+Vector2 getGridToScreenPos(Vector2 gridPos);
+
 /* Getting Chunk Info */
 Vector2 getMouseChunkPosition(Camera2D &camera);
 Vector2

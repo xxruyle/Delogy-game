@@ -4,12 +4,9 @@
 #include <math.h>
 #include <string>
 
-std::string getVector2String(Vector2 vec)
-{
-    return "(" + std::to_string((int)vec.x) + ", " + std::to_string((int)vec.y) + ")";
-}
+std::string getVector2String(Vector2 vec) { return "(" + std::to_string((int)vec.x) + ", " + std::to_string((int)vec.y) + ")"; }
 
-void drawGameInfo(Camera2D &camera, Vector2 playerPos, Vector2 &playerVelocity)
+void drawGameInfo(Camera2D& camera, Vector2 playerPos, Vector2& playerVelocity)
 {
     DrawText("Delogy Indev 1.0", 3, 0, UI_FONT_SIZE, RAYWHITE);
     DrawFPS(2, 25);
@@ -17,19 +14,18 @@ void drawGameInfo(Camera2D &camera, Vector2 playerPos, Vector2 &playerVelocity)
     drawMouseGridPosition(camera);
     drawPlayerGridPosition(playerPos);
 
-    std::string playerVelocityStr =
-        "Velocity: (" + std::to_string((int)playerVelocity.x) + ", " + std::to_string((int)playerVelocity.y) + ")";
+    std::string playerVelocityStr = "Velocity: (" + std::to_string((int)playerVelocity.x) + ", " + std::to_string((int)playerVelocity.y) + ")";
     DrawText(playerVelocityStr.c_str(), 3, 125, UI_FONT_SIZE, RAYWHITE);
 }
 
-void drawCounter(const char *text, int count)
+void drawCounter(const char* text, int count)
 {
     std::string strCount = std::to_string(count);
     std::string final = text + strCount;
     DrawText(final.c_str(), 3, 145, UI_FONT_SIZE, RAYWHITE);
 }
 
-void drawMouseGridOutline(Camera2D &camera, Color color)
+void drawMouseGridOutline(Camera2D& camera, Color color)
 {
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
 
@@ -51,15 +47,14 @@ void drawMouseGridOutline(Camera2D &camera, Color color)
     DrawRectangleLinesEx(Rectangle{mousePos.x, mousePos.y, 16, 16}, 0.4f, color);
 }
 
-void drawMouseChunkPosition(Camera2D &camera)
+void drawMouseChunkPosition(Camera2D& camera)
 {
     Vector2 mouseChunkPos = getMouseChunkPosition(camera);
-    std::string chunkPosStr =
-        "ChunkPos: " + std::to_string((int)mouseChunkPos.x) + " " + std::to_string((int)mouseChunkPos.y);
+    std::string chunkPosStr = "ChunkPos: " + std::to_string((int)mouseChunkPos.x) + " " + std::to_string((int)mouseChunkPos.y);
     DrawText(chunkPosStr.c_str(), 3, 75, UI_FONT_SIZE, RAYWHITE);
 }
 
-void drawMouseGridPosition(Camera2D &camera)
+void drawMouseGridPosition(Camera2D& camera)
 {
     Vector2 mouseGridPos = getMouseGridPosition(camera);
 
@@ -70,8 +65,7 @@ void drawMouseGridPosition(Camera2D &camera)
 void drawPlayerGridPosition(Vector2 playerPos)
 {
     playerPos = getGridPosition(playerPos);
-    std::string playerPosStr =
-        "Player: (" + std::to_string((int)playerPos.x) + ", " + std::to_string((int)playerPos.y) + ")";
+    std::string playerPosStr = "Player: (" + std::to_string((int)playerPos.x) + ", " + std::to_string((int)playerPos.y) + ")";
 
     DrawText(playerPosStr.c_str(), 3, 100, UI_FONT_SIZE, WHITE);
 }
@@ -80,14 +74,13 @@ void drawChunkInfo(Vector2 chunkWorldPostion)
 {
     // converting back to chunk src
     Vector2 chunkPosition = getChunkPosition(chunkWorldPostion);
-    std::string pos =
-        "(" + std::to_string((int)chunkPosition.x / 16) + ", " + std::to_string((int)chunkPosition.y / 16) + *")";
+    std::string pos = "(" + std::to_string((int)chunkPosition.x / 16) + ", " + std::to_string((int)chunkPosition.y / 16) + *")";
 
     DrawText(pos.c_str(), chunkWorldPostion.x, chunkWorldPostion.y, 40, RED);
     DrawRectangleLines(chunkWorldPostion.x, chunkWorldPostion.y, CHUNK_SIZE * 16, CHUNK_SIZE * 16, WHITE);
 }
 
-Vector2 getMouseGridPosition(Camera2D &camera)
+Vector2 getMouseGridPosition(Camera2D& camera)
 {
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
 
@@ -129,7 +122,7 @@ Vector2 getGridPosition(Vector2 screenWorldSpace)
     return screenWorldSpace;
 }
 
-Vector2 getMinimapGridPos(Camera2D &camera, Vector2 screenMousePos, float tileSize)
+Vector2 getMinimapGridPos(Camera2D& camera, Vector2 screenMousePos, float tileSize)
 {
     Vector2 mousePos = GetScreenToWorld2D(screenMousePos, camera);
 
@@ -151,12 +144,14 @@ Vector2 getMinimapGridPos(Camera2D &camera, Vector2 screenMousePos, float tileSi
     return mousePos;
 }
 
-Vector2 getMouseChunkPosition(Camera2D &camera)
+Vector2 getMouseChunkPosition(Camera2D& camera)
 {
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
     mousePos = getMouseGridPosition(camera);
     return getChunkPosition(mousePos);
 }
+
+Vector2 getGridToScreenPos(Vector2 gridPos) { return {gridPos.x * 16, gridPos.y * 16}; }
 
 Vector2 getChunkPosition(Vector2 gridPosition) // given a grid position find the chunk position
 {
@@ -170,12 +165,6 @@ Vector2 getRelativeChunkGridPosition(Vector2 chunkSrc, Vector2 gridPosition)
     return relativeChunkPos;
 }
 
-Vector2 chunkToGrid(Vector2 chunkPosition)
-{
-    return Vector2{chunkPosition.x * CHUNK_SIZE, chunkPosition.y * CHUNK_SIZE};
-}
+Vector2 chunkToGrid(Vector2 chunkPosition) { return Vector2{chunkPosition.x * CHUNK_SIZE, chunkPosition.y * CHUNK_SIZE}; }
 
-Vector2 chunkToWorldSpace(Vector2 chunkPosition)
-{
-    return Vector2{chunkPosition.x * CHUNK_SIZE * 16, chunkPosition.y * CHUNK_SIZE * 16};
-}
+Vector2 chunkToWorldSpace(Vector2 chunkPosition) { return Vector2{chunkPosition.x * CHUNK_SIZE * 16, chunkPosition.y * CHUNK_SIZE * 16}; }
