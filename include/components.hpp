@@ -1,9 +1,12 @@
 #pragma once
 #include "atlas.hpp"
+#include "dev_util.hpp"
 #include "item_data.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
+#include <deque>
 #include <queue>
+#include <unordered_set>
 #include <vector>
 
 struct DirectionStateC {
@@ -84,7 +87,10 @@ struct PlayerC {
 };
 
 struct PathC {
-  std::queue<Vector2> destQueue; // the destinations in queue
+  Vector2 target;
+  bool isPathing;
+  bool atTarget;
+  std::deque<Vector2> destQueue; // the destinations in queue
 };
 
 struct NeedsC {

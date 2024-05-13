@@ -10,8 +10,8 @@ enum class emotionState { SAD = 0, HAPPY };
 enum AtlasType { SMALL, MEDIUM };
 
 /* Window info*/
-#define WINDOW_WIDTH 864
-#define WINDOW_HEIGHT 576
+#define WINDOW_WIDTH 1260
+#define WINDOW_HEIGHT 780
 
 /* Game World Info*/
 #define WORLD_SIZE 20

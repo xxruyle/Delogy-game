@@ -1,8 +1,12 @@
 #pragma once
 #include "raylib.h"
+#include <cmath>
+#include <limits>
 #include <string>
+#include <vector>
 
 struct Vector2Util {
+
   size_t operator()(const Vector2 &vec) const {
     size_t h1 = std::hash<float>{}(vec.x);
     size_t h2 = std::hash<float>{}(vec.y);
@@ -15,16 +19,30 @@ struct Vector2Util {
   }
 };
 
+struct PathNode {
+  Vector2 pos;
+  int cost = std::numeric_limits<int>::max();
+};
+
+struct PathNodeComparison {
+  bool operator()(PathNode &pNode1, PathNode &pNode2) {
+    return pNode1.cost > pNode2.cost;
+  }
+};
+
 std::string getVector2String(Vector2 vec);
+int Vector2Manhattan(Vector2 vec1, Vector2 vec2);
+std::vector<Vector2>
+getNearNeighbors(Vector2 curPos); // get the 8 neighbors of a cell
 
 /* Drawing Dev Utility  Functions*/
 void drawGameInfo(
     Camera2D &camera, Vector2 playerPos,
-    Vector2
-        &playerVelocity); // draws version info, fps, etc void
-                          // drawMouseGridOutline(Camera2D &camera, Color
-                          // color); // draw the outline of a grid depending on
-                          // // the coordinate the mouse is hovering over
+    Vector2 &playerVelocity); // draws version info, fps, etc void
+                              // drawMouseGridOutline(Camera2D &camera, Color
+                              // color); // draw the outline of a grid depending
+                              // on
+                              // // the coordinate the mouse is hovering over
 
 void drawCounter(const char *text, int count);
 void drawMouseChunkPosition(Camera2D &camera);

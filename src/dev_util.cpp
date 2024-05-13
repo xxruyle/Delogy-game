@@ -3,9 +3,38 @@
 #include "raylib.h"
 #include <math.h>
 #include <string>
+#include <regex>
 
-std::string getVector2String(Vector2 vec) { return "(" + std::to_string((int)vec.x) + ", " + std::to_string((int)vec.y) + ")"; }
+std::string getVector2String(Vector2 vec)
+{
+    float x = vec.x;
+    float y = vec.y;
 
+    std::string xstr = std::to_string(x);
+    std::string ystr = std::to_string(y);
+    xstr.erase(xstr.find('.') + 1); //chop to precision
+    xstr.erase(xstr.find_last_not_of('.') + 1, std::string::npos);
+
+    ystr.erase(ystr.find('.') + 1); //chop to precision
+    ystr.erase(ystr.find_last_not_of('.') + 1, std::string::npos);
+
+    std::string vecString = "(" + xstr + ", " + ystr + ")";
+    return vecString;
+}
+int Vector2Manhattan(Vector2 vec1, Vector2 vec2) { return abs(vec1.x - vec2.x) + abs(vec1.y - vec2.y); }
+std::vector<Vector2> getNearNeighbors(Vector2 curPos)
+{ // get the 8 neighbors of a cell
+    std::vector<Vector2> neighbors;
+    neighbors.push_back({curPos.x, curPos.y - 1}); // North
+    neighbors.push_back({curPos.x + 1, curPos.y}); // East
+    neighbors.push_back({curPos.x, curPos.y + 1}); // South
+    neighbors.push_back({curPos.x - 1, curPos.y}); // West
+    /* neighbors.push_back({curPos.x - 1, curPos.y - 1}); // Northwest */
+    /* neighbors.push_back({curPos.x + 1, curPos.y - 1}); // Northeast */
+    /* neighbors.push_back({curPos.x + 1, curPos.y + 1}); // Southeast */
+    /* neighbors.push_back({curPos.x - 1, curPos.y + 1}); // Southwest */
+    return neighbors;
+}
 void drawGameInfo(Camera2D& camera, Vector2 playerPos, Vector2& playerVelocity)
 {
     DrawText("Delogy Indev 1.0", 3, 0, UI_FONT_SIZE, RAYWHITE);
@@ -44,7 +73,7 @@ void drawMouseGridOutline(Camera2D& camera, Color color)
         mousePos.y = (int)(mousePos.y / 16) * 16;
     }
 
-    DrawRectangleLinesEx(Rectangle{mousePos.x, mousePos.y, 16, 16}, 0.4f, color);
+    DrawRectangleLinesEx(Rectangle{mousePos.x, mousePos.y, 16, 16}, 0.2f, color);
 }
 
 void drawMouseChunkPosition(Camera2D& camera)

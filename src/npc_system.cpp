@@ -4,48 +4,61 @@
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
 #include "raymath.h"
+#include "tile_data.hpp"
 #include "tile_manager.hpp"
 #include "input_system.hpp"
+#include <queue>
+#include <regex>
 #include <string>
+#include <unordered_map>
 
-NPCSystem::NPCSystem(TileManager* tileManager, entt::basic_registry<>* EntityRegistry)
+NPCSystem::NPCSystem(TileManager* tileManager, entt::basic_registry<>* EntityRegistry, entt::entity player)
 {
     tManager = tileManager;
     sRegistry = EntityRegistry;
+    playerID = player;
 }
 
 void NPCSystem::addNPCs()
-{
-    for (int i = 0; i < 1; i++) {
+{ // spawn NPCs for debugging
+    for (int i = 0; i < 50; i++) {
         entt::entity entity = sRegistry->create();
-        /* Vector2 pos = {GetRandomValue(-1000, 1000), GetRandomValue(-1000, 1000)}; */
-        Vector2 pos = {0, 0};
+        Vector2 pos = {GetRandomValue(-10, 10), GetRandomValue(-10, 10)};
+        /* Vector2 pos = {1, 1}; */
         sRegistry->emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{88, 4, 16, 16});
-        sRegistry->emplace<PositionC>(entity, pos);
+        sRegistry->emplace<PositionC>(entity, getGridToScreenPos(pos));
         sRegistry->emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 30, 30, false);
         sRegistry->emplace<CollisionC>(entity, Rectangle{0, 0, 16, 16});
         sRegistry->emplace<NeedsC>(entity, NeedsC{{(float)GetRandomValue(1, 10) / 10.0f, 0.3f, 0.1f, 0.1f, 0.3f}});
-        sRegistry->emplace<PathC>(entity);
+
+        Vector2 randomPath = {GetRandomValue(-20, 20), GetRandomValue(-20, 20)};
+        sRegistry->emplace<PathC>(entity, Vector2{-15, -1}, false, true);
 
         Vector2 entityPos = getGridPosition(pos);
         cachePosition(entityPos, entity);
     }
 }
 
-void NPCSystem::update(Scene& scene) { showEntityInfo(scene.camera); }
+void NPCSystem::update(Scene& scene) { moveNPCs(); }
 
+// cache entity location given a position
 void NPCSystem::cachePosition(Vector2 pos, entt::entity id) { tManager->entityPositionCache[pos].push_back(id); }
 
+// delete the entity in the cache void
 void NPCSystem::clearCachePosition(Vector2 pos, entt::entity id)
 {
+    // loop over every  entity at position
     for (int i = 0; i < tManager->entityPositionCache[pos].size(); i++) {
         entt::entity entID = tManager->entityPositionCache[pos][i];
+
+        // if the entity id is what we are looking for erase it
         if (entID == id) {
             std::vector<entt::entity>::iterator it = tManager->entityPositionCache[pos].begin() + i;
             tManager->entityPositionCache[pos].erase(it);
         }
     }
 
+    // deleting the position key if no entity exists in it
     if (!tManager->entityPositionCache.count(pos)) {
         for (auto it = tManager->entityPositionCache.begin(); it != tManager->entityPositionCache.end();) {
             if (it->first.x == pos.x && it->first.y == pos.y) {
@@ -58,26 +71,29 @@ void NPCSystem::clearCachePosition(Vector2 pos, entt::entity id)
     }
 }
 
-// move particular npc to a destination
+// set npc velocity if there are new paths in its path queue
 void NPCSystem::moveNPC(entt::entity id)
 {
     auto& path = sRegistry->get<PathC>(id);
+    auto& physics = sRegistry->get<PhysicsC>(id);
     if (!path.destQueue.empty()) {
+        path.atTarget = false;
         auto& position = sRegistry->get<PositionC>(id);
-        auto& physics = sRegistry->get<PhysicsC>(id);
 
-        Vector2 npcGridPos = getGridPosition(position.pos);
+        Vector2 centeredPos = {position.pos.x + 8, position.pos.y + 8};
+        Vector2 npcGridPos = getGridPosition(centeredPos);
 
         Vector2 dest = path.destQueue.front();
+        Vector2 destAbsolute = getGridToScreenPos(dest);
 
-        Vector2 dir = {dest.x - npcGridPos.x, dest.y - npcGridPos.y};
+        Vector2 dir = {(int)destAbsolute.x - (int)position.pos.x, (int)destAbsolute.y - (int)position.pos.y};
         dir = Vector2Normalize(dir);
 
-        if (dest.x == npcGridPos.x && dest.y == npcGridPos.y) {
-            path.destQueue.pop();
+        if (destAbsolute.x == (int)position.pos.x && destAbsolute.y == (int)position.pos.y) {
+            path.destQueue.pop_front();
         }
         else {
-            DrawText(getVector2String(dest).c_str(), position.pos.x, position.pos.y - 10, 10, RED);
+            DrawText(getVector2String(npcGridPos).c_str(), position.pos.x, position.pos.y - 10, 0.3f, RED);
             physics.velocity.x = dir.x * physics.speed;
             physics.velocity.y = dir.y * physics.speed;
         }
@@ -89,8 +105,90 @@ void NPCSystem::moveNPC(entt::entity id)
         clearCachePosition(getGridPosition(position.pos), id);
         cachePosition(getGridPosition(position.pos), id);
     }
+    else {
+        path.atTarget = true;
+        physics.velocity.x = 0;
+        physics.velocity.y = 0;
+    }
 }
 
+// astar algorithm to path towards npc's path target, return true boolean if path is found
+bool NPCSystem::astar(entt::entity id)
+{
+    auto& path = sRegistry->get<PathC>(id);
+
+    if (path.isPathing) { // check to see if npc is pathing
+
+        IndexPair indexPair = tManager->getIndexPair(path.target.x * 16, path.target.y * 16);
+        int zID = tManager->chunks[indexPair.chunk].tileZ[indexPair.tile];
+        if (zID == 1) { // if the target is impossible to get to, return
+            path.isPathing = false;
+            return false;
+        }
+
+        PathMap cameFrom;
+        std::unordered_map<Vector2, PathNode, Vector2Util, Vector2Util> visited;
+        std::priority_queue<PathNode, std::vector<PathNode>, PathNodeComparison> fringe;
+
+        auto& position = sRegistry->get<PositionC>(id);
+        Vector2 gridPos = getGridPosition(Vector2{position.pos.x + 8, position.pos.y + 8});
+        PathNode initialNode = {gridPos, 0};
+        fringe.push(initialNode); // initialize first node
+        visited[initialNode.pos] = initialNode;
+
+        while (!fringe.empty()) {
+            PathNode curNode = fringe.top();
+
+            if (curNode.pos.x == path.target.x && curNode.pos.y == path.target.y) {
+                path.isPathing = false;
+                reconstructPath(cameFrom, curNode.pos, id);
+                return true;
+            }
+
+            std::vector<Vector2> neighbors = getNearNeighbors(curNode.pos); // get nearby nodes
+
+            fringe.pop();
+            for (Vector2& n : neighbors) {
+                IndexPair indexPair = tManager->getIndexPair(n.x * 16, n.y * 16);
+                int zID = tManager->chunks[indexPair.chunk].tileZ[indexPair.tile];
+
+                if (zID != 1) {
+                    PathNode neighborNode = {n, curNode.cost + 1 + Vector2Manhattan(n, path.target)};
+                    if (visited.count(neighborNode.pos)) {
+                        if (visited[neighborNode.pos].cost > neighborNode.cost) {
+                            visited[neighborNode.pos] = neighborNode;
+                            cameFrom[neighborNode.pos] = curNode.pos;
+                            fringe.push(neighborNode);
+                        }
+                    }
+                    else {
+                        visited[neighborNode.pos] = neighborNode;
+                        cameFrom[neighborNode.pos] = curNode.pos;
+                        fringe.push(neighborNode);
+                    }
+                }
+            }
+        }
+    }
+
+    path.isPathing = false;
+    return false; // target was not found
+}
+
+// reconstruct path given a node's previous min cost node
+void NPCSystem::reconstructPath(PathMap cameFrom, Vector2 current, entt::entity id)
+{
+    auto& path = sRegistry->get<PathC>(id);
+
+    path.destQueue.push_front(current);
+    while (cameFrom.count(current)) {
+        /* std::cout << getVector2String(current) << std::endl; */
+        path.destQueue.push_front(cameFrom[current]);
+        current = cameFrom[current];
+    }
+}
+
+// decide path decisions for all npcs
 void NPCSystem::moveNPCs()
 {
 
@@ -101,20 +199,24 @@ void NPCSystem::moveNPCs()
         auto& position = view.get<PositionC>(id);
 
         auto& physics = view.get<PhysicsC>(id);
+
         auto& path = sRegistry->get<PathC>(id);
 
-        if (path.destQueue.empty()) {
-            path.destQueue.push(Vector2{0, 0});
-            path.destQueue.push(Vector2{0, -1});
-            path.destQueue.push(Vector2{-1, -1});
-            path.destQueue.push(Vector2{-1, -2});
-            path.destQueue.push(Vector2{-2, -2});
-            path.destQueue.push(Vector2{-2, -3});
-            path.destQueue.push(Vector2{-3, -3});
-            path.destQueue.push(Vector2{-3, -4});
-            path.destQueue.push(Vector2{-4, -4});
-            path.destQueue.push(Vector2{-4, -5});
+        auto& playerCollision = sRegistry->get<CollisionC>(playerID);
+        auto& playerPosition = sRegistry->get<PositionC>(playerID);
+
+        // get potential new path
+        if (path.atTarget) {
+            if (path.atTarget && !path.isPathing) {
+                Vector2 gridPos = getGridPosition(position.pos);
+                int randX = GetRandomValue((int)gridPos.x - 10, (int)gridPos.x + 10);
+                int randY = GetRandomValue((int)gridPos.x - 10, (int)gridPos.x + 10);
+                path.target = {(float)randX, (float)randY};
+                path.isPathing = true;
+                astar(id);
+            }
         }
+
         moveNPC(id);
     }
 }

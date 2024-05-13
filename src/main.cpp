@@ -28,11 +28,11 @@ int main()
     /* SetTargetFPS(60); */
 
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
-    /* SetRandomSeed(30); */
+    SetRandomSeed(30);
 
-    TileManager tileManager(GetRandomValue(0, 10000));
+    TileManager tileManager(30);
 
-    MiniMap miniMap(300, 300, &tileManager);
+    MiniMap miniMap(200, 200, &tileManager);
     UI userInterface;
 
     CartManager cartManager;
@@ -44,7 +44,7 @@ int main()
     Scene scene;
     scene.addPlayer(AtlasType::MEDIUM, {1 * 16, 1 * 16}, {4, 4, 32, 32}, 4, 4);
 
-    NPCSystem npcSystem(&tileManager, &scene.EntityRegistry);
+    NPCSystem npcSystem(&tileManager, &scene.EntityRegistry, scene.player);
     npcSystem.addNPCs();
 
     MovementSystem movementSystem;
@@ -66,7 +66,7 @@ int main()
             cartManager.update(tileManager, scene);
 
             /* Systems */
-            npcSystem.moveNPCs();
+            npcSystem.update(scene);
             inventorySystem.update(scene);
             animationSystem.update(scene.EntityRegistry, scene.player);
 
@@ -80,7 +80,7 @@ int main()
 
             WireFrame::draw(scene.EntityRegistry);
 
-            drawMouseGridOutline(scene.camera, RED);
+            drawMouseGridOutline(scene.camera, Color{255, 255, 255, 180});
             npcSystem.showEntityInfo(scene.camera);
             /* tileManager.clearEntityPositionCache(); */
         }

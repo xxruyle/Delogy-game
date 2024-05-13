@@ -290,7 +290,7 @@ int TileManager::getItemUnder(Vector2 pos)
 
 std::vector<Vector2> TileManager::getNeighbors(int x, int y, int radius)
 {
-    std::vector<Vector2> neighbors; // pairs of chunk index and relative chunk index
+    std::vector<Vector2> neighbors;
 
     for (int row = y - radius; row < y + radius; row++) {
         for (int col = x - radius; col < x + radius; col++) {
