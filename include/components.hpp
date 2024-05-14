@@ -93,11 +93,13 @@ struct PathC {
   std::deque<Vector2> destQueue; // the destinations in queue
 };
 
+struct TimerC {
+  float lastTime = 0.0f;
+};
+
+enum needType { ENERGY, HUNGER, SOCIAL, ENTERTAINMENT, SAFETY };
+
 struct NeedsC {
   float weights[5];
-  float energy = 0.0f;
-  float hunger = 0.0f;
-  float social = 0.0f;
-  float entertainment = 0.0f;
-  float safety = 0.0f;
+  float desires[5];
 };

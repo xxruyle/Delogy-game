@@ -1,5 +1,7 @@
 # Delogy Design Ideas 
 
+
+
 - telegraph lines 
 - fog of war 
 - npc villages 
@@ -41,3 +43,8 @@
     - volcano, lava
     - talus  
     - jungle 
+## NPC AI 
+
+- needs
+- reaction to player 
+- animations

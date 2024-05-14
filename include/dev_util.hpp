@@ -21,7 +21,7 @@ struct Vector2Util {
 
 struct PathNode {
   Vector2 pos;
-  int cost = std::numeric_limits<int>::max();
+  float cost = std::numeric_limits<float>::max();
 };
 
 struct PathNodeComparison {

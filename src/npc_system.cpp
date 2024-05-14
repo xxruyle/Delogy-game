@@ -1,6 +1,7 @@
 #include "npc_system.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
+#include "entt/entity/fwd.hpp"
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
 #include "raymath.h"
@@ -19,9 +20,10 @@ NPCSystem::NPCSystem(TileManager* tileManager, entt::basic_registry<>* EntityReg
     playerID = player;
 }
 
+// spawn NPCs for debugging
 void NPCSystem::addNPCs()
-{ // spawn NPCs for debugging
-    for (int i = 0; i < 50; i++) {
+{
+    for (int i = 0; i < 10; i++) {
         entt::entity entity = sRegistry->create();
         Vector2 pos = {GetRandomValue(-10, 10), GetRandomValue(-10, 10)};
         /* Vector2 pos = {1, 1}; */
@@ -29,7 +31,8 @@ void NPCSystem::addNPCs()
         sRegistry->emplace<PositionC>(entity, getGridToScreenPos(pos));
         sRegistry->emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 30, 30, false);
         sRegistry->emplace<CollisionC>(entity, Rectangle{0, 0, 16, 16});
-        sRegistry->emplace<NeedsC>(entity, NeedsC{{(float)GetRandomValue(1, 10) / 10.0f, 0.3f, 0.1f, 0.1f, 0.3f}});
+        sRegistry->emplace<NeedsC>(entity, NeedsC{{(float)GetRandomValue(1, 10) / 10.0f, 0.3f, 0.1f, 0.1f, 0.3f}, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}});
+        sRegistry->emplace<TimerC>(entity);
 
         Vector2 randomPath = {GetRandomValue(-20, 20), GetRandomValue(-20, 20)};
         sRegistry->emplace<PathC>(entity, Vector2{-15, -1}, false, true);
@@ -38,8 +41,42 @@ void NPCSystem::addNPCs()
         cachePosition(entityPos, entity);
     }
 }
+void NPCSystem::update(Scene& scene)
+{
+    moveNPCs();
+    updateNeeds();
+}
 
-void NPCSystem::update(Scene& scene) { moveNPCs(); }
+void NPCSystem::updateDesires(NeedsC& need)
+{
+
+    for (int needType = 0; needType < 5; needType++) {
+        float newNeed = need.desires[needType];
+        newNeed += need.weights[needType];
+
+        if (newNeed >= 100.0f) {
+            newNeed = 100.0f;
+        }
+
+        need.desires[needType] = newNeed;
+    }
+}
+
+void NPCSystem::updateNeeds()
+{
+    auto view = sRegistry->view<NeedsC, TimerC>();
+
+    for (auto id : view) {
+        auto& needs = view.get<NeedsC>(id);
+        auto& timer = view.get<TimerC>(id);
+
+        if (GetTime() - timer.lastTime >= 2.0f) {
+            updateDesires(needs);
+            /* needs.desires[0] += needs.weights[0]; */
+            timer.lastTime = GetTime();
+        }
+    }
+}
 
 // cache entity location given a position
 void NPCSystem::cachePosition(Vector2 pos, entt::entity id) { tManager->entityPositionCache[pos].push_back(id); }
@@ -93,19 +130,26 @@ void NPCSystem::moveNPC(entt::entity id)
             path.destQueue.pop_front();
         }
         else {
-            DrawText(getVector2String(npcGridPos).c_str(), position.pos.x, position.pos.y - 10, 0.3f, RED);
+            DrawTextEx(GetFontDefault(), getVector2String(npcGridPos).c_str(), {position.pos.x, position.pos.y - 5}, 5.0f, 0.1f, RED);
             physics.velocity.x = dir.x * physics.speed;
             physics.velocity.y = dir.y * physics.speed;
         }
 
         // drawing a line for debugging visual
-        Vector2 centeredDest = getGridToScreenPos(dest);
-        centeredDest = {centeredDest.x + 8, centeredDest.y + 8};
-        DrawLineV(centeredDest, position.pos, PURPLE);
+        Vector2 centeredTarget = getGridToScreenPos(path.target);
+        centeredTarget = {centeredTarget.x + 8, centeredTarget.y + 8};
+        /* DrawLineV(centeredTarget, position.pos, PURPLE); */
+        DrawLineEx(centeredPos, centeredTarget, 1.0f, RAYWHITE);
+        DrawCircle(centeredTarget.x, centeredTarget.y, 1.5f, RED);
         clearCachePosition(getGridPosition(position.pos), id);
         cachePosition(getGridPosition(position.pos), id);
     }
     else {
+        if (path.atTarget == false) {
+            auto& needs = sRegistry->get<NeedsC>(id);
+            needs.desires[0] = 0;
+        }
+
         path.atTarget = true;
         physics.velocity.x = 0;
         physics.velocity.y = 0;
@@ -140,8 +184,8 @@ bool NPCSystem::astar(entt::entity id)
             PathNode curNode = fringe.top();
 
             if (curNode.pos.x == path.target.x && curNode.pos.y == path.target.y) {
-                path.isPathing = false;
                 reconstructPath(cameFrom, curNode.pos, id);
+                path.isPathing = false;
                 return true;
             }
 
@@ -188,10 +232,11 @@ void NPCSystem::reconstructPath(PathMap cameFrom, Vector2 current, entt::entity 
     }
 }
 
+bool NPCSystem::isReadyToPath(PathC& path) { return path.atTarget && !path.isPathing; }
+
 // decide path decisions for all npcs
 void NPCSystem::moveNPCs()
 {
-
     auto view = sRegistry->view<PositionC, NeedsC, PhysicsC>();
 
     for (auto id : view) {
@@ -201,20 +246,20 @@ void NPCSystem::moveNPCs()
         auto& physics = view.get<PhysicsC>(id);
 
         auto& path = sRegistry->get<PathC>(id);
+        auto& need = sRegistry->get<NeedsC>(id);
 
         auto& playerCollision = sRegistry->get<CollisionC>(playerID);
         auto& playerPosition = sRegistry->get<PositionC>(playerID);
 
         // get potential new path
-        if (path.atTarget) {
-            if (path.atTarget && !path.isPathing) {
-                Vector2 gridPos = getGridPosition(position.pos);
-                int randX = GetRandomValue((int)gridPos.x - 10, (int)gridPos.x + 10);
-                int randY = GetRandomValue((int)gridPos.x - 10, (int)gridPos.x + 10);
-                path.target = {(float)randX, (float)randY};
-                path.isPathing = true;
-                astar(id);
-            }
+        /* && need.needs[0] == 1.0f */
+        if (isReadyToPath(path) && needs.desires[0] >= 1.0f) {
+            Vector2 gridPos = getGridPosition(position.pos);
+            int randX = GetRandomValue((int)gridPos.x - 10, (int)gridPos.x + 10);
+            int randY = GetRandomValue((int)gridPos.x - 10, (int)gridPos.x + 10);
+            path.target = {(float)randX, (float)randY};
+            path.isPathing = true;
+            astar(id);
         }
 
         moveNPC(id);
@@ -241,7 +286,7 @@ bool NPCSystem::showEntityInfo(Camera2D& camera)
                             NeedsC& needs = sRegistry->get<NeedsC>(id);
                             Vector2 infoPos = GetScreenToWorld2D(GetMousePosition(), camera);
 
-                            std::string weightString = std::to_string(needs.weights[0]);
+                            std::string weightString = std::to_string(needs.desires[0]);
                             weightString.erase(weightString.find_last_not_of('0') + 1, std::string::npos);
                             weightString.erase(weightString.find_last_not_of('.') + 1, std::string::npos);
 

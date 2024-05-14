@@ -22,11 +22,17 @@ public:
   bool astar(entt::entity id);
   void reconstructPath(PathMap cameFrom, Vector2 current, entt::entity id);
 
+  bool isReadyToPath(PathC &path);
   void moveNPC(entt::entity id); // move particular npc
   void moveNPCs();
   void update(Scene &scene);
   void cachePosition(Vector2 pos, entt::entity id);
   void clearCachePosition(Vector2 pos, entt::entity id);
 
+  bool entityAtPosition(Vector2 entityPos);
+
   bool showEntityInfo(Camera2D &camera);
+
+  void updateNeeds();
+  void updateDesires(NeedsC &need);
 };
