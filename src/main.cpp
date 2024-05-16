@@ -20,19 +20,24 @@
 #include "entity_data.hpp"
 #include "entt/entity/registry.hpp"
 
+#include "lua/lualoader.hpp"
+
 int main()
 {
     SetConfigFlags(FLAG_WINDOW_ALWAYS_RUN);
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
+
+    InitLua(); // intialize lua before calling lualoader functions
+
     /* SetTargetFPS(60); */
 
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
-    SetRandomSeed(60);
+    InitWindow(LuaGetInt("WINDOW_WIDTH", "scripts/game_settings.lua"), LuaGetInt("WINDOW_HEIGHT", "scripts/game_settings.lua"), "Delogy Indev");
+    SetRandomSeed(LuaGetInt("WORLD_SEED", "scripts/game_settings.lua"));
 
-    TileManager tileManager(60);
+    TileManager tileManager(LuaGetInt("WORLD_SEED", "scripts/game_settings.lua"));
 
-    MiniMap miniMap(200, 200, &tileManager);
+    MiniMap miniMap(LuaGetInt("MINIMAP_WIDTH", "scripts/game_settings.lua"), LuaGetInt("MINIMAP_HEIGHT", "scripts/game_settings.lua"), &tileManager);
     UI userInterface;
 
     CartManager cartManager;
@@ -98,4 +103,6 @@ int main()
         EndDrawing();
     }
     CloseWindow();
+
+    CloseLua();
 }

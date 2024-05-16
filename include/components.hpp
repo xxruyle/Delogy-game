@@ -2,16 +2,13 @@
 #include "atlas.hpp"
 #include "dev_util.hpp"
 #include "item_data.hpp"
+#include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
 #include <deque>
 #include <queue>
 #include <unordered_set>
 #include <vector>
-
-struct DirectionStateC {
-  int curDirection;
-};
 
 struct SpriteC {
   AtlasType atlasID; // the atlas the sprite is located on
@@ -47,8 +44,13 @@ struct AnimationC {
    * * padding to get to that frame  */
   std::vector<unsigned int> atFrame; // the number each animation state is on
 
-  float animationSpeed = ANIMATION_SPEED;
-  float animationUpdateTime = 1.0f / ANIMATION_SPEED;
+  float animationSpeed =
+      LuaGetFloat("ANIMATION_SPEED", "scripts/game_settings.lua");
+
+  float ATLAS_SPRITE_PADDING =
+      LuaGetInt("ATLAS_SPRITE_PADDING", "scripts/game_settings.lua");
+
+  float animationUpdateTime = 1.0f / animationSpeed;
   float timeSinceLastFrameSwap = 0.0f;
 
   AnimationC(Rectangle origin, unsigned int numframes,
@@ -70,7 +72,9 @@ struct AnimationC {
 };
 
 struct InventoryC {
-  int hotbar[NUM_HOTBAR] = {RAIL_V, CART, STORAGE_BOX, NULL_ITEM, NULL_ITEM};
+  /* int hotbar[NUM_HOTBAR] = {RAIL_V, CART, STORAGE_BOX, NULL_ITEM, NULL_ITEM};
+   */
+  std::vector<int> hotbar = {RAIL_V, CART, STORAGE_BOX, NULL_ITEM, NULL_ITEM};
   int curItem = 0;
 };
 
@@ -79,7 +83,6 @@ struct OrecartC {
   int movementDirection;
   int previousRail;
   Vector2 previousGridPos;
-  int storage[ORECART_STORAGE_SIZE];
 };
 
 struct PlayerC {

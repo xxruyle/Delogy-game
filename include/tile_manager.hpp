@@ -4,6 +4,7 @@
 #include "dev_util.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/registry.hpp"
+#include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "scene.hpp"
 #include <iostream>
@@ -43,7 +44,11 @@ public:
 class TileManager {
 public:
   int world_seed;
-  int renderDistance = RENDER_DISTANCE;
+  int worldSize = LuaGetInt("WORLD_SIZE", "scripts/game_settings.lua");
+
+  int renderDistance =
+      LuaGetInt("RENDER_DISTANCE", "scripts/game_settings.lua");
+
   TileManager(int random_seed) : world_seed(random_seed) {
     std::cout << "World seed: " << random_seed << std::endl;
   };

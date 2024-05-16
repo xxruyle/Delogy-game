@@ -34,10 +34,9 @@ public:
 
   float tileSize = 3.0f;   // the dimensions of each tile in the minimap
   bool fullScreen = false; // large minimap mode toggle usage
-  int visitedChunks[WORLD_SIZE * 2 * WORLD_SIZE *
-                    2]; // the chunks that the player has visited, 0 or 1
-  RenderTexture mapChunks[WORLD_SIZE * 2 * WORLD_SIZE *
-                          2]; // RenderTexture of each chunk in the minimap
+
+  std::vector<int> visitedChunks;
+  std::vector<RenderTexture> mapChunks;
 
   std::unordered_set<Vector2, Vector2Util, Vector2Util>
       waypoints; // waypoints the player has placed on the minimap, only one for

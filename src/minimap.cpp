@@ -7,6 +7,7 @@
 #include "tile_manager.hpp"
 #include "macros_util.hpp"
 #include "input_system.hpp"
+#include "lua/lualoader.hpp"
 #include <vector>
 
 MiniMap::MiniMap(int init_width, int init_height, TileManager* tileManager) : width(init_width), height(init_height)
@@ -14,6 +15,11 @@ MiniMap::MiniMap(int init_width, int init_height, TileManager* tileManager) : wi
     map = LoadRenderTexture(init_width, init_height);
     position = Rectangle{GetScreenWidth() - width - padding, padding, (float)init_width, (float)init_height};
     tManager = tileManager;
+
+    int worldSize = LuaGetInt("WORLD_SIZE", "scripts/game_settings.lua");
+    worldSize = worldSize * 2 * worldSize * 2;
+    visitedChunks.resize(worldSize);
+    mapChunks.resize(worldSize);
 };
 
 void MiniMap::createWaypoint()
@@ -152,7 +158,8 @@ void MiniMap::storeNewChunkTextures(Vector2 playerPos)
 
 void MiniMap::drawVisitedChunks(std::vector<Vector2>& chunkBuffer)
 {
-    for (int index = 0; index < WORLD_SIZE * 2 * WORLD_SIZE * 2; index++) {
+    int worldSize = LuaGetInt("WORLD_SIZE", "scripts/game_settings.lua");
+    for (int index = 0; index < worldSize * 2 * worldSize * 2; index++) {
         if (visitedChunks[index] == 1) {
             Rectangle src = {0.0f, 0.0f, mapChunks[index].texture.width, -mapChunks[index].texture.height};
             Vector2 chunkSrc = {tManager->chunks[index].srcCoordinate.x * CHUNK_SIZE * tileSize, tManager->chunks[index].srcCoordinate.y * CHUNK_SIZE * tileSize};
@@ -245,7 +252,8 @@ void MiniMap::update(UI& ui, Vector2 playerPos, SpriteDrawSystem& drawSystem)
 MiniMap::~MiniMap()
 {
     UnloadTexture(map.texture);
-    for (int i = 0; i < WORLD_SIZE * 2 * WORLD_SIZE * 2; i++) {
+    int worldSize = LuaGetInt("WORLD_SIZE", "scripts/game_settings.lua");
+    for (int i = 0; i < worldSize * 2 * worldSize * 2; i++) {
         if (visitedChunks[i] == 1) {
             UnloadRenderTexture(mapChunks[i]);
         }

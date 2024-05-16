@@ -3,6 +3,7 @@
 #include "macros_util.hpp"
 #include "raylib.h"
 #include "raymath.h"
+#include "lua/lualoader.hpp"
 
 void AnimationSystem::incrementAnimation(AnimationC& animation)
 {
@@ -78,6 +79,7 @@ void AnimationSystem::updateNPCAnimations(AnimationC& animation, PhysicsC& physi
 void AnimationSystem::updateSprites(entt::basic_registry<>& registry)
 {
     auto view = registry.view<AnimationC, SpriteC>();
+    float ATLAS_SPRITE_PADDING = LuaGetInt("ATLAS_SPRITE_PADDING", "scripts/game_settings.lua");
 
     for (auto entity : view) {
         auto& animation = view.get<AnimationC>(entity);

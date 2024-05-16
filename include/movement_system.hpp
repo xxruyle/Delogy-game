@@ -1,6 +1,7 @@
 #pragma once
 #include "components.hpp"
 #include "input_system.hpp"
+#include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
 #include "tile_manager.hpp"
@@ -12,6 +13,8 @@ class InputSystem;
 class MovementSystem {
 public:
   Color collisionColor = WHITE;
+  bool collisionEnabled =
+      LuaGetBool("COLLISION_ENABLED", "scripts/game_settings.lua");
   void updatePhysics(PhysicsC &physics, PositionC &position);
   void updateNPCPhysics(PhysicsC &physics, PositionC &position);
   void updatePosition(PhysicsC &physics, CollisionC &collision,

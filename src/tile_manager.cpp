@@ -6,6 +6,7 @@
 #include "entt/entity/fwd.hpp"
 #include "input_system.hpp"
 #include "item_data.hpp"
+#include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
 #include "raymath.h"
@@ -131,8 +132,8 @@ void TileChunk::updateItem(int x, int y, int playerItemID)
 /* ---------------- TileManager Methods  ----------------*/
 void TileManager::generateChunks()
 {
-    for (int y = -WORLD_SIZE; y < WORLD_SIZE; y++) {
-        for (int x = -WORLD_SIZE; x < WORLD_SIZE; x++) {
+    for (int y = -worldSize; y < worldSize; y++) {
+        for (int x = -worldSize; x < worldSize; x++) {
             Vector2 chunkCoord = {(float)x, (float)y};
 
             TileChunk chunk(chunkCoord, world_seed);
@@ -146,8 +147,8 @@ void TileManager::generateChunks()
 
 void TileManager::generateOres()
 {
-    for (int y = -WORLD_SIZE * CHUNK_SIZE; y < WORLD_SIZE * CHUNK_SIZE; y++) {
-        for (int x = -WORLD_SIZE * CHUNK_SIZE; x < WORLD_SIZE * CHUNK_SIZE; x++) {
+    for (int y = -worldSize * CHUNK_SIZE; y < worldSize * CHUNK_SIZE; y++) {
+        for (int x = -worldSize * CHUNK_SIZE; x < worldSize * CHUNK_SIZE; x++) {
             int rand = GetRandomValue(0, 10000);
             if (rand < 3) {
                 int randOreSize = GetRandomValue(5, 15);
@@ -173,13 +174,13 @@ void TileManager::generateOres()
     }
 }
 
-bool TileManager::chunkExists(Vector2 chunkPos) { return (chunkPos.x >= -WORLD_SIZE && chunkPos.x < WORLD_SIZE) && (chunkPos.y >= -WORLD_SIZE && chunkPos.y < WORLD_SIZE); }
+bool TileManager::chunkExists(Vector2 chunkPos) { return (chunkPos.x >= -worldSize && chunkPos.x < worldSize) && (chunkPos.y >= -worldSize && chunkPos.y < worldSize); }
 
 int TileManager::getChunkIndex(int x, int y)
 { // given the coordinate of a chunk
-    int stride = (WORLD_SIZE * 2 - 1);
-    x = WORLD_SIZE + x;
-    y = WORLD_SIZE + y;
+    int stride = (worldSize * 2 - 1);
+    x = worldSize + x;
+    y = worldSize + y;
     return x + (y * (stride + 1));
 }
 
@@ -305,7 +306,7 @@ std::vector<Vector2> TileManager::getNeighbors(int x, int y, int radius)
 
 bool TileManager::isValidCoordinate(int x, int y)
 {
-    int worldBound = CHUNK_SIZE * WORLD_SIZE;
+    int worldBound = CHUNK_SIZE * worldSize;
     return ((x >= -worldBound && y >= -worldBound) && (x < worldBound && y < worldBound));
 }
 
@@ -333,9 +334,9 @@ IndexPair TileManager::getGridIndexPair(int x, int y)
 
 void TileManager::drunkardGenerateAll()
 {
-    int worldLength = CHUNK_SIZE * WORLD_SIZE;
+    int worldLength = CHUNK_SIZE * worldSize;
     int totalTileCount = worldLength * worldLength;
-    for (int i = 0; i < WORLD_SIZE * 2; i++) {
+    for (int i = 0; i < worldSize * 2; i++) {
         /* std::cout << i << std::endl; */
         int floorCount = 0;
         int trappedCount = 0;

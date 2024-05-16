@@ -19,11 +19,11 @@ STATIC_TARGET = $(OBJ_DIR)/DelogyStatic.exe
 
 # Build rule
 $(TARGET): $(OBJ_FILES)
-	$(CXX) $(CXXFLAGS) -o $@ $^ -L./lib -lrayguidll -lraylib -lopengl32 -lgdi32 -lwinmm
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L./lib -lrayguidll -lraylib -lopengl32 -lgdi32 -lwinmm -lliblua
 	./bin/Delogy.exe
 
 $(STATIC_TARGET): $(OBJ_FILES)
-	$(CXX) $(CXXFLAGS_STATIC) -o $@ $^ -L./lib -lrayguidll -lraylib -lopengl32 -lgdi32 -lwinmm
+	$(CXX) $(CXXFLAGS_STATIC) -o $@ $^ -L./lib -lrayguidll -lraylib -lopengl32 -lgdi32 -lwinmm -lliblua
 
 # Object file rule
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADER_FILES)

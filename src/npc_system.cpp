@@ -23,7 +23,7 @@ NPCSystem::NPCSystem(TileManager* tileManager, entt::basic_registry<>* EntityReg
 // spawn NPCs for debugging
 void NPCSystem::addNPCs()
 {
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 2; i++) {
         entt::entity entity = sRegistry->create();
         Vector2 pos = {GetRandomValue(-10, 10), GetRandomValue(-10, 10)};
         /* Vector2 pos = {1, 1}; */

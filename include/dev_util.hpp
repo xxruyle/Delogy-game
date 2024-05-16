@@ -1,4 +1,5 @@
 #pragma once
+#include "lua/lualoader.hpp"
 #include "raylib.h"
 #include <cmath>
 #include <limits>

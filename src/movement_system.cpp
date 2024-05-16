@@ -60,7 +60,7 @@ float MovementSystem::moveX(int amount, PhysicsC& physics, CollisionC& collision
 
     if (amount != 0) {
         while (abs(remainderX * GetFrameTime()) <= abs(amount * GetFrameTime())) {
-            if (!isCollided(physics, collision, Vector2{position.pos.x + ((((step + 1.0f) * sign) + remainderX) * GetFrameTime()), position.pos.y}, tileManager) || !physics.is_solid || !COLLISION_ENABLED) {
+            if (!isCollided(physics, collision, Vector2{position.pos.x + ((((step + 1.0f) * sign) + remainderX) * GetFrameTime()), position.pos.y}, tileManager) || !physics.is_solid || !collisionEnabled) {
                 collisionColor = WHITE;
                 remainderX += step * sign;
             }
@@ -86,7 +86,7 @@ float MovementSystem::moveY(int amount, PhysicsC& physics, CollisionC& collision
 
     if (amount != 0) {
         while (abs(remainderY * GetFrameTime()) <= abs(amount * GetFrameTime())) {
-            if (!isCollided(physics, collision, Vector2{position.pos.x, (position.pos.y + ((((step + 1.0f) * sign) + remainderY) * GetFrameTime()))}, tileManager) || !physics.is_solid || !COLLISION_ENABLED) {
+            if (!isCollided(physics, collision, Vector2{position.pos.x, (position.pos.y + ((((step + 1.0f) * sign) + remainderY) * GetFrameTime()))}, tileManager) || !physics.is_solid || !collisionEnabled) {
                 collisionColor = WHITE;
                 remainderY += step * sign;
             }
