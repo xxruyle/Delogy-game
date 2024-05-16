@@ -9,6 +9,12 @@
 
 using PathMap = std::unordered_map<Vector2, Vector2, Vector2Util, Vector2Util>;
 
+using PathVisited =
+    std::unordered_map<Vector2, PathNode, Vector2Util, Vector2Util>;
+
+using PathQueue =
+    std::priority_queue<PathNode, std::vector<PathNode>, PathNodeComparison>;
+
 // controls npc pathing and updating tilemanager entity cache
 class NPCSystem {
 public:
@@ -24,7 +30,7 @@ public:
 
   bool isReadyToPath(PathC &path);
   void moveNPC(entt::entity id); // move particular npc
-  void moveNPCs();
+  void updateNPCPaths();
   void update(Scene &scene);
   void cachePosition(Vector2 pos, entt::entity id);
   void clearCachePosition(Vector2 pos, entt::entity id);

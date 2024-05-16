@@ -24,12 +24,6 @@ void MovementSystem::updatePhysics(PhysicsC& physics, PositionC& position)
 
 void MovementSystem::updateNPCPhysics(PhysicsC& physics, PositionC& position)
 { // update npc velocity
-    if (physics.velocity.x == 0 && physics.velocity.y == 0) {
-        physics.moving = false;
-    }
-    else {
-        physics.moving = true;
-    }
 }
 
 bool MovementSystem::isCollided(PhysicsC& physics, CollisionC& collision, Vector2 futurePosition, TileManager& tileManager)
@@ -116,6 +110,13 @@ void MovementSystem::updateNPCPositions(PhysicsC& physics, CollisionC& collision
 {
     position.pos.x += physics.velocity.x * GetFrameTime();
     position.pos.y += physics.velocity.y * GetFrameTime();
+
+    if (physics.velocity.x == 0 && physics.velocity.y == 0) {
+        physics.moving = false;
+    }
+    else {
+        physics.moving = true;
+    }
 }
 
 void MovementSystem::update(entt::entity player, entt::basic_registry<>& sceneRegistry, TileManager& tileManager)

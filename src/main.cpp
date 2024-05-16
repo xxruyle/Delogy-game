@@ -28,9 +28,9 @@ int main()
     /* SetTargetFPS(60); */
 
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Delogy Indev");
-    SetRandomSeed(30);
+    SetRandomSeed(60);
 
-    TileManager tileManager(30);
+    TileManager tileManager(60);
 
     MiniMap miniMap(200, 200, &tileManager);
     UI userInterface;
@@ -68,10 +68,11 @@ int main()
             /* Systems */
             npcSystem.update(scene);
             inventorySystem.update(scene);
-            animationSystem.update(scene.EntityRegistry, scene.player);
 
             /* Player Movement */
             movementSystem.update(scene.player, scene.EntityRegistry, tileManager);
+
+            animationSystem.update(scene.EntityRegistry, scene.player);
 
             /* Draw */
             drawSystem.drawSprites(scene.EntityRegistry);

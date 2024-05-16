@@ -23,11 +23,12 @@ NPCSystem::NPCSystem(TileManager* tileManager, entt::basic_registry<>* EntityReg
 // spawn NPCs for debugging
 void NPCSystem::addNPCs()
 {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 1000; i++) {
         entt::entity entity = sRegistry->create();
         Vector2 pos = {GetRandomValue(-10, 10), GetRandomValue(-10, 10)};
         /* Vector2 pos = {1, 1}; */
-        sRegistry->emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{88, 4, 16, 16});
+        sRegistry->emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{4, 4, 16, 16});
+        sRegistry->emplace<AnimationC>(entity, Rectangle{4, 4, 16, 16}, 4, 4);
         sRegistry->emplace<PositionC>(entity, getGridToScreenPos(pos));
         sRegistry->emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 30, 30, false);
         sRegistry->emplace<CollisionC>(entity, Rectangle{0, 0, 16, 16});
@@ -43,7 +44,7 @@ void NPCSystem::addNPCs()
 }
 void NPCSystem::update(Scene& scene)
 {
-    moveNPCs();
+    updateNPCPaths();
     updateNeeds();
 }
 
@@ -72,7 +73,6 @@ void NPCSystem::updateNeeds()
 
         if (GetTime() - timer.lastTime >= 2.0f) {
             updateDesires(needs);
-            /* needs.desires[0] += needs.weights[0]; */
             timer.lastTime = GetTime();
         }
     }
@@ -138,9 +138,10 @@ void NPCSystem::moveNPC(entt::entity id)
         // drawing a line for debugging visual
         Vector2 centeredTarget = getGridToScreenPos(path.target);
         centeredTarget = {centeredTarget.x + 8, centeredTarget.y + 8};
-        /* DrawLineV(centeredTarget, position.pos, PURPLE); */
-        DrawLineEx(centeredPos, centeredTarget, 1.0f, RAYWHITE);
-        DrawCircle(centeredTarget.x, centeredTarget.y, 1.5f, RED);
+        DrawLineEx(centeredPos, centeredTarget, 1.0f, RAYWHITE);   // drawing path line for debugging
+        DrawCircle(centeredTarget.x, centeredTarget.y, 1.5f, RED); // drawing circle at path target
+
+        // updating entity cache
         clearCachePosition(getGridPosition(position.pos), id);
         cachePosition(getGridPosition(position.pos), id);
     }
@@ -149,7 +150,6 @@ void NPCSystem::moveNPC(entt::entity id)
             auto& needs = sRegistry->get<NeedsC>(id);
             needs.desires[0] = 0;
         }
-
         path.atTarget = true;
         physics.velocity.x = 0;
         physics.velocity.y = 0;
@@ -162,7 +162,6 @@ bool NPCSystem::astar(entt::entity id)
     auto& path = sRegistry->get<PathC>(id);
 
     if (path.isPathing) { // check to see if npc is pathing
-
         IndexPair indexPair = tManager->getIndexPair(path.target.x * 16, path.target.y * 16);
         int zID = tManager->chunks[indexPair.chunk].tileZ[indexPair.tile];
         if (zID == 1) { // if the target is impossible to get to, return
@@ -170,9 +169,10 @@ bool NPCSystem::astar(entt::entity id)
             return false;
         }
 
+        // initializing astar storages
         PathMap cameFrom;
-        std::unordered_map<Vector2, PathNode, Vector2Util, Vector2Util> visited;
-        std::priority_queue<PathNode, std::vector<PathNode>, PathNodeComparison> fringe;
+        PathVisited visited;
+        PathQueue fringe;
 
         auto& position = sRegistry->get<PositionC>(id);
         Vector2 gridPos = getGridPosition(Vector2{position.pos.x + 8, position.pos.y + 8});
@@ -180,9 +180,11 @@ bool NPCSystem::astar(entt::entity id)
         fringe.push(initialNode); // initialize first node
         visited[initialNode.pos] = initialNode;
 
+        // astar loop
         while (!fringe.empty()) {
             PathNode curNode = fringe.top();
 
+            // if npc meets path target
             if (curNode.pos.x == path.target.x && curNode.pos.y == path.target.y) {
                 reconstructPath(cameFrom, curNode.pos, id);
                 path.isPathing = false;
@@ -199,6 +201,7 @@ bool NPCSystem::astar(entt::entity id)
                 if (zID != 1) {
                     PathNode neighborNode = {n, curNode.cost + 1 + Vector2Manhattan(n, path.target)};
                     if (visited.count(neighborNode.pos)) {
+                        // update if new found node is cheaper
                         if (visited[neighborNode.pos].cost > neighborNode.cost) {
                             visited[neighborNode.pos] = neighborNode;
                             cameFrom[neighborNode.pos] = curNode.pos;
@@ -235,7 +238,7 @@ void NPCSystem::reconstructPath(PathMap cameFrom, Vector2 current, entt::entity 
 bool NPCSystem::isReadyToPath(PathC& path) { return path.atTarget && !path.isPathing; }
 
 // decide path decisions for all npcs
-void NPCSystem::moveNPCs()
+void NPCSystem::updateNPCPaths()
 {
     auto view = sRegistry->view<PositionC, NeedsC, PhysicsC>();
 

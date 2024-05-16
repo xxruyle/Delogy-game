@@ -1,10 +1,10 @@
 #include "animation_system.hpp"
-
 #include "input_system.hpp"
 #include "macros_util.hpp"
+#include "raylib.h"
 #include "raymath.h"
 
-void AnimationSystem::incrementAnimation(AnimationC &animation)
+void AnimationSystem::incrementAnimation(AnimationC& animation)
 {
     animation.timeSinceLastFrameSwap += GetFrameTime();
 
@@ -19,9 +19,8 @@ void AnimationSystem::incrementAnimation(AnimationC &animation)
     }
 }
 
-void AnimationSystem::updatePlayerAnimation(AnimationC &animation, bool movementState)
+void AnimationSystem::updatePlayerAnimation(AnimationC& animation, bool movementState)
 {
-    /* int playerAnimation = input.getMovementDirection(); */
     Vector2 direction = InputSystem::getDirectionVector();
 
     if (direction.x < 0 && !(direction.y > 0 || direction.y < 0)) {
@@ -44,13 +43,45 @@ void AnimationSystem::updatePlayerAnimation(AnimationC &animation, bool movement
     }
 }
 
-void AnimationSystem::updateSprites(entt::basic_registry<> &registry)
+void AnimationSystem::updateNPCAnimations(AnimationC& animation, PhysicsC& physics)
 {
-    auto view = registry.view<const AnimationC, SpriteC>();
+
+    Vector2 dir = Vector2Normalize(physics.velocity);
+    float dirDot = Vector2Angle(Vector2{0, -1}, dir) * 180.0f / PI;
+
+    if (physics.moving) {
+        bool UP = (dirDot >= 157 && dirDot <= 180) || (dirDot >= 0 && dirDot <= 22);
+        bool RIGHT = dirDot > 22 && dirDot < 67;
+        bool DOWN = dirDot > 67 && dirDot < 112;
+        bool LEFT = dirDot > 112 && dirDot < 157;
+
+        if (UP) // UP
+        {
+            animation.curFrameSrc = (int)animationDirection::UP;
+        }
+        else if (RIGHT) { // RIGHT
+            animation.curFrameSrc = (int)animationDirection::RIGHT;
+        }
+        else if (DOWN) { // DOWN
+            animation.curFrameSrc = (int)animationDirection::DOWN;
+        }
+        else if (LEFT) { // LEFT
+            animation.curFrameSrc = (int)animationDirection::LEFT;
+        }
+        incrementAnimation(animation);
+    }
+    else { // if idle
+        animation.atFrame[animation.curFrameSrc] = 0;
+    }
+}
+
+void AnimationSystem::updateSprites(entt::basic_registry<>& registry)
+{
+    auto view = registry.view<AnimationC, SpriteC>();
 
     for (auto entity : view) {
-        auto &animation = view.get<AnimationC>(entity);
-        auto &sprite = view.get<SpriteC>(entity);
+        auto& animation = view.get<AnimationC>(entity);
+        auto& sprite = view.get<SpriteC>(entity);
         int distanceToNextSprite = animation.frameSrcs[animation.curFrameSrc].width + ATLAS_SPRITE_PADDING;
         unsigned int atframe = animation.atFrame[animation.curFrameSrc];
         sprite.atlasPos.x = animation.frameSrcs[animation.curFrameSrc].x + atframe * (distanceToNextSprite);
@@ -58,12 +89,21 @@ void AnimationSystem::updateSprites(entt::basic_registry<> &registry)
     }
 }
 
-void AnimationSystem::update(entt::basic_registry<> &registry, entt::entity player)
+void AnimationSystem::update(entt::basic_registry<>& registry, entt::entity player)
 {
     // test
-    AnimationC &animation = registry.get<AnimationC>(player);
-    PhysicsC &physics = registry.get<PhysicsC>(player);
-    updatePlayerAnimation(animation, physics.moving);
+    auto view = registry.view<AnimationC, PhysicsC>();
+
+    for (auto entity : view) {
+        AnimationC& animation = registry.get<AnimationC>(entity);
+        PhysicsC& physics = registry.get<PhysicsC>(entity);
+        if (entity == player) {
+            updatePlayerAnimation(animation, physics.moving);
+        }
+        else {
+            updateNPCAnimations(animation, physics);
+        }
+    }
 
     updateSprites(registry);
 }
