@@ -85,6 +85,7 @@ public:
       int radius); // find neighbors around an absolute grid space coordinate
   bool isValidCoordinate(int x, int y);
   void generateOres();
+  void generateVegetation();
 
   IndexPair getIndexPair(int x,
                          int y); // returns chunk index and relative grid pos

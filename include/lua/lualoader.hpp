@@ -1,9 +1,11 @@
 #pragma once
 #include <inttypes.h>
 #include <iostream>
+#include <raylib.h >
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include <vector>
 
 extern "C" {
 #include "lauxlib.h"
@@ -25,5 +27,8 @@ std::string LuaGetTableString(const char *tableName, const char *tableKey,
 
 int LuaGetTableInt(const char *tableName, const char *tableKey,
                    const char *filePath);
+
+std::vector<Vector3> LuaGetAtlasVals(const char *tableName,
+                                     const char *filePath);
 
 bool CheckLua(lua_State *L, int response);

@@ -40,7 +40,11 @@ void MiniMap::deleteWaypoint()
     Vector2 miniMapScreenPos = {(GetMousePosition().x - position.x), (GetMousePosition().y - position.y)};
     Vector2 mouseGridPos = getMinimapGridPos(camera, miniMapScreenPos, tileSize);
 
-    waypoints.erase(mouseGridPos);
+    std::vector<Vector2> nearGridPos = getRadiusNeighbors(mouseGridPos, 2);
+
+    for (Vector2& n : nearGridPos) {
+        waypoints.erase(n);
+    }
 }
 
 void MiniMap::getMapChangeInput(UI& ui, Vector2 playerPos)
@@ -133,6 +137,10 @@ void MiniMap::storeChunkTexture(int index)
 
                 if (itemID == STORAGE_BOX) {
                     DrawRectangleRec(tileDest, Color{171, 148, 122, alphaValue});
+                }
+
+                if (itemID == MUSHROOM_PURPLE) {
+                    DrawRectangleRec(tileDest, Color{144, 94, 169, alphaValue});
                 }
             }
         }

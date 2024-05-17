@@ -5,6 +5,7 @@
 #include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
+#include <cstddef>
 #include <deque>
 #include <queue>
 #include <unordered_set>
@@ -74,7 +75,8 @@ struct AnimationC {
 struct InventoryC {
   /* int hotbar[NUM_HOTBAR] = {RAIL_V, CART, STORAGE_BOX, NULL_ITEM, NULL_ITEM};
    */
-  std::vector<int> hotbar = {RAIL_V, CART, STORAGE_BOX, NULL_ITEM, NULL_ITEM};
+  std::vector<int> hotbar = {RAIL_V,          CART,      STORAGE_BOX,
+                             MUSHROOM_PURPLE, NULL_ITEM, NULL_ITEM};
   int curItem = 0;
 };
 
@@ -94,6 +96,7 @@ struct PathC {
   bool isPathing;
   bool atTarget;
   std::deque<Vector2> destQueue; // the destinations in queue
+  unsigned int targetID;
 };
 
 struct TimerC {
@@ -105,4 +108,8 @@ enum needType { ENERGY, HUNGER, SOCIAL, ENTERTAINMENT, SAFETY };
 struct NeedsC {
   float weights[5];
   float desires[5];
+
+  bool gather = false;
+  bool social = false;
+  bool lesiure = false;
 };

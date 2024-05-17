@@ -35,6 +35,20 @@ std::vector<Vector2> getNearNeighbors(Vector2 curPos)
     /* neighbors.push_back({curPos.x - 1, curPos.y + 1}); // Southwest */
     return neighbors;
 }
+
+std::vector<Vector2> getRadiusNeighbors(Vector2 curPos, int radius)
+{
+    std::vector<Vector2> neighbors;
+
+    for (int row = curPos.y - radius; row < curPos.y + radius; row++) {
+        for (int col = curPos.x - radius; col < curPos.x + radius; col++) {
+            neighbors.push_back({col, row});
+        }
+    }
+
+    return neighbors;
+}
+
 void drawGameInfo(Camera2D& camera, Vector2 playerPos, Vector2& playerVelocity)
 {
     int UI_FONT_SIZE = LuaGetInt("UI_FONT_SIZE", "scripts/game_settings.lua");

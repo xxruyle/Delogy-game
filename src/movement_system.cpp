@@ -3,6 +3,7 @@
 #include "components.hpp"
 #include "input_system.hpp"
 #include "macros_util.hpp"
+#include "lua/lualoader.hpp"
 #include "raylib.h"
 #include <cmath>
 #include <iostream>

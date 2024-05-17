@@ -16,6 +16,7 @@ enum ItemType {
   RAIL_SW, // bottom left rail 6
   STORAGE_BOX,
   CART, // they have underscores because they are items ;)
+  MUSHROOM_PURPLE
 };
 
 #define ITEM_NULL                                                              \
@@ -41,8 +42,12 @@ enum ItemType {
 #define ITEM_CART                                                              \
   (Item) { CART, 67, 88 }
 
+#define ITEM_MUSHROOM_PURPLE                                                   \
+  (Item) { MUSHROOM_PURPLE, 25, 151 }
+
 #define NUM_ITEMS 50
 
-static Item itemids[NUM_ITEMS] = {ITEM_NULL,    ITEM_RAIL_NW,     ITEM_RAIL_V,
-                                  ITEM_RAIL_NE, ITEM_RAIL_H,      ITEM_RAIL_SE,
-                                  ITEM_RAIL_SW, ITEM_STORAGE_BOX, ITEM_CART};
+static Item itemids[NUM_ITEMS] = {
+    ITEM_NULL,   ITEM_RAIL_NW,        ITEM_RAIL_V,  ITEM_RAIL_NE,
+    ITEM_RAIL_H, ITEM_RAIL_SE,        ITEM_RAIL_SW, ITEM_STORAGE_BOX,
+    ITEM_CART,   ITEM_MUSHROOM_PURPLE};

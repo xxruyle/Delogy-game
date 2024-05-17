@@ -1,5 +1,4 @@
 #include "cart_manager.hpp"
-#include "game_time.hpp"
 #include "input_system.hpp"
 #include "item_data.hpp"
 #include "raylib.h"
@@ -85,7 +84,7 @@ int CartManager::getDirectionMultiplier(int direction)
     }
 }
 
-Vector2 CartManager::getFarSideCartBorder(PositionC &position, int direction)
+Vector2 CartManager::getFarSideCartBorder(PositionC& position, int direction)
 {
     Vector2 cartPos;
     switch (direction) {
@@ -108,7 +107,7 @@ Vector2 CartManager::getFarSideCartBorder(PositionC &position, int direction)
     return cartPos;
 }
 
-Vector2 CartManager::getNearSideCartBorder(PositionC &position, int direction)
+Vector2 CartManager::getNearSideCartBorder(PositionC& position, int direction)
 {
     Vector2 cartPos;
     switch (direction) {
@@ -131,7 +130,7 @@ Vector2 CartManager::getNearSideCartBorder(PositionC &position, int direction)
     return cartPos;
 }
 
-void CartManager::getPlayerInteraction(InventoryC &inventory, Camera2D &camera, entt::basic_registry<> &registry)
+void CartManager::getPlayerInteraction(InventoryC& inventory, Camera2D& camera, entt::basic_registry<>& registry)
 {
     if (InputSystem::getUserMouseInteraction() == PLAYER_CREATE) {
         int inventoryItem = inventory.hotbar[inventory.curItem];
@@ -142,21 +141,17 @@ void CartManager::getPlayerInteraction(InventoryC &inventory, Camera2D &camera, 
     }
 }
 
-void CartManager::changeCartDirection(PositionC &position, OrecartC &orecart, PhysicsC &physics, int itemUnder,
-                                      int prevItemUnder, int futureItemUnder)
+void CartManager::changeCartDirection(PositionC& position, OrecartC& orecart, PhysicsC& physics, int itemUnder, int prevItemUnder, int futureItemUnder)
 {
     Vector2 curGridPos = getGridPosition({position.pos.x + 8.0f, position.pos.y + 8.0f});
 
     if (prevItemUnder != NULL_ITEM && futureItemUnder != NULL_ITEM) {
-        if (orecart.previousGridPos.x != curGridPos.x || orecart.previousGridPos.y != curGridPos.y ||
-            !physics.moving) { // recheck if the cart is stopped
+        if (orecart.previousGridPos.x != curGridPos.x || orecart.previousGridPos.y != curGridPos.y || !physics.moving) { // recheck if the cart is stopped
 
-            std::unordered_set<int> connectableRails = getValidRails(
-                prevItemUnder,
-                orecart.movementDirection); // get all the connectable rails for the previous rail the cart was under
+            std::unordered_set<int> connectableRails = getValidRails(prevItemUnder,
+                                                                     orecart.movementDirection); // get all the connectable rails for the previous rail the cart was under
 
-            if (!connectableRails.count(
-                    futureItemUnder)) { // if the future rail that the cart is going on is connectable
+            if (!connectableRails.count(futureItemUnder)) { // if the future rail that the cart is going on is connectable
                 physics.moving = false;
                 physics.velocity.x = 0;
                 physics.velocity.y = 0;
@@ -246,7 +241,7 @@ void CartManager::changeCartDirection(PositionC &position, OrecartC &orecart, Ph
     /* std::cout << itemUnder << std::endl; */
 }
 
-void CartManager::changeCartVelocity(PhysicsC &physics, OrecartC &orecart)
+void CartManager::changeCartVelocity(PhysicsC& physics, OrecartC& orecart)
 {
 
     int directionMultiplier = getDirectionMultiplier(orecart.movementDirection);
@@ -288,27 +283,22 @@ void CartManager::changeCartVelocity(PhysicsC &physics, OrecartC &orecart)
     }
 }
 
-void CartManager::changeCartPosition(PositionC &position, PhysicsC &physics)
-{
-    /* position.pos.x += physics.velocity.x * GameTime::getDT(); */
-    /* position.pos.y += physics.velocity.y * GameTime::getDT(); */
-}
+void CartManager::changeCartPosition(PositionC& position, PhysicsC& physics) {}
 
-void CartManager::updateCarts(entt::basic_registry<> &registry, TileManager &tileManager)
+void CartManager::updateCarts(entt::basic_registry<>& registry, TileManager& tileManager)
 {
     auto view = registry.view<SpriteC, PhysicsC, PositionC, OrecartC, CollisionC>();
 
     for (auto entity : view) {
-        auto &sprite = view.get<SpriteC>(entity);
-        auto &physics = view.get<PhysicsC>(entity);
-        auto &position = view.get<PositionC>(entity);
-        auto &orecart = view.get<OrecartC>(entity);
-        auto &collision = view.get<CollisionC>(entity);
+        auto& sprite = view.get<SpriteC>(entity);
+        auto& physics = view.get<PhysicsC>(entity);
+        auto& position = view.get<PositionC>(entity);
+        auto& orecart = view.get<OrecartC>(entity);
+        auto& collision = view.get<CollisionC>(entity);
 
         Vector2 farSideAABB = getFarSideCartBorder(position, orecart.movementDirection);
         int itemUnder = tileManager.getItemUnder(farSideAABB);
-        int prevItemUnder =
-            tileManager.getItemUnder({orecart.previousGridPos.x * 16.0f, orecart.previousGridPos.y * 16.0f});
+        int prevItemUnder = tileManager.getItemUnder({orecart.previousGridPos.x * 16.0f, orecart.previousGridPos.y * 16.0f});
         int futureItemUnder = tileManager.getItemUnder({position.pos.x + 8.0f, position.pos.y + 8.0f});
 
         changeCartDirection(position, orecart, physics, itemUnder, prevItemUnder, futureItemUnder);
@@ -321,7 +311,7 @@ void CartManager::updateCarts(entt::basic_registry<> &registry, TileManager &til
     }
 }
 
-void CartManager::createCart(Vector2 position, entt::basic_registry<> &registry)
+void CartManager::createCart(Vector2 position, entt::basic_registry<>& registry)
 {
     entt::entity entity = registry.create();
     registry.emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{67, 88, 16, 16});
@@ -332,7 +322,7 @@ void CartManager::createCart(Vector2 position, entt::basic_registry<> &registry)
 
     cartCount++;
 }
-void CartManager::update(TileManager &tileManager, Scene &scene)
+void CartManager::update(TileManager& tileManager, Scene& scene)
 
 {
     getPlayerInteraction(scene.EntityRegistry.get<InventoryC>(scene.player), scene.camera, scene.EntityRegistry);

@@ -33,8 +33,11 @@ struct PathNodeComparison {
 
 std::string getVector2String(Vector2 vec);
 int Vector2Manhattan(Vector2 vec1, Vector2 vec2);
+
 std::vector<Vector2>
 getNearNeighbors(Vector2 curPos); // get the 8 neighbors of a cell
+
+std::vector<Vector2> getRadiusNeighbors(Vector2 curPos, int radius);
 
 /* Drawing Dev Utility  Functions*/
 void drawGameInfo(

@@ -1,7 +1,6 @@
 # Delogy Design Ideas 
 
 
-
 - telegraph lines 
 - fog of war 
 - npc villages 
@@ -48,3 +47,14 @@
 - needs
 - reaction to player 
 - animations
+
+
+## Main Game loop idea 
+
+1) Player gather resources 
+2) Trade with NPCs 
+3) Get reputation with NPCs 
+4) Rule NPCs 
+5) Order NPCs for more resources 
+6) Take over communities 
+7) Become rich 

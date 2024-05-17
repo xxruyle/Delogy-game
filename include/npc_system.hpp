@@ -3,6 +3,7 @@
 #include "dev_util.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/registry.hpp"
+#include "lua/lualoader.hpp"
 #include "scene.hpp"
 #include "tile_manager.hpp"
 #include <unordered_map>
@@ -15,12 +16,19 @@ using PathVisited =
 using PathQueue =
     std::priority_queue<PathNode, std::vector<PathNode>, PathNodeComparison>;
 
+struct BoolVec2Pair {
+  bool confirm;
+  Vector2 pos;
+};
+
 // controls npc pathing and updating tilemanager entity cache
 class NPCSystem {
 public:
   TileManager *tManager;
   entt::basic_registry<> *sRegistry;
   entt::entity playerID;
+  bool NPC_DEBUG_INFO =
+      LuaGetBool("DRAW_NPC_DEBUG", "scripts/game_settings.lua");
   NPCSystem(TileManager *tileManager, entt::basic_registry<> *EntityRegistry,
             entt::entity player);
   void addNPCs();
@@ -35,10 +43,15 @@ public:
   void cachePosition(Vector2 pos, entt::entity id);
   void clearCachePosition(Vector2 pos, entt::entity id);
 
-  bool entityAtPosition(Vector2 entityPos);
+  bool entityAtPosition(
+      Vector2 pos); // returns an entity at position if it exists, otherwise 0
 
   bool showEntityInfo(Camera2D &camera);
 
+  BoolVec2Pair floodSearch(entt::entity id);
+  BoolVec2Pair floodSearchEntity(entt::entity id);
+
   void updateNeeds();
   void updateDesires(NeedsC &need);
+  void resetDesireStates(NeedsC &need);
 };

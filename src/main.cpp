@@ -1,5 +1,6 @@
 #include "components.hpp"
 #include "macros_util.hpp"
+#include "tile_data.hpp"
 #include <utility>
 #include <iostream>
 #define RAYGUI_IMPLEMENTATION
@@ -55,7 +56,6 @@ int main()
     MovementSystem movementSystem;
 
     tileManager.generateChunks();
-    tileManager.generateOres();
 
     /* npcSystem.update(scene); */
     while (!WindowShouldClose()) {

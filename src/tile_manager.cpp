@@ -61,6 +61,7 @@ void TileChunk::drawTile(Atlas& atlas, int x, int y)
 {
     int index = getIndex(x, y);
     int id = tileID[index];
+
     Tile curTile = tileids[id];
     float xAtlasPos = curTile.x;
     float yAtlasPos = curTile.y;
@@ -143,6 +144,7 @@ void TileManager::generateChunks()
 
     drunkardGenerateAll();
     generateOres();
+    /* generateVegetation(); */
 }
 
 void TileManager::generateOres()
@@ -168,6 +170,23 @@ void TileManager::generateOres()
                     if (!isValidCoordinate(curTile.x, curTile.y)) {
                         break;
                     }
+                }
+            }
+        }
+    }
+}
+
+void TileManager::generateVegetation()
+{
+
+    for (int y = -worldSize * CHUNK_SIZE; y < worldSize * CHUNK_SIZE; y++) {
+        for (int x = -worldSize * CHUNK_SIZE; x < worldSize * CHUNK_SIZE; x++) {
+            int rand = GetRandomValue(0, 500);
+            if (rand < 3) {
+                Vector2 curTile = {x, y};
+                IndexPair index = getGridIndexPair(curTile.x, curTile.y);
+                if (chunks[index.chunk].tileZ[index.tile] == 0) { // if on lowest level
+                    chunks[index.chunk].itemID[index.tile] = MUSHROOM_PURPLE;
                 }
             }
         }
@@ -215,7 +234,7 @@ void TileManager::checkPlayerInteraction(Camera2D& camera, UI& ui, InventoryC& p
             }
             case PLAYER_CREATE: {
                 int selectedItem = playerInventory.hotbar[playerInventory.curItem];
-                if (selectedItem >= RAIL_NW && selectedItem < CART) {
+                if (selectedItem >= RAIL_NW && selectedItem <= MUSHROOM_PURPLE) {
                     chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y, selectedItem);
                     updatedChunks.push_back(chunkIndex);
                 }
@@ -336,7 +355,7 @@ void TileManager::drunkardGenerateAll()
 {
     int worldLength = CHUNK_SIZE * worldSize;
     int totalTileCount = worldLength * worldLength;
-    for (int i = 0; i < worldSize * 2; i++) {
+    for (int i = 0; i < worldSize * 4; i++) {
         /* std::cout << i << std::endl; */
         int floorCount = 0;
         int trappedCount = 0;
