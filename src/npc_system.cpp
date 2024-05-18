@@ -28,7 +28,7 @@ void NPCSystem::addNPCs()
 {
     for (int i = 0; i < LuaGetInt("MAX_NPCS", "scripts/game_settings.lua"); i++) {
         entt::entity entity = sRegistry->create();
-        Vector2 pos = {GetRandomValue(-5, 5), GetRandomValue(-5, 5)};
+        Vector2 pos = {GetRandomValue(-100, 100), GetRandomValue(-100, 100)};
         /* Vector2 pos = {1, 1}; */
         sRegistry->emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{4, 4, 16, 16});
         sRegistry->emplace<AnimationC>(entity, Rectangle{4, 4, 16, 16}, 4, 4);
@@ -41,8 +41,7 @@ void NPCSystem::addNPCs()
         Vector2 randomPath = {GetRandomValue(-20, 20), GetRandomValue(-20, 20)};
         sRegistry->emplace<PathC>(entity, Vector2{-15, -1}, false, true);
 
-        Vector2 entityPos = getGridPosition(pos);
-        cachePosition(entityPos, entity);
+        cachePosition(pos, entity);
     }
 }
 void NPCSystem::update(Scene& scene)
@@ -155,7 +154,8 @@ void NPCSystem::moveNPC(entt::entity id)
 
             if (need.social) {
                 desireColor = GREEN;
-                DrawTextEx(GetFontDefault(), std::to_string(path.targetID).c_str(), {position.pos.x, position.pos.y - 5}, 5.0f, 0.1f, desireColor);
+                /* DrawTextEx(GetFontDefault(), std::to_string(path.targetID).c_str(), {position.pos.x, position.pos.y - 5}, 5.0f, 0.1f, desireColor); */
+                DrawTextEx(GetFontDefault(), "SOCIAL", {position.pos.x, position.pos.y - 5}, 5.0f, 0.1f, desireColor);
             }
             else if (need.gather) {
                 desireColor = RED;

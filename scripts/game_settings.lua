@@ -45,7 +45,7 @@ NUM_HOTBAR = 6
 COLLISION_ENABLED = false
 
 -- NPC Info
-MAX_NPCS = 100
+MAX_NPCS = 500
 DRAW_NPC_DEBUG = true -- draw npc info (e.g path arrows)
 
 -- UI Info
