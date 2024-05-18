@@ -30,7 +30,7 @@ WINDOW_HEIGHT = 780
 WORLD_SIZE = 40
 TILE_SIZE = 16
 RENDER_DISTANCE = 2 -- the amount of chunks near the player the tile manager will render
--- WORLD_SEED = 132
+-- WORLD_SEED = 649
 WORLD_SEED = math.random(0, 1000)
 
 -- MINI Map Info
@@ -47,6 +47,7 @@ COLLISION_ENABLED = false
 -- NPC Info
 MAX_NPCS = 500
 DRAW_NPC_DEBUG = true -- draw npc info (e.g path arrows)
+NPC_SPAWN_RADIUS = 50
 
 -- UI Info
 UI_FONT_SIZE = 18

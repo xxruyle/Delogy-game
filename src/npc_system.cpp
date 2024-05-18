@@ -26,9 +26,10 @@ NPCSystem::NPCSystem(TileManager* tileManager, entt::basic_registry<>* EntityReg
 // spawn NPCs for debugging
 void NPCSystem::addNPCs()
 {
+    int npcSpawnRadius = LuaGetInt("NPC_SPAWN_RADIUS", "scripts/game_settings.lua");
     for (int i = 0; i < LuaGetInt("MAX_NPCS", "scripts/game_settings.lua"); i++) {
         entt::entity entity = sRegistry->create();
-        Vector2 pos = {GetRandomValue(-100, 100), GetRandomValue(-100, 100)};
+        Vector2 pos = {GetRandomValue(-npcSpawnRadius, npcSpawnRadius), GetRandomValue(-npcSpawnRadius, npcSpawnRadius)};
         /* Vector2 pos = {1, 1}; */
         sRegistry->emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{4, 4, 16, 16});
         sRegistry->emplace<AnimationC>(entity, Rectangle{4, 4, 16, 16}, 4, 4);
@@ -86,7 +87,14 @@ void NPCSystem::updateNeeds()
         }
     }
 }
-bool NPCSystem::entityAtPosition(Vector2 pos) { return tManager->entityPositionCache.count(pos); }
+bool NPCSystem::entityAtPosition(Vector2 pos)
+{
+    if (tManager->entityPositionCache.count(pos)) {
+        return tManager->entityPositionCache[pos].size() > 0;
+    }
+
+    return false;
+}
 
 // cache entity location given a position
 void NPCSystem::cachePosition(Vector2 pos, entt::entity id) { tManager->entityPositionCache[pos].push_back(id); }
@@ -138,8 +146,10 @@ void NPCSystem::moveNPC(entt::entity id)
 
         if (destAbsolute.x == (int)position.pos.x && destAbsolute.y == (int)position.pos.y) {
             path.destQueue.pop_front();
+            cachePosition(getGridPosition(centeredPos), id);
         }
         else {
+            clearCachePosition(getGridPosition(centeredPos), id);
             physics.velocity.x = dir.x * physics.speed;
             physics.velocity.y = dir.y * physics.speed;
         }
@@ -154,8 +164,8 @@ void NPCSystem::moveNPC(entt::entity id)
 
             if (need.social) {
                 desireColor = GREEN;
-                /* DrawTextEx(GetFontDefault(), std::to_string(path.targetID).c_str(), {position.pos.x, position.pos.y - 5}, 5.0f, 0.1f, desireColor); */
-                DrawTextEx(GetFontDefault(), "SOCIAL", {position.pos.x, position.pos.y - 5}, 5.0f, 0.1f, desireColor);
+                DrawTextEx(GetFontDefault(), std::to_string(path.targetID).c_str(), {position.pos.x, position.pos.y - 5}, 5.0f, 0.4f, desireColor);
+                /* DrawTextEx(GetFontDefault(), "SOCIAL", {position.pos.x, position.pos.y - 5}, 5.0f, 0.1f, desireColor); */
             }
             else if (need.gather) {
                 desireColor = RED;
@@ -170,15 +180,15 @@ void NPCSystem::moveNPC(entt::entity id)
             DrawCircle(centeredTarget.x, centeredTarget.y, 1.5f, RED);  // drawing circle at path target
         }
         // updating entity cache
-        clearCachePosition(getGridPosition(centeredPos), id);
-        cachePosition(getGridPosition(centeredPos), id);
+        /* clearCachePosition(getGridPosition(centeredPos), id); */
+        /* cachePosition(getGridPosition(centeredPos), id); */
     }
     else {
         auto& need = sRegistry->get<NeedsC>(id);
         if (!path.atTarget) {
             need.desires[0] = 0;
-            clearCachePosition(getGridPosition(centeredPos), id);
-            cachePosition(getGridPosition(centeredPos), id);
+            /* clearCachePosition(getGridPosition(centeredPos), id); */
+            /* cachePosition(getGridPosition(centeredPos), id); */
         }
         resetDesireStates(need);
         path.atTarget = true;
@@ -200,39 +210,34 @@ BoolVec2Pair NPCSystem::floodSearchEntity(entt::entity id)
     bfsQueue.push(initPos);
     visited[initPos] = initPos;
 
-    std::vector<Vector2> initNeighbors = getNearNeighbors(initPos);
     while (!bfsQueue.empty()) {
         Vector2 cur = bfsQueue.front();
         visited[cur] = cur;
 
         // need to check if found entity is not the current entity
+        if (entityAtPosition(cur) && tManager->entityPositionCache[cur][0] != id) {
+            std::vector<Vector2> entityNeighbors = getNearNeighbors(cur);
+            int randomNeighbor = GetRandomValue(0, entityNeighbors.size() - 1);
 
-        if (entityAtPosition(cur) && (Vector2Manhattan(cur, initPos) > 2) && tManager->entityPositionCache[cur][0] != id) {
-            for (Vector2& n : initNeighbors) {
-                if ((cur.x != n.x && cur.y != n.y)) {
-                    std::vector<Vector2> entityNeighbors = getNearNeighbors(cur);
-                    int randomNeighbor = GetRandomValue(0, entityNeighbors.size() - 1);
+            path.targetID = (unsigned int)tManager->entityPositionCache[cur][0];
 
-                    path.targetID = (unsigned int)tManager->entityPositionCache[cur][0];
+            return {true, entityNeighbors[randomNeighbor]};
 
-                    return {true, entityNeighbors[randomNeighbor]};
-                }
-            }
+            /* path.targetID = (unsigned int)tManager->entityPositionCache[cur][0]; */
+            /* return {true, cur}; */
         }
+        // pop cur node
+        bfsQueue.pop();
 
-        // get neighbors
-        std::vector<Vector2> neighbors = getNearNeighbors(cur);
+        std::vector<Vector2> neighbors = getNearNeighbors(cur); // get neighbors
         for (Vector2& n : neighbors) {
             // check if neighbors are within vision  and not an obstruction
             IndexPair indexPair = tManager->getIndexPair(n.x * 16, n.y * 16);
             int zID = tManager->chunks[indexPair.chunk].tileZ[indexPair.tile];
-            if ((Vector2Manhattan(n, initPos) < 5) && (zID != 1) && (!visited.count(n))) {
+            if ((Vector2Manhattan(n, initPos) < 10) && (zID != 1) && (!visited.count(n))) {
                 bfsQueue.push(n);
             }
         }
-
-        // pop cur node
-        bfsQueue.pop();
     }
 
     return {false, initPos};
@@ -262,7 +267,8 @@ BoolVec2Pair NPCSystem::floodSearch(entt::entity id)
 
         // get neighbors
         std::vector<Vector2> neighbors = getNearNeighbors(cur);
-
+        // pop cur node
+        bfsQueue.pop();
         for (Vector2& n : neighbors) {
 
             // check if neighbors are within vision  and not an obstruction
@@ -272,9 +278,6 @@ BoolVec2Pair NPCSystem::floodSearch(entt::entity id)
                 bfsQueue.push(n);
             }
         }
-
-        // pop cur node
-        bfsQueue.pop();
     }
 
     return {false, initPos};
@@ -383,27 +386,27 @@ void NPCSystem::updateNPCPaths()
         if (isReadyToPath(path) && needs.desires[0] >= 1.0f) {
             Vector2 gridPos = getGridPosition(position.pos);
 
-            BoolVec2Pair mushroomSearchRes = floodSearch(id);
-            if (mushroomSearchRes.confirm) {
-                need.gather = true;
-                path.target = mushroomSearchRes.pos;
+            /* BoolVec2Pair mushroomSearchRes = floodSearch(id); */
+            /* if (mushroomSearchRes.confirm) { */
+            /*     need.gather = true; */
+            /*     path.target = mushroomSearchRes.pos; */
+            /*     path.isPathing = true; */
+            /* } */
+            /* else { */
+            BoolVec2Pair searchResponse = floodSearchEntity(id);
+            if (searchResponse.confirm) { // walk towards friends!
+                need.social = true;
+                path.target = searchResponse.pos;
                 path.isPathing = true;
             }
             else {
-                BoolVec2Pair searchResponse = floodSearchEntity(id);
-                if (searchResponse.confirm) { // walk towards friends!
-                    need.social = true;
-                    path.target = searchResponse.pos;
-                    path.isPathing = true;
-                }
-                else {
-                    need.lesiure = true;
-                    float randX = GetRandomValue((int)gridPos.x - 4, (int)gridPos.x + 4);
-                    float randY = GetRandomValue((int)gridPos.y - 4, (int)gridPos.y + 4);
-                    path.target = {randX, randY};
-                    path.isPathing = true;
-                }
+                need.lesiure = true;
+                float randX = GetRandomValue((int)gridPos.x - 4, (int)gridPos.x + 4);
+                float randY = GetRandomValue((int)gridPos.y - 4, (int)gridPos.y + 4);
+                path.target = {randX, randY};
+                path.isPathing = true;
             }
+            /* } */
             astar(id);
         }
         moveNPC(id);
@@ -422,6 +425,7 @@ bool NPCSystem::showEntityInfo(Camera2D& camera)
                 if (tManager->entityPositionCache.count(nearPos)) {
                     for (entt::entity id : tManager->entityPositionCache[nearPos]) {
                         PositionC& position = sRegistry->get<PositionC>(id);
+                        PathC& path = sRegistry->get<PathC>(id);
                         CollisionC& coll = sRegistry->get<CollisionC>(id);
 
                         Rectangle absoluteAABB = {coll.aabb.x + position.pos.x, coll.aabb.y + position.pos.y, coll.aabb.width, coll.aabb.height};
@@ -436,6 +440,7 @@ bool NPCSystem::showEntityInfo(Camera2D& camera)
 
                             DrawText(weightString.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 1.2f), 10, PURPLE);
                             DrawText(std::to_string((unsigned int)id).c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 1.8f), 10, PURPLE);
+                            DrawText(std::to_string(path.targetID).c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 2.4f), 10, PURPLE);
                             return true;
                         }
                     }
