@@ -45,9 +45,18 @@ NUM_HOTBAR = 6
 COLLISION_ENABLED = false
 
 -- NPC Info
-MAX_NPCS = 500
-DRAW_NPC_DEBUG = true -- draw npc info (e.g path arrows)
-NPC_SPAWN_RADIUS = 50
+MAX_NPCS = 4000
+DRAW_NPC_DEBUG = false -- draw npc info (e.g path arrows)
+NPC_SPAWN_RADIUS = 10
+
+-- NPC Genes
+NPC_GENE_MAX_DESIRE = math.random(70, 100)
+NPC_GENE_MIN_DESIRE = math.random(50, 60)
+NPC_GENE_INCREMENT = math.random(20, 40)
+NPC_GENE_DECREMENT = math.random(1, 5)
+
+
+
 
 -- UI Info
 UI_FONT_SIZE = 18

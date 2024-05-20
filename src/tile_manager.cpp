@@ -144,15 +144,15 @@ void TileManager::generateChunks()
 
     drunkardGenerateAll();
     generateOres();
-    /* generateVegetation(); */
+    generateVegetation();
 }
 
 void TileManager::generateOres()
 {
     for (int y = -worldSize * CHUNK_SIZE; y < worldSize * CHUNK_SIZE; y++) {
         for (int x = -worldSize * CHUNK_SIZE; x < worldSize * CHUNK_SIZE; x++) {
-            int rand = GetRandomValue(0, 10000);
-            if (rand < 3) {
+            int rand = GetRandomValue(0, 32627);
+            if (rand < 2) {
                 int randOreSize = GetRandomValue(5, 15);
 
                 Vector2 curTile = {x, y};
@@ -182,11 +182,24 @@ void TileManager::generateVegetation()
     for (int y = -worldSize * CHUNK_SIZE; y < worldSize * CHUNK_SIZE; y++) {
         for (int x = -worldSize * CHUNK_SIZE; x < worldSize * CHUNK_SIZE; x++) {
             int rand = GetRandomValue(0, 500);
-            if (rand < 3) {
+            if (rand < 2) {
+                int randSize = GetRandomValue(1, 5);
                 Vector2 curTile = {x, y};
                 IndexPair index = getGridIndexPair(curTile.x, curTile.y);
-                if (chunks[index.chunk].tileZ[index.tile] == 0) { // if on lowest level
-                    chunks[index.chunk].itemID[index.tile] = MUSHROOM_PURPLE;
+                while (randSize >= 0) {
+                    IndexPair index = getGridIndexPair(curTile.x, curTile.y);
+                    if (chunks[index.chunk].tileID[index.tile] == DIRT_FLOOR_MIDDLE) { // if a dirt tile
+                        chunks[index.chunk].itemID[index.tile] = MUSHROOM_PURPLE;
+                        randSize--;
+                    }
+                    else if (chunks[index.chunk].tileID[index.tile] == WALL_FRONT) {
+                        break;
+                    }
+
+                    curTile = Vector2Add(curTile, getRandomDirection());
+                    if (!isValidCoordinate(curTile.x, curTile.y)) {
+                        break;
+                    }
                 }
             }
         }

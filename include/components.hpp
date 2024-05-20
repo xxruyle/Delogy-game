@@ -103,13 +103,27 @@ struct TimerC {
   float lastTime = 0.0f;
 };
 
-enum needType { ENERGY, HUNGER, SOCIAL, ENTERTAINMENT, SAFETY };
+enum needType { SATIATION, ENERGY, SOCIAL, ENTERTAINMENT, SAFETY };
 
+struct GenesC {
+  float maxDesires[5];     // range rn: (70 - 100)   // the most a desire can be
+  float minDesires[5];     // the minimum desire before a state must be taken
+  int desireIncrements[5]; // how much a desire is incremented
+  int desireDecrements[5]; // how mcuh a desire is decremeneed
+};
+
+// genes influence the needs
 struct NeedsC {
   float weights[5];
   float desires[5];
 
+  // states (graph nodes)
+  int currentDesire = ENERGY;
+
+  // action states (graph edges), managed by npc system
+  bool leisure = false;
+  bool eating = false;
   bool gather = false;
   bool social = false;
-  bool lesiure = false;
+  bool search = false;
 };

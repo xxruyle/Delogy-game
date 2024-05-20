@@ -29,6 +29,7 @@ public:
   entt::entity playerID;
   bool NPC_DEBUG_INFO =
       LuaGetBool("DRAW_NPC_DEBUG", "scripts/game_settings.lua");
+
   NPCSystem(TileManager *tileManager, entt::basic_registry<> *EntityRegistry,
             entt::entity player);
   void addNPCs();
@@ -38,8 +39,10 @@ public:
 
   bool isReadyToPath(PathC &path);
   void moveNPC(entt::entity id); // move particular npc
+
   void updateNPCPaths();
   void update(Scene &scene);
+
   void cachePosition(Vector2 pos, entt::entity id);
   void clearCachePosition(Vector2 pos, entt::entity id);
 
@@ -49,9 +52,8 @@ public:
   bool showEntityInfo(Camera2D &camera);
 
   BoolVec2Pair floodSearch(entt::entity id);
-  BoolVec2Pair floodSearchEntity(entt::entity id);
+  BoolVec2Pair searchItem(entt::entity id, int itemID);
 
-  void updateNeeds();
-  void updateDesires(NeedsC &need);
-  void resetDesireStates(NeedsC &need);
+  bool npcAtItem(entt::entity id, int itemID);
+  BoolVec2Pair floodSearchEntity(entt::entity id);
 };

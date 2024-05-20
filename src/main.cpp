@@ -17,6 +17,7 @@
 #include "npc_system.hpp"
 #include "minimap.hpp"
 #include "wireframe.hpp"
+#include "needs_system.hpp"
 
 #include "entity_data.hpp"
 #include "entt/entity/registry.hpp"
@@ -53,6 +54,8 @@ int main()
     NPCSystem npcSystem(&tileManager, &scene.EntityRegistry, scene.player);
     npcSystem.addNPCs();
 
+    NeedsSystem needsSystem(&scene.EntityRegistry);
+
     MovementSystem movementSystem;
 
     tileManager.generateChunks();
@@ -71,12 +74,12 @@ int main()
             cartManager.update(tileManager, scene);
 
             /* Systems */
+            needsSystem.update();
             npcSystem.update(scene);
             inventorySystem.update(scene);
 
             /* Player Movement */
             movementSystem.update(scene.player, scene.EntityRegistry, tileManager);
-
             animationSystem.update(scene.EntityRegistry, scene.player);
 
             /* Draw */
