@@ -146,23 +146,19 @@ void CartManager::changeCartDirection(PositionC& position, OrecartC& orecart, Ph
     Vector2 curGridPos = getGridPosition({position.pos.x + 8.0f, position.pos.y + 8.0f});
 
     if (prevItemUnder != NULL_ITEM && futureItemUnder != NULL_ITEM) {
-        if (orecart.previousGridPos.x != curGridPos.x || orecart.previousGridPos.y != curGridPos.y || !physics.moving) { // recheck if the cart is stopped
+        if (orecart.previousGridPos.x != curGridPos.x || orecart.previousGridPos.y != curGridPos.y || !physics.moving()) { // recheck if the cart is stopped
 
             std::unordered_set<int> connectableRails = getValidRails(prevItemUnder,
                                                                      orecart.movementDirection); // get all the connectable rails for the previous rail the cart was under
 
             if (!connectableRails.count(futureItemUnder)) { // if the future rail that the cart is going on is connectable
-                physics.moving = false;
                 physics.velocity.x = 0;
                 physics.velocity.y = 0;
-            }
-            else {
-                physics.moving = true;
             }
         }
     }
 
-    if (physics.moving) {
+    if (physics.moving()) {
         orecart.previousGridPos = curGridPos;
     }
 
@@ -233,7 +229,6 @@ void CartManager::changeCartDirection(PositionC& position, OrecartC& orecart, Ph
         orecart.previousRail = RAIL_NW;
         break;
     default: // if the item underneat is the NULL_ITEM
-        physics.moving = false;
         physics.velocity.x = 0;
         physics.velocity.y = 0;
         break;
@@ -246,7 +241,7 @@ void CartManager::changeCartVelocity(PhysicsC& physics, OrecartC& orecart)
 
     int directionMultiplier = getDirectionMultiplier(orecart.movementDirection);
 
-    if (physics.moving) {
+    if (physics.moving()) {
         switch (orecart.movementDirection) {
         case WEST:
             orecart.orientation = CART_H;
@@ -317,7 +312,7 @@ void CartManager::createCart(Vector2 position, entt::basic_registry<>& registry)
     registry.emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{67, 88, 16, 16});
     registry.emplace<PositionC>(entity, Vector2{position.x * 16, position.y * 16});
     registry.emplace<OrecartC>(entity, CART_H, EAST, NULL_ITEM, position);
-    registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 30, 60, true, true);
+    registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 30, 60, true);
     registry.emplace<CollisionC>(entity, Rectangle{4, 4, 8, 8});
 
     cartCount++;

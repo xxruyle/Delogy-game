@@ -74,12 +74,14 @@ int main()
             cartManager.update(tileManager, scene);
 
             /* Systems */
-            needsSystem.update();
-            npcSystem.update(scene);
             inventorySystem.update(scene);
 
-            /* Player Movement */
+            npcSystem.clearCacheBefore(); // clear cache before movement starts
             movementSystem.update(scene.player, scene.EntityRegistry, tileManager);
+            npcSystem.updateCacheAfter(); // update cache after movement is finished
+
+            npcSystem.update(scene);
+            needsSystem.update();
             animationSystem.update(scene.EntityRegistry, scene.player);
 
             /* Draw */

@@ -49,6 +49,42 @@ std::vector<Vector2> getRadiusNeighbors(Vector2 curPos, int radius)
     return neighbors;
 }
 
+// get neighbors of curpos in a spiral order (farther distance will be pushed later)
+std::vector<Vector2> getSpiralNeighbors(Vector2 curPos, int radius)
+{
+    std::vector<Vector2> neighbors;
+
+    // Start from the center
+    neighbors.push_back(curPos);
+
+    // Directions for moving in the order: right, up, left, down
+    int directionX[4] = {1, 0, -1, 0};
+    int directionY[4] = {0, 1, 0, -1};
+
+    int x = 0, y = 0; // Start at the origin relative to curPos
+    int stepSize = 1; // Initial step size
+
+    while (stepSize <= radius) {
+        for (int direction = 0; direction < 4; ++direction) {
+            for (int step = 0; step < stepSize; ++step) {
+                x += directionX[direction];
+                y += directionY[direction];
+
+                // Add to neighbors if within radius
+                if (std::abs(x) <= radius && std::abs(y) <= radius) {
+                    neighbors.push_back({curPos.x + x, curPos.y + y});
+                }
+            }
+            // Increase step size after completing a full loop in all four directions
+            if (direction == 1 || direction == 3) {
+                ++stepSize;
+            }
+        }
+    }
+
+    return neighbors;
+}
+
 void drawGameInfo(Camera2D& camera, Vector2 playerPos, Vector2& playerVelocity)
 {
     int UI_FONT_SIZE = LuaGetInt("UI_FONT_SIZE", "scripts/game_settings.lua");

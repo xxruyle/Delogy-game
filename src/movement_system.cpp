@@ -14,13 +14,6 @@ void MovementSystem::updatePhysics(PhysicsC& physics, PositionC& position)
     Vector2 movementDirection = InputSystem::getDirectionVector();
     physics.velocity.x = movementDirection.x * physics.speed;
     physics.velocity.y = movementDirection.y * physics.speed;
-
-    if (physics.velocity.x == 0 && physics.velocity.y == 0) {
-        physics.moving = false;
-    }
-    else {
-        physics.moving = true;
-    }
 }
 
 void MovementSystem::updateNPCPhysics(PhysicsC& physics, PositionC& position)
@@ -111,13 +104,6 @@ void MovementSystem::updateNPCPositions(PhysicsC& physics, CollisionC& collision
 {
     position.pos.x += physics.velocity.x * GetFrameTime();
     position.pos.y += physics.velocity.y * GetFrameTime();
-
-    if (physics.velocity.x == 0 && physics.velocity.y == 0) {
-        physics.moving = false;
-    }
-    else {
-        physics.moving = true;
-    }
 }
 
 void MovementSystem::update(entt::entity player, entt::basic_registry<>& sceneRegistry, TileManager& tileManager)

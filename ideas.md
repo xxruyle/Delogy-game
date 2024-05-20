@@ -6,6 +6,7 @@
 - npc villages 
 - worker npcs
 - earthquake events 
+- siren events 
 - robot companion 
     - order him to mine a certain area 
 - roguelike permadeath elements
@@ -42,12 +43,21 @@
     - volcano, lava
     - talus  
     - jungle 
+## World Idea
+- there is a world underground but people underground don't know anything about the above 
+- there are stations where work turns into rewards (food, items) (perhaps this powers the above ground?)
+
+- there are patrol (siren creatures) where shelter is needed (they one shot any entity in sight)
+- will ignore crops if certain qualifications are met 
+- There can be multiple maps (multiple tilemanagers) 
+    -  going to another map requires player traveling to edge of world 
+
 ## NPC AI 
 
+- gene preferences 
 - needs
 - reaction to player 
 - animations
-
 
 ## Main Game loop idea 
 

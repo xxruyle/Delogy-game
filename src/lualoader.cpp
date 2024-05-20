@@ -51,7 +51,7 @@ float LuaGetFloat(const char* varName, const char* filePath)
     if (CheckLua(L, luaL_dofile(L, filePath))) {
         lua_getglobal(L, varName);
         if (lua_isnumber(L, -1)) {
-            floatValue = lua_tonumber(L, -1);
+            floatValue = (float)lua_tonumber(L, -1);
             lua_pop(L, 1);
             return floatValue;
         }

@@ -93,6 +93,7 @@ void TileChunk::drawItem(Atlas& atlas, int x, int y)
     }
 }
 
+// deletes item at tile
 void TileChunk::deleteAtTile(int x, int y)
 {
     int index = getIndex(x, y);

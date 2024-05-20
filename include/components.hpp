@@ -29,8 +29,9 @@ struct PhysicsC {
   Vector2 velocity;
   int speed;
   int maxSpeed;
-  bool moving;
   bool is_solid;
+
+  bool moving() { return velocity.x != 0 || velocity.y != 0; };
 };
 
 struct AnimationC {
@@ -41,7 +42,8 @@ struct AnimationC {
                    // (the animation state)
   std::vector<Rectangle> frameSrcs; // the src of each frame
 
-  /* Example: If our curFrameSrc is 0, we will just multiply by atFrame[0] * 16
+  /* Example: If our curFrameSrc is 0, we will just multiply by atFrame[0] *
+   * 16
    * * padding to get to that frame  */
   std::vector<unsigned int> atFrame; // the number each animation state is on
 
@@ -73,7 +75,8 @@ struct AnimationC {
 };
 
 struct InventoryC {
-  /* int hotbar[NUM_HOTBAR] = {RAIL_V, CART, STORAGE_BOX, NULL_ITEM, NULL_ITEM};
+  /* int hotbar[NUM_HOTBAR] = {RAIL_V, CART, STORAGE_BOX, NULL_ITEM,
+   * NULL_ITEM};
    */
   std::vector<int> hotbar = {RAIL_V,          CART,      STORAGE_BOX,
                              MUSHROOM_PURPLE, NULL_ITEM, NULL_ITEM};
@@ -104,6 +107,7 @@ struct TimerC {
 };
 
 enum needType { SATIATION, ENERGY, SOCIAL, ENTERTAINMENT, SAFETY };
+enum actionType { EATING, RESTING, SOCIALIZING, PLAY, DEFENSE, SEARCHING };
 
 struct GenesC {
   float maxDesires[5];     // range rn: (70 - 100)   // the most a desire can be
@@ -119,11 +123,12 @@ struct NeedsC {
 
   // states (graph nodes)
   int currentDesire = ENERGY;
+  int currentAction = RESTING;
 
   // action states (graph edges), managed by npc system
   bool leisure = false;
   bool eating = false;
-  bool gather = false;
   bool social = false;
+  bool aroundFriends = false;
   bool search = false;
 };

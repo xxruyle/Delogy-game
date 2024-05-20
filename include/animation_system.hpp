@@ -15,7 +15,7 @@ enum class animationDirection {
 
 class AnimationSystem {
 public:
-  void updatePlayerAnimation(AnimationC &animation, bool movementState);
+  void updatePlayerAnimation(AnimationC &animation, PhysicsC &physics);
   void updateNPCAnimations(AnimationC &animation, PhysicsC &physics);
   void incrementAnimation(AnimationC &animation);
   void updateSprites(entt::basic_registry<> &registry);

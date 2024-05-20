@@ -29,8 +29,8 @@ void NPCSystem::addNPCs()
     int npcSpawnRadius = LuaGetInt("NPC_SPAWN_RADIUS", "scripts/game_settings.lua");
     int geneMax = LuaGetInt("NPC_GENE_MAX_DESIRE", "scripts/game_settings.lua");
     int geneMin = LuaGetInt("NPC_GENE_MIN_DESIRE", "scripts/game_settings.lua");
-    int geneIncr = LuaGetInt("NPC_GENE_INCREMENT", "scripts/game_settings.lua");
-    int geneDecr = LuaGetInt("NPC_GENE_DECREMENT", "scripts/game_settings.lua");
+    float geneIncr = LuaGetFloat("NPC_GENE_INCREMENT", "scripts/game_settings.lua");
+    float geneDecr = LuaGetFloat("NPC_GENE_DECREMENT", "scripts/game_settings.lua");
 
     for (int i = 0; i < LuaGetInt("MAX_NPCS", "scripts/game_settings.lua"); i++) {
         entt::entity entity = sRegistry->create();
@@ -59,6 +59,7 @@ void NPCSystem::addNPCs()
         cachePosition(pos, entity);
     }
 }
+
 void NPCSystem::update(Scene& scene)
 {
     // tell the npc what to do
@@ -126,26 +127,12 @@ void NPCSystem::moveNPC(entt::entity id)
 
         if (destAbsolute.x == (int)position.pos.x && destAbsolute.y == (int)position.pos.y) {
             path.destQueue.pop_front();
-            cachePosition(getGridPosition(centeredPos), id);
-            if (path.destQueue.empty()) {
-                path.isPathing = false;
-                physics.velocity.x = 0;
-                physics.velocity.y = 0;
-            }
+            /* cachePosition(getGridPosition(centeredPos), id); */
         }
         else {
-            clearCachePosition(getGridPosition(centeredPos), id);
+            /* clearCachePosition(getGridPosition(centeredPos), id); */
             physics.velocity.x = dir.x * physics.speed;
             physics.velocity.y = dir.y * physics.speed;
-        }
-
-        // drawing a line for debugging visual
-        if (NPC_DEBUG_INFO) {
-            Vector2 centeredTarget = getGridToScreenPos(path.target);
-            centeredTarget = {centeredTarget.x + 8, centeredTarget.y + 8};
-
-            DrawLineEx(centeredPos, centeredTarget, 1.0f, WHITE);      // drawing path line for debugging
-            DrawCircle(centeredTarget.x, centeredTarget.y, 1.5f, RED); // drawing circle at path target
         }
     }
     else {
@@ -157,90 +144,6 @@ void NPCSystem::moveNPC(entt::entity id)
         physics.velocity.x = 0;
         physics.velocity.y = 0;
     }
-}
-
-// uses bfs to find nearby entities and returns true if it found an entity and the position of an entity
-BoolVec2Pair NPCSystem::floodSearchEntity(entt::entity id)
-{
-    auto& path = sRegistry->get<PathC>(id);
-    auto& position = sRegistry->get<PositionC>(id);
-
-    std::queue<Vector2> bfsQueue;
-    PathMap visited;
-
-    Vector2 initPos = getGridPosition(Vector2{position.pos.x + 8, position.pos.y + 8});
-    bfsQueue.push(initPos);
-    visited[initPos] = initPos;
-
-    while (!bfsQueue.empty()) {
-        Vector2 cur = bfsQueue.front();
-        visited[cur] = cur;
-
-        // need to check if found entity is not the current entity
-        if (entityAtPosition(cur) && tManager->entityPositionCache[cur][0] != id) {
-            std::vector<Vector2> entityNeighbors = getNearNeighbors(cur);
-            int randomNeighbor = GetRandomValue(0, entityNeighbors.size() - 1);
-
-            path.targetID = (unsigned int)tManager->entityPositionCache[cur][0];
-
-            return {true, entityNeighbors[randomNeighbor]};
-        }
-        // pop cur node
-        bfsQueue.pop();
-
-        std::vector<Vector2> neighbors = getNearNeighbors(cur); // get neighbors
-        for (Vector2& n : neighbors) {
-
-            // check if neighbors are within vision  and not an obstruction
-            IndexPair indexPair = tManager->getIndexPair(n.x * 16, n.y * 16);
-            int zID = tManager->chunks[indexPair.chunk].tileZ[indexPair.tile];
-            if ((Vector2Manhattan(n, initPos) < 10) && (zID != 1) && (!visited.count(n))) {
-                bfsQueue.push(n);
-            }
-        }
-    }
-
-    return {false, initPos};
-}
-
-BoolVec2Pair NPCSystem::floodSearch(entt::entity id)
-{
-    auto& path = sRegistry->get<PathC>(id);
-    auto& position = sRegistry->get<PositionC>(id);
-
-    std::queue<Vector2> bfsQueue;
-    PathMap visited;
-
-    Vector2 initPos = getGridPosition(position.pos);
-    bfsQueue.push(initPos);
-    visited[initPos] = initPos;
-
-    while (!bfsQueue.empty()) {
-        Vector2 cur = bfsQueue.front();
-        visited[cur] = cur;
-        IndexPair indexPair = tManager->getIndexPair(cur.x * 16, cur.y * 16);
-        int itemID = tManager->chunks[indexPair.chunk].itemID[indexPair.tile];
-
-        if (itemID == MUSHROOM_PURPLE) {
-            return {true, cur};
-        }
-
-        // get neighbors
-        std::vector<Vector2> neighbors = getNearNeighbors(cur);
-
-        bfsQueue.pop();
-        for (Vector2& n : neighbors) {
-
-            // check if neighbors are within vision  and not an obstruction
-            IndexPair indexPair = tManager->getIndexPair(n.x * 16, n.y * 16);
-            int zID = tManager->chunks[indexPair.chunk].tileZ[indexPair.tile];
-            if ((Vector2Manhattan(n, initPos) < 10) && (zID != 1) && (!visited.count(n))) {
-                bfsQueue.push(n);
-            }
-        }
-    }
-
-    return {false, initPos};
 }
 
 BoolVec2Pair NPCSystem::searchItem(entt::entity id, int itemID)
@@ -256,7 +159,7 @@ BoolVec2Pair NPCSystem::searchItem(entt::entity id, int itemID)
     }
 
     if (path.destQueue.empty()) {
-        std::vector<Vector2> nearNeighbors = getRadiusNeighbors(initPos, 10);
+        std::vector<Vector2> nearNeighbors = getSpiralNeighbors(initPos, 10);
 
         for (Vector2& n : nearNeighbors) {
             IndexPair indexPair = tManager->getIndexPair(n.x * 16, n.y * 16);
@@ -274,6 +177,38 @@ BoolVec2Pair NPCSystem::searchItem(entt::entity id, int itemID)
     }
 
     return {false, initPos};
+}
+
+bool NPCSystem::nearEntity(entt::entity id)
+{
+
+    auto& path = sRegistry->get<PathC>(id);
+    auto& position = sRegistry->get<PositionC>(id);
+    Vector2 initPos = getGridPosition(Vector2{position.pos.x + 8, position.pos.y + 8});
+
+    IndexPair indexPair = tManager->getIndexPair(initPos.x * 16, initPos.y * 16);
+    int zLevel = tManager->chunks[indexPair.chunk].tileZ[indexPair.tile];
+    if (zLevel == 1) {
+        return false;
+    }
+
+    std::vector<Vector2> nearNeighbors = getSpiralNeighbors(initPos, 20);
+
+    for (Vector2& n : nearNeighbors) {
+        IndexPair indexPair = tManager->getIndexPair(n.x * 16, n.y * 16);
+        int zLevel = tManager->chunks[indexPair.chunk].tileZ[indexPair.tile];
+
+        if (zLevel == 1) {
+            continue;
+        }
+
+        // need to check if found entity is not the current entity
+        if (entityAtPosition(n) && tManager->entityPositionCache[n][0] != id) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 // astar algorithm to path towards npc's path target, return true boolean if path is found
@@ -356,106 +291,121 @@ void NPCSystem::reconstructPath(PathMap cameFrom, Vector2 current, entt::entity 
     }
 }
 
-bool NPCSystem::isReadyToPath(PathC& path)
-{
-
-    return (path.atTarget && !path.isPathing);
-    // and need.search
-}
-
 // decide path decisions for all npcs
 void NPCSystem::updateNPCPaths()
 {
-    auto view = sRegistry->view<PositionC, NeedsC, PhysicsC>();
+    auto view = sRegistry->view<GenesC, NeedsC, PathC>();
 
+    // loop over every npc id
     for (auto id : view) {
-        auto& position = view.get<PositionC>(id);
-
-        auto& physics = view.get<PhysicsC>(id);
-
-        auto& path = sRegistry->get<PathC>(id);
-        auto& need = sRegistry->get<NeedsC>(id);
-
-        auto& playerCollision = sRegistry->get<CollisionC>(playerID);
-        auto& playerPosition = sRegistry->get<PositionC>(playerID);
-
-        // get potential new path
-        if (NPC_DEBUG_INFO) {
-            Color desireColor;
-
-            if (need.social) {
-                desireColor = YELLOW;
-                DrawTextEx(GetFontDefault(), std::to_string(path.targetID).c_str(), {position.pos.x, position.pos.y - 5}, 5.0f, 0.4f, YELLOW);
-                /* DrawTextEx(GetFontDefault(), "SOCIAL", {position.pos.x, position.pos.y - 5}, 5.0f, 0.1f, desireColor); */
-            }
-            else if (need.search) {
-                desireColor = RED;
-                DrawTextEx(GetFontDefault(), "SEARCH", {position.pos.x, position.pos.y - 5}, 5.0f, 0.1f, desireColor);
-            }
-            else if (need.eating) {
-                desireColor = GREEN;
-                DrawTextEx(GetFontDefault(), "EATING", {position.pos.x, position.pos.y - 5}, 5.0f, 0.1f, desireColor);
-            }
-            else {
-                desireColor = PURPLE;
-                DrawTextEx(GetFontDefault(), "LEISURE", {position.pos.x, position.pos.y - 5}, 5.0f, 0.1f, desireColor);
-            }
-        }
-
-        Vector2 gridPos = getGridPosition(position.pos);
+        auto& need = view.get<NeedsC>(id);
 
         moveNPC(id);
         switch (need.currentDesire) {
         case ENERGY: {
-            need.search = false;
-            need.eating = false;
-            need.leisure = true;
+            handleLeisure(id);
             break;
         }
         case SATIATION: {
-            if (npcAtItem(id, MUSHROOM_PURPLE)) {
-                need.eating = true;
-                need.search = false;
-            }
-            else if (!path.isPathing) {
-                BoolVec2Pair searchResponse = searchItem(id, MUSHROOM_PURPLE);
-                /* BoolVec2Pair searchResponse = floodSearch(id); */
-                if (searchResponse.confirm) {
-                    need.search = true;
-                    need.leisure = false;
-                    path.target = searchResponse.pos;
-                    astar(id);
-                }
-                else if (!need.search) {
-                    need.search = true;
-                    path.target = {GetRandomValue((int)gridPos.x - 10, (int)gridPos.x + 10), GetRandomValue((int)gridPos.y - 10, (int)gridPos.y + 10)};
-                    astar(id);
-                }
-            }
-
+            handleEating(id);
             break;
         }
         case SOCIAL: {
-            BoolVec2Pair socialResponse = floodSearchEntity(id);
-            if (socialResponse.confirm) {
-                need.search = true;
-                path.target = socialResponse.pos;
-                astar(id);
-            }
-            else {
-                need.search = true;
-                path.target = {GetRandomValue((int)gridPos.x - 3, (int)gridPos.x + 3), GetRandomValue((int)gridPos.y - 3, (int)gridPos.y + 3)};
-                astar(id);
-            }
+            handleSocial(id);
             break;
         }
         default: {
             break;
         }
         }
+        // continuously update aroundFriends status
+        if (nearEntity(id)) {
+            need.aroundFriends = true;
+            need.search = false;
+
+            auto& physics = sRegistry->get<PhysicsC>(id);
+            /* physics.velocity.x = 0; */
+            /* physics.velocity.y = 0; */
+        }
+        else {
+            need.aroundFriends = false;
+        }
+
+        showDebugInfo(id);
     }
 }
 
+void NPCSystem::handleEating(entt::entity id)
+{
+    auto& need = sRegistry->get<NeedsC>(id);
+    auto& path = sRegistry->get<PathC>(id);
+    auto& position = sRegistry->get<PositionC>(id);
+
+    bool atItem = npcAtItem(id, MUSHROOM_PURPLE);
+    if (atItem) {
+        need.search = false;
+        need.eating = true;
+    }
+    else {
+        need.eating = false;
+        if (!path.isPathing) { // if the npc isn't already moving
+            BoolVec2Pair searchResponse = searchItem(id, MUSHROOM_PURPLE);
+            if (searchResponse.confirm) {
+                need.search = true;
+                need.leisure = false;
+                path.target = searchResponse.pos;
+                astar(id);
+            }
+            else if (!need.search) {
+                need.search = true;
+                Vector2 gridPos = getGridPosition(position.pos);
+                path.target = {GetRandomValue((int)gridPos.x - 10, (int)gridPos.x + 10), GetRandomValue((int)gridPos.y - 10, (int)gridPos.y + 10)};
+                astar(id);
+            }
+        }
+    }
+
+    /* if (atItem && need.eating) { */
+    /*     Vector2 gridPos = getGridPosition(Vector2{position.pos.x + 8, position.pos.y + 8}); */
+    /*     IndexPair indexPair = tManager->getIndexPair(gridPos.x * 16, gridPos.y * 16); */
+    /*     tManager->chunks[indexPair.chunk].deleteAtTile(gridPos.x, gridPos.y); */
+    /*     need.eating = false; */
+    /* } */
+}
+
+void NPCSystem::handleLeisure(entt::entity id)
+{
+    auto& need = sRegistry->get<NeedsC>(id);
+    auto& physics = sRegistry->get<PhysicsC>(id);
+
+    physics.velocity.x = 0;
+    physics.velocity.y = 0;
+
+    need.search = false;
+    need.leisure = true;
+}
+
+void NPCSystem::handleSocial(entt::entity id)
+{
+    auto& need = sRegistry->get<NeedsC>(id);
+    auto& path = sRegistry->get<PathC>(id);
+    auto& position = sRegistry->get<PositionC>(id);
+    auto& physics = sRegistry->get<PhysicsC>(id);
+
+    if (!need.search) {
+        need.search = true;
+        Vector2 gridPos = getGridPosition(position.pos);
+        path.target = {GetRandomValue((int)gridPos.x - 10, (int)gridPos.x + 10), GetRandomValue((int)gridPos.y - 10, (int)gridPos.y + 10)};
+        astar(id);
+    }
+    else if (need.search && need.aroundFriends) {
+        physics.velocity.x = 0;
+        physics.velocity.y = 0;
+        path.destQueue.clear();
+    }
+}
+
+// checks to see if npc is at an item
 bool NPCSystem::npcAtItem(entt::entity id, int itemID)
 {
     auto& position = sRegistry->get<PositionC>(id);
@@ -465,6 +415,73 @@ bool NPCSystem::npcAtItem(entt::entity id, int itemID)
     int item = tManager->chunks[indexPair.chunk].itemID[indexPair.tile];
 
     return item == itemID;
+}
+
+void NPCSystem::showDebugInfo(entt::entity id)
+{
+    PathC& path = sRegistry->get<PathC>(id);
+    NeedsC& need = sRegistry->get<NeedsC>(id);
+    PositionC& position = sRegistry->get<PositionC>(id);
+
+    // get potential new path
+    if (NPC_DEBUG_INFO) {
+        Color desireColor;
+
+        if (need.aroundFriends) {
+            desireColor = YELLOW;
+            DrawTextEx(GetFontDefault(), "SOCIAL", {position.pos.x, position.pos.y - 10}, 3.0f, 0.4f, YELLOW);
+        }
+
+        if (need.search) { // drawing a line for debugging visual
+            desireColor = RED;
+            Vector2 centeredTarget = getGridToScreenPos(path.target);
+            Vector2 centeredPos = {position.pos.x + 8, position.pos.y + 8};
+            centeredTarget = {centeredTarget.x + 8, centeredTarget.y + 8};
+
+            DrawLineEx(centeredPos, centeredTarget, 1.0f, WHITE);      // drawing path line for debugging
+            DrawCircle(centeredTarget.x, centeredTarget.y, 1.5f, RED); // drawing circle at path target
+            DrawTextEx(GetFontDefault(), "SEARCH", {position.pos.x, position.pos.y - 5}, 4.0f, 0.1f, desireColor);
+        }
+
+        if (need.eating) {
+            desireColor = GREEN;
+            DrawTextEx(GetFontDefault(), "EATING", {position.pos.x, position.pos.y - 15}, 4.0f, 0.1f, desireColor);
+        }
+
+        if (need.leisure) {
+            desireColor = PURPLE;
+            DrawTextEx(GetFontDefault(), "LEISURE", {position.pos.x, position.pos.y - 1}, 4.0f, 0.1f, desireColor);
+        }
+    }
+}
+void NPCSystem::clearCacheBefore()
+{
+    auto view = sRegistry->view<GenesC, NeedsC, PathC, PhysicsC, PositionC>();
+
+    for (auto& id : view) {
+        auto& physics = view.get<PhysicsC>(id);
+        auto& position = view.get<PositionC>(id);
+
+        // if npc is moving we need to update cache so we clear the cache of the current pos right now
+        if (physics.moving()) {
+            auto& position = view.get<PositionC>(id);
+            Vector2 gridPos = getGridPosition(Vector2{position.pos.x + 8, position.pos.y + 8});
+            clearCachePosition(gridPos, id);
+            entities_marked_for_cache.push(id);
+        }
+    }
+}
+
+void NPCSystem::updateCacheAfter()
+{
+    while (!entities_marked_for_cache.empty()) {
+        entt::entity id = entities_marked_for_cache.front();
+        auto& position = sRegistry->get<PositionC>(id);
+        Vector2 gridPos = getGridPosition({position.pos.x + 8, position.pos.y + 8});
+
+        cachePosition(gridPos, id);
+        entities_marked_for_cache.pop();
+    }
 }
 
 bool NPCSystem::showEntityInfo(Camera2D& camera)

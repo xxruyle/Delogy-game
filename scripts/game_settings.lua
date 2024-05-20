@@ -27,7 +27,7 @@ WINDOW_WIDTH = 1260
 WINDOW_HEIGHT = 780
 
 -- Game World Info
-WORLD_SIZE = 40
+WORLD_SIZE = 20
 TILE_SIZE = 16
 RENDER_DISTANCE = 2 -- the amount of chunks near the player the tile manager will render
 -- WORLD_SEED = 649
@@ -45,16 +45,16 @@ NUM_HOTBAR = 6
 COLLISION_ENABLED = false
 
 -- NPC Info
-MAX_NPCS = 4000
-DRAW_NPC_DEBUG = false -- draw npc info (e.g path arrows)
-NPC_SPAWN_RADIUS = 10
+MAX_NPCS = 5
+DRAW_NPC_DEBUG = true -- draw npc info (e.g path arrows)
+NPC_SPAWN_RADIUS = 15
 
 -- NPC Genes
 NPC_GENE_MAX_DESIRE = math.random(70, 100)
 NPC_GENE_MIN_DESIRE = math.random(50, 60)
 NPC_GENE_INCREMENT = math.random(20, 40)
-NPC_GENE_DECREMENT = math.random(1, 5)
-
+NPC_GENE_DECREMENT = 10.0
+-- NPC_GENE_DECREMENT = math.random()
 
 
 

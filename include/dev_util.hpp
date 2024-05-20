@@ -38,6 +38,7 @@ std::vector<Vector2>
 getNearNeighbors(Vector2 curPos); // get the 8 neighbors of a cell
 
 std::vector<Vector2> getRadiusNeighbors(Vector2 curPos, int radius);
+std::vector<Vector2> getSpiralNeighbors(Vector2 curPos, int radius);
 
 /* Drawing Dev Utility  Functions*/
 void drawGameInfo(

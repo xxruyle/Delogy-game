@@ -20,7 +20,7 @@ void AnimationSystem::incrementAnimation(AnimationC& animation)
     }
 }
 
-void AnimationSystem::updatePlayerAnimation(AnimationC& animation, bool movementState)
+void AnimationSystem::updatePlayerAnimation(AnimationC& animation, PhysicsC& physics)
 {
     Vector2 direction = InputSystem::getDirectionVector();
 
@@ -39,7 +39,7 @@ void AnimationSystem::updatePlayerAnimation(AnimationC& animation, bool movement
 
     incrementAnimation(animation);
 
-    if (!movementState) { // if idle
+    if (!physics.moving()) { // if idle
         animation.atFrame[animation.curFrameSrc] = 0;
     }
 }
@@ -50,7 +50,7 @@ void AnimationSystem::updateNPCAnimations(AnimationC& animation, PhysicsC& physi
     Vector2 dir = Vector2Normalize(physics.velocity);
     float dirDot = Vector2Angle(Vector2{0, -1}, dir) * 180.0f / PI;
 
-    if (physics.moving) {
+    if (physics.moving()) {
         bool UP = (dirDot >= 157 && dirDot <= 180) || (dirDot >= 0 && dirDot <= 22);
         bool RIGHT = dirDot > 22 && dirDot < 67;
         bool DOWN = dirDot > 67 && dirDot < 112;
@@ -100,7 +100,7 @@ void AnimationSystem::update(entt::basic_registry<>& registry, entt::entity play
         AnimationC& animation = registry.get<AnimationC>(entity);
         PhysicsC& physics = registry.get<PhysicsC>(entity);
         if (entity == player) {
-            updatePlayerAnimation(animation, physics.moving);
+            updatePlayerAnimation(animation, physics);
         }
         else {
             updateNPCAnimations(animation, physics);
