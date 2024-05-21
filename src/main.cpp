@@ -52,7 +52,6 @@ int main()
     scene.addPlayer(AtlasType::MEDIUM, {1 * 16, 1 * 16}, {4, 4, 32, 32}, 4, 4);
 
     NPCSystem npcSystem(&tileManager, &scene.EntityRegistry, scene.player);
-    npcSystem.addNPCs();
 
     NeedsSystem needsSystem(&scene.EntityRegistry);
 
@@ -75,13 +74,11 @@ int main()
 
             /* Systems */
             inventorySystem.update(scene);
-
+            needsSystem.update();
+            npcSystem.update(scene);
             npcSystem.clearCacheBefore(); // clear cache before movement starts
             movementSystem.update(scene.player, scene.EntityRegistry, tileManager);
             npcSystem.updateCacheAfter(); // update cache after movement is finished
-
-            npcSystem.update(scene);
-            needsSystem.update();
             animationSystem.update(scene.EntityRegistry, scene.player);
 
             /* Draw */

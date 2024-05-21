@@ -46,7 +46,7 @@ void Scene::addPlayer(AtlasType atlasid, Vector2 spawnPos, Rectangle frameSrc, i
     EntityRegistry.emplace<AnimationC>(entity, frameSrc, (unsigned int)numFrames, (unsigned int)framesPerRow);
 
     int playerSpeed = LuaGetInt("PLAYER_SPEED", "scripts/game_settings.lua");
-    EntityRegistry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, playerSpeed, playerSpeed, false);
+    EntityRegistry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, playerSpeed, false);
 
     float ATLAS_SPRITE_PADDING = LuaGetInt("ATLAS_SPRITE_PADDING", "scripts/game_settings.lua");
     float ATLAS_SPRITE_MARGIN = LuaGetInt("ATLAS_SPRITE_MARGIN", "scripts/game_settings.lua");

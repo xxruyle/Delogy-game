@@ -15,12 +15,14 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 
 NPCSystem::NPCSystem(TileManager* tileManager, entt::basic_registry<>* EntityRegistry, entt::entity player)
 {
     tManager = tileManager;
     sRegistry = EntityRegistry;
     playerID = player;
+    addNPCs();
 }
 
 // spawn NPCs for debugging
@@ -39,7 +41,7 @@ void NPCSystem::addNPCs()
         sRegistry->emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{4, 4, 16, 16});
         sRegistry->emplace<AnimationC>(entity, Rectangle{4, 4, 16, 16}, 4, 4);
         sRegistry->emplace<PositionC>(entity, getGridToScreenPos(pos));
-        sRegistry->emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 60, 60, false);
+        sRegistry->emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 45, false);
         sRegistry->emplace<CollisionC>(entity, Rectangle{0, 0, 16, 16});
 
         GenesC geneSet = {
@@ -62,47 +64,8 @@ void NPCSystem::addNPCs()
 
 void NPCSystem::update(Scene& scene)
 {
-    // tell the npc what to do
-    updateNPCPaths();
-}
-
-bool NPCSystem::entityAtPosition(Vector2 pos)
-{
-    if (tManager->entityPositionCache.count(pos)) {
-        return tManager->entityPositionCache[pos].size() > 0;
-    }
-
-    return false;
-}
-
-// cache entity location given a position
-void NPCSystem::cachePosition(Vector2 pos, entt::entity id) { tManager->entityPositionCache[pos].push_back(id); }
-
-// delete the entity in the cache void
-void NPCSystem::clearCachePosition(Vector2 pos, entt::entity id)
-{
-    // loop over every  entity at position
-    for (int i = 0; i < tManager->entityPositionCache[pos].size(); i++) {
-        entt::entity entID = tManager->entityPositionCache[pos][i];
-
-        // if the entity id is what we are looking for erase it
-        if (entID == id) {
-            std::vector<entt::entity>::iterator it = tManager->entityPositionCache[pos].begin() + i;
-            tManager->entityPositionCache[pos].erase(it);
-        }
-    }
-
-    // deleting the position key if no entity exists in it
-    if (!tManager->entityPositionCache.count(pos)) {
-        for (auto it = tManager->entityPositionCache.begin(); it != tManager->entityPositionCache.end();) {
-            if (it->first.x == pos.x && it->first.y == pos.y) {
-                it = tManager->entityPositionCache.erase(it);
-            }
-            else {
-                ++it;
-            }
-        }
-    }
+    // tell the npc what to do based on its needs
+    handleActions();
 }
 
 // set npc velocity if there are new paths in its path queue
@@ -127,22 +90,14 @@ void NPCSystem::moveNPC(entt::entity id)
 
         if (destAbsolute.x == (int)position.pos.x && destAbsolute.y == (int)position.pos.y) {
             path.destQueue.pop_front();
-            /* cachePosition(getGridPosition(centeredPos), id); */
         }
         else {
-            /* clearCachePosition(getGridPosition(centeredPos), id); */
             physics.velocity.x = dir.x * physics.speed;
             physics.velocity.y = dir.y * physics.speed;
         }
     }
     else {
-        if (need.search) {
-            need.search = false;
-            path.atTarget = true;
-        }
-        path.isPathing = false;
-        physics.velocity.x = 0;
-        physics.velocity.y = 0;
+        physics.stop();
     }
 }
 
@@ -192,7 +147,7 @@ bool NPCSystem::nearEntity(entt::entity id)
         return false;
     }
 
-    std::vector<Vector2> nearNeighbors = getSpiralNeighbors(initPos, 20);
+    std::vector<Vector2> nearNeighbors = getSpiralNeighbors(initPos, 10);
 
     for (Vector2& n : nearNeighbors) {
         IndexPair indexPair = tManager->getIndexPair(n.x * 16, n.y * 16);
@@ -217,7 +172,7 @@ bool NPCSystem::astar(entt::entity id)
     auto& path = sRegistry->get<PathC>(id);
     auto& need = sRegistry->get<NeedsC>(id);
 
-    if (need.search && path.destQueue.empty()) {
+    if (path.destQueue.empty()) {
         IndexPair indexPair = tManager->getIndexPair(path.target.x * 16, path.target.y * 16);
         int zID = tManager->chunks[indexPair.chunk].tileZ[indexPair.tile];
         if (zID == 1) { // if the target is impossible to get to, return
@@ -291,16 +246,14 @@ void NPCSystem::reconstructPath(PathMap cameFrom, Vector2 current, entt::entity 
     }
 }
 
-// decide path decisions for all npcs
-void NPCSystem::updateNPCPaths()
+// given a desire, determine the action
+void NPCSystem::handleActions()
 {
     auto view = sRegistry->view<GenesC, NeedsC, PathC>();
 
-    // loop over every npc id
     for (auto id : view) {
         auto& need = view.get<NeedsC>(id);
 
-        moveNPC(id);
         switch (need.currentDesire) {
         case ENERGY: {
             handleLeisure(id);
@@ -318,20 +271,19 @@ void NPCSystem::updateNPCPaths()
             break;
         }
         }
-        // continuously update aroundFriends status
-        if (nearEntity(id)) {
-            need.aroundFriends = true;
-            need.search = false;
 
-            auto& physics = sRegistry->get<PhysicsC>(id);
-            /* physics.velocity.x = 0; */
-            /* physics.velocity.y = 0; */
-        }
-        else {
-            need.aroundFriends = false;
-        }
-
+        moveNPC(id);
+        checkSearching(id);
         showDebugInfo(id);
+    }
+}
+
+void NPCSystem::checkSearching(entt::entity id)
+{
+    auto& physics = sRegistry->get<PhysicsC>(id);
+    auto& need = sRegistry->get<NeedsC>(id);
+    if (physics.moving()) {
+        need.currentAction = SEARCHING;
     }
 }
 
@@ -340,49 +292,39 @@ void NPCSystem::handleEating(entt::entity id)
     auto& need = sRegistry->get<NeedsC>(id);
     auto& path = sRegistry->get<PathC>(id);
     auto& position = sRegistry->get<PositionC>(id);
+    auto& physics = sRegistry->get<PhysicsC>(id);
 
-    bool atItem = npcAtItem(id, MUSHROOM_PURPLE);
-    if (atItem) {
-        need.search = false;
-        need.eating = true;
-    }
-    else {
-        need.eating = false;
-        if (!path.isPathing) { // if the npc isn't already moving
+    if (!physics.moving()) {
+        bool atItem = npcAtItem(id, MUSHROOM_PURPLE);
+        /* bool atItem = tManager->getItemUnder(position.pos) == MUSHROOM_PURPLE; */
+        if (atItem) {
+            need.currentAction = EATING;
+            path.destQueue.clear();
+        }
+        else {
             BoolVec2Pair searchResponse = searchItem(id, MUSHROOM_PURPLE);
             if (searchResponse.confirm) {
-                need.search = true;
-                need.leisure = false;
                 path.target = searchResponse.pos;
-                astar(id);
             }
-            else if (!need.search) {
-                need.search = true;
+            else {
+                // random walk
                 Vector2 gridPos = getGridPosition(position.pos);
-                path.target = {GetRandomValue((int)gridPos.x - 10, (int)gridPos.x + 10), GetRandomValue((int)gridPos.y - 10, (int)gridPos.y + 10)};
-                astar(id);
+                path.target = {GetRandomValue((int)gridPos.x - 3, (int)gridPos.x + 3), GetRandomValue((int)gridPos.y - 3, (int)gridPos.y + 3)};
             }
+            astar(id);
         }
     }
-
-    /* if (atItem && need.eating) { */
-    /*     Vector2 gridPos = getGridPosition(Vector2{position.pos.x + 8, position.pos.y + 8}); */
-    /*     IndexPair indexPair = tManager->getIndexPair(gridPos.x * 16, gridPos.y * 16); */
-    /*     tManager->chunks[indexPair.chunk].deleteAtTile(gridPos.x, gridPos.y); */
-    /*     need.eating = false; */
-    /* } */
 }
 
 void NPCSystem::handleLeisure(entt::entity id)
 {
     auto& need = sRegistry->get<NeedsC>(id);
     auto& physics = sRegistry->get<PhysicsC>(id);
+    auto& path = sRegistry->get<PathC>(id);
+    physics.stop();
+    path.destQueue.clear();
 
-    physics.velocity.x = 0;
-    physics.velocity.y = 0;
-
-    need.search = false;
-    need.leisure = true;
+    need.currentAction = RESTING;
 }
 
 void NPCSystem::handleSocial(entt::entity id)
@@ -391,17 +333,16 @@ void NPCSystem::handleSocial(entt::entity id)
     auto& path = sRegistry->get<PathC>(id);
     auto& position = sRegistry->get<PositionC>(id);
     auto& physics = sRegistry->get<PhysicsC>(id);
-
-    if (!need.search) {
-        need.search = true;
+    if (nearEntity(id)) {
+        physics.stop();
+        need.currentAction = SOCIALIZING;
+        path.destQueue.clear();
+    }
+    else if (!physics.moving()) {
+        // random walk
         Vector2 gridPos = getGridPosition(position.pos);
         path.target = {GetRandomValue((int)gridPos.x - 10, (int)gridPos.x + 10), GetRandomValue((int)gridPos.y - 10, (int)gridPos.y + 10)};
         astar(id);
-    }
-    else if (need.search && need.aroundFriends) {
-        physics.velocity.x = 0;
-        physics.velocity.y = 0;
-        path.destQueue.clear();
     }
 }
 
@@ -417,43 +358,105 @@ bool NPCSystem::npcAtItem(entt::entity id, int itemID)
     return item == itemID;
 }
 
+bool NPCSystem::entityAtPosition(Vector2 pos)
+{
+    if (tManager->entityPositionCache.count(pos)) {
+        return tManager->entityPositionCache[pos].size() > 0;
+    }
+
+    return false;
+}
+
 void NPCSystem::showDebugInfo(entt::entity id)
 {
     PathC& path = sRegistry->get<PathC>(id);
     NeedsC& need = sRegistry->get<NeedsC>(id);
     PositionC& position = sRegistry->get<PositionC>(id);
+    PhysicsC& physics = sRegistry->get<PhysicsC>(id);
 
     // get potential new path
     if (NPC_DEBUG_INFO) {
         Color desireColor;
 
-        if (need.aroundFriends) {
-            desireColor = YELLOW;
-            DrawTextEx(GetFontDefault(), "SOCIAL", {position.pos.x, position.pos.y - 10}, 3.0f, 0.4f, YELLOW);
-        }
-
-        if (need.search) { // drawing a line for debugging visual
-            desireColor = RED;
-            Vector2 centeredTarget = getGridToScreenPos(path.target);
-            Vector2 centeredPos = {position.pos.x + 8, position.pos.y + 8};
-            centeredTarget = {centeredTarget.x + 8, centeredTarget.y + 8};
-
-            DrawLineEx(centeredPos, centeredTarget, 1.0f, WHITE);      // drawing path line for debugging
-            DrawCircle(centeredTarget.x, centeredTarget.y, 1.5f, RED); // drawing circle at path target
-            DrawTextEx(GetFontDefault(), "SEARCH", {position.pos.x, position.pos.y - 5}, 4.0f, 0.1f, desireColor);
-        }
-
-        if (need.eating) {
-            desireColor = GREEN;
-            DrawTextEx(GetFontDefault(), "EATING", {position.pos.x, position.pos.y - 15}, 4.0f, 0.1f, desireColor);
-        }
-
-        if (need.leisure) {
+        switch (need.currentAction) {
+        case RESTING: {
             desireColor = PURPLE;
-            DrawTextEx(GetFontDefault(), "LEISURE", {position.pos.x, position.pos.y - 1}, 4.0f, 0.1f, desireColor);
+            DrawTextEx(GetFontDefault(), "RESTING", {position.pos.x, position.pos.y - 10}, 4.0f, 0.1f, desireColor);
+            break;
+        }
+        case EATING: {
+            desireColor = GREEN;
+            DrawTextEx(GetFontDefault(), "EATING", {position.pos.x, position.pos.y - 10}, 4.0f, 0.1f, desireColor);
+            break;
+        }
+        case SOCIALIZING: {
+            desireColor = YELLOW;
+            DrawTextEx(GetFontDefault(), "SOCIALIZING", {position.pos.x, position.pos.y - 10}, 3.0f, 0.4f, desireColor);
+            break;
+        }
+        case SEARCHING: {
+            desireColor = RED;
+            DrawTextEx(GetFontDefault(), "SEARCHING", {position.pos.x, position.pos.y - 10}, 3.0f, 0.4f, desireColor);
+            break;
+        }
+        default: {
+            break;
+        }
+        }
+
+        switch (need.currentDesire) {
+        case ENERGY: {
+            desireColor = PURPLE;
+            DrawTextEx(GetFontDefault(), "ENERGY", {position.pos.x, position.pos.y - 5}, 4.0f, 0.1f, desireColor);
+            break;
+        }
+        case SATIATION: {
+            desireColor = GREEN;
+            DrawTextEx(GetFontDefault(), "SATIATION", {position.pos.x, position.pos.y - 5}, 4.0f, 0.1f, desireColor);
+            break;
+        }
+        case SOCIAL: {
+            desireColor = YELLOW;
+            DrawTextEx(GetFontDefault(), "SOCIAL", {position.pos.x, position.pos.y - 5}, 4.0f, 0.4f, desireColor);
+            break;
+        }
+        default: {
+            break;
+        }
         }
     }
 }
+
+// cache entity location given a position
+void NPCSystem::cachePosition(Vector2 pos, entt::entity id) { tManager->entityPositionCache[pos].push_back(id); }
+
+// delete the entity in the cache void
+void NPCSystem::clearCachePosition(Vector2 pos, entt::entity id)
+{
+    // loop over every  entity at position
+    for (int i = 0; i < tManager->entityPositionCache[pos].size(); i++) {
+        entt::entity entID = tManager->entityPositionCache[pos][i];
+
+        // if the entity id is what we are looking for erase it
+        if (entID == id) {
+            std::vector<entt::entity>::iterator it = tManager->entityPositionCache[pos].begin() + i;
+            tManager->entityPositionCache[pos].erase(it);
+        }
+    }
+
+    // deleting the position key if no entity exists in it
+    if (!tManager->entityPositionCache.count(pos)) {
+        for (auto it = tManager->entityPositionCache.begin(); it != tManager->entityPositionCache.end();) {
+            if (it->first.x == pos.x && it->first.y == pos.y) {
+                it = tManager->entityPositionCache.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+    }
+}
+
 void NPCSystem::clearCacheBefore()
 {
     auto view = sRegistry->view<GenesC, NeedsC, PathC, PhysicsC, PositionC>();

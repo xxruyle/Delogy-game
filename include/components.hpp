@@ -28,10 +28,14 @@ struct CollisionC {
 struct PhysicsC {
   Vector2 velocity;
   int speed;
-  int maxSpeed;
   bool is_solid;
 
   bool moving() { return velocity.x != 0 || velocity.y != 0; };
+
+  void stop() {
+    velocity.x = 0;
+    velocity.y = 0;
+  };
 };
 
 struct AnimationC {

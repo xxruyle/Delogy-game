@@ -183,8 +183,8 @@ void TileManager::generateVegetation()
     for (int y = -worldSize * CHUNK_SIZE; y < worldSize * CHUNK_SIZE; y++) {
         for (int x = -worldSize * CHUNK_SIZE; x < worldSize * CHUNK_SIZE; x++) {
             int rand = GetRandomValue(0, 500);
-            if (rand < 2) {
-                int randSize = GetRandomValue(1, 5);
+            if (rand < 1) {
+                int randSize = GetRandomValue(10, 20);
                 Vector2 curTile = {x, y};
                 IndexPair index = getGridIndexPair(curTile.x, curTile.y);
                 while (randSize >= 0) {
