@@ -10,6 +10,8 @@
 class Scene {
 public:
   entt::basic_registry<> EntityRegistry;
+  float targetZoom = 0.0f;
+  bool isZooming = false;
   Camera2D camera = {
       Vector2{LuaGetInt("WINDOW_WIDTH", "scripts/game_settings.lua") / 2,
               LuaGetInt("WINDOW_HEIGHT", "scripts/game_settings.lua") / 2},

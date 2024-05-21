@@ -22,12 +22,26 @@ void Scene::updateCamera(UI& ui)
 
     // update camera zoom
     if (ui.mouseOutOfBounds()) {
-        camera.zoom += GetMouseWheelMove() * 0.5f;
-        if (camera.zoom > 10.0f) // zoom in limit
-            camera.zoom = 10.0f;
+        // Calculate the target zoom level based on mouse wheel input
+        float newZoom = camera.zoom + GetMouseWheelMove() * 0.4f; // Adjust sensitivity if needed
+        if (abs(camera.zoom - newZoom) > 0.0f) {
+            targetZoom = newZoom;
+            isZooming = true;
+        }
 
-        if (camera.zoom < 0.05f) // zoom out limit
-            camera.zoom = 0.05f;
+        if (isZooming) {
+            camera.zoom = Lerp(camera.zoom, targetZoom, 0.07f);
+            if (abs(camera.zoom - targetZoom) < 0.1f) {
+                isZooming = false;
+            }
+
+            // clamping zoom
+            if (camera.zoom > 10.0f) // Zoom in limit
+                camera.zoom = 10.0f;
+
+            if (camera.zoom < 0.05f) // Zoom out limit
+                camera.zoom = 0.05f;
+        }
     }
 
     windowWidth = GetScreenWidth();
