@@ -3,8 +3,7 @@
 #include "raylib.h"
 #include <string>
 
-int UIRowGridRec(Rectangle cellSrc, float thickness, float spacing, int numCells, int cellSelected, Color color,
-                 Color backgroundColor)
+int UIRowGridRec(Rectangle cellSrc, float thickness, float spacing, int numCells, int cellSelected, Color color, Color backgroundColor)
 {
     int result = -1; // if the mouse is not in any cell
     Vector2 mousePos = GetMousePosition();
@@ -36,17 +35,20 @@ int UIRowGridRec(Rectangle cellSrc, float thickness, float spacing, int numCells
     return result; // returning the cell a mouse position was in
 }
 
-void UIRowGridIcon(Atlas &atlas, InventoryC &playerInventory, Rectangle cellSrc, float thickness, float spacing,
-                   int numCells)
+void UIRowGridIcon(Atlas& atlas, InventoryC& playerInventory, Rectangle cellSrc, float thickness, float spacing, int numCells)
 {
 
     cellSrc.x -= cellSrc.width; // re-orient cellSrc to prepare for additions in the loop
     for (int i = 0; i < numCells; i++) {
-        cellSrc.x += cellSrc.width + spacing; // incrememnt the x src each iteration
-        int itemId = playerInventory.hotbar[i];
-        Item curItem = itemids[itemId];
-        Rectangle itemTexture = {(float)curItem.x, (float)curItem.y, 16, 16};
-        DrawTexturePro(atlas.texture, itemTexture, {cellSrc.x + 4, cellSrc.y + 4, 40, 40}, {0, 0}, 0.0f, WHITE);
+        if (playerInventory.slots[i] != NULL_ITEM) {
+            cellSrc.x += cellSrc.width + spacing; // incrememnt the x src each iteration
+            int itemId = playerInventory.slots[i];
+            Item curItem = itemids[itemId];
+            Rectangle itemTexture = {(float)curItem.x, (float)curItem.y, 16, 16};
+            Rectangle itemRec = {cellSrc.x + 4, cellSrc.y + 4, 40, 40};
+            DrawTexturePro(atlas.texture, itemTexture, itemRec, {0, 0}, 0.0f, WHITE);
+            DrawText(std::to_string(playerInventory.stacks[i]).c_str(), itemRec.x + 5, itemRec.y + itemRec.height - 15, 20, RAYWHITE);
+        }
     }
 }
 

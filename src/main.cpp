@@ -1,23 +1,23 @@
 #include "components.hpp"
 #include "macros_util.hpp"
 #include "tile_data.hpp"
-#include <utility>
 #include <iostream>
+#include <utility>
 #define RAYGUI_IMPLEMENTATION
-#include "dev_util.hpp"
-#include "raylib.h"
-#include "tile_manager.hpp"
+#include "animation_system.hpp"
 #include "cart_manager.hpp"
-#include "scene.hpp"
+#include "dev_util.hpp"
 #include "draw_system.hpp"
 #include "input_system.hpp"
-#include "animation_system.hpp"
-#include "movement_system.hpp"
-#include "player_inventory_system.hpp"
-#include "npc_system.hpp"
 #include "minimap.hpp"
-#include "wireframe.hpp"
+#include "movement_system.hpp"
 #include "needs_system.hpp"
+#include "npc_system.hpp"
+#include "player_inventory_system.hpp"
+#include "raylib.h"
+#include "scene.hpp"
+#include "tile_manager.hpp"
+#include "wireframe.hpp"
 
 #include "entity_data.hpp"
 #include "entt/entity/registry.hpp"
@@ -91,14 +91,12 @@ int main()
 
             drawMouseGridOutline(scene.camera, Color{255, 255, 255, 180});
             npcSystem.showEntityInfo(scene.camera);
-            /* tileManager.clearEntityPositionCache(); */
         }
         EndMode2D();
 
         /* Draw UI */
         PhysicsC physicsComponent = scene.EntityRegistry.get<PhysicsC>(scene.player);
         drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
-        drawCounter("Cart Count: ", cartManager.cartCount);
         userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player));
 
         miniMap.update(userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16}, drawSystem);

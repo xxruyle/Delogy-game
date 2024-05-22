@@ -247,7 +247,7 @@ void TileManager::checkPlayerInteraction(Camera2D& camera, UI& ui, InventoryC& p
                 break;
             }
             case PLAYER_CREATE: {
-                int selectedItem = playerInventory.hotbar[playerInventory.curItem];
+                int selectedItem = playerInventory.slots[playerInventory.curItem];
                 if (selectedItem >= RAIL_NW && selectedItem <= MUSHROOM_PURPLE) {
                     chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y, selectedItem);
                     updatedChunks.push_back(chunkIndex);

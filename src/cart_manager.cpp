@@ -1,10 +1,10 @@
 #include "cart_manager.hpp"
+#include "dev_util.hpp"
+#include "entity_data.hpp"
 #include "input_system.hpp"
 #include "item_data.hpp"
-#include "raylib.h"
 #include "macros_util.hpp"
-#include "entity_data.hpp"
-#include "dev_util.hpp"
+#include "raylib.h"
 #include <iostream>
 
 std::unordered_set<int> CartManager::getValidRails(int rail, int direction)
@@ -133,7 +133,7 @@ Vector2 CartManager::getNearSideCartBorder(PositionC& position, int direction)
 void CartManager::getPlayerInteraction(InventoryC& inventory, Camera2D& camera, entt::basic_registry<>& registry)
 {
     if (InputSystem::getUserMouseInteraction() == PLAYER_CREATE) {
-        int inventoryItem = inventory.hotbar[inventory.curItem];
+        int inventoryItem = inventory.slots[inventory.curItem];
         if (inventoryItem == CART) {
             Vector2 mouseGridPos = getMouseGridPosition(camera);
             createCart(mouseGridPos, registry);

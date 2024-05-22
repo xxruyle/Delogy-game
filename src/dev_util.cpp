@@ -2,8 +2,8 @@
 #include "macros_util.hpp"
 #include "raylib.h"
 #include <math.h>
-#include <string>
 #include <regex>
+#include <string>
 
 std::string getVector2String(Vector2 vec)
 {
@@ -12,10 +12,10 @@ std::string getVector2String(Vector2 vec)
 
     std::string xstr = std::to_string(x);
     std::string ystr = std::to_string(y);
-    xstr.erase(xstr.find('.') + 1); //chop to precision
+    xstr.erase(xstr.find('.') + 1); // chop to precision
     xstr.erase(xstr.find_last_not_of('.') + 1, std::string::npos);
 
-    ystr.erase(ystr.find('.') + 1); //chop to precision
+    ystr.erase(ystr.find('.') + 1); // chop to precision
     ystr.erase(ystr.find_last_not_of('.') + 1, std::string::npos);
 
     std::string vecString = "(" + xstr + ", " + ystr + ")";
@@ -125,7 +125,7 @@ void drawMouseGridOutline(Camera2D& camera, Color color)
         mousePos.y = (int)(mousePos.y / 16) * 16;
     }
 
-    DrawRectangleLinesEx(Rectangle{mousePos.x, mousePos.y, 16, 16}, 0.2f, color);
+    DrawRectangleLinesEx(Rectangle{mousePos.x, mousePos.y, 16, 16}, 1.0f, color);
 }
 
 void drawMouseChunkPosition(Camera2D& camera)

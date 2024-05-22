@@ -2,10 +2,10 @@
 #include "animation_system.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
+#include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
 #include "raymath.h"
-#include "lua/lualoader.hpp"
 
 void Scene::setPlayerFocus()
 {
@@ -68,5 +68,5 @@ void Scene::addPlayer(AtlasType atlasid, Vector2 spawnPos, Rectangle frameSrc, i
     float ATLAS_SPRITE_MARGIN = LuaGetInt("ATLAS_SPRITE_MARGIN", "scripts/game_settings.lua");
 
     EntityRegistry.emplace<CollisionC>(entity, Rectangle{15 - ATLAS_SPRITE_MARGIN, 29 - ATLAS_SPRITE_MARGIN, 11, 7});
-    EntityRegistry.emplace<InventoryC>(entity);
+    EntityRegistry.emplace<InventoryC>(entity, 20);
 }

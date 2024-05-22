@@ -3,13 +3,12 @@
 #include "dev_util.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/registry.hpp"
+#include "input_system.hpp"
 #include "item_data.hpp"
 #include "lua/lualoader.hpp"
 #include "raylib.h"
 #include "raymath.h"
-#include "components.hpp"
 #include "tile_manager.hpp"
-#include "input_system.hpp"
 
 NPCSystem::NPCSystem(TileManager* tileManager, entt::basic_registry<>* EntityRegistry, entt::entity player)
 {

@@ -5,8 +5,8 @@
 
 class PlayerInventorySystem {
   public:
-    void updateInventorySelection(InventoryC &inventory); // switch inventory selection
-    void updateItemRotation(InventoryC &inventory);
-    void drawCurItem(Atlas &atlas, Camera2D &camera, InventoryC &inventory);
-    void update(Scene &scene);
+    void updateInventorySelection(InventoryC& inventory); // switch inventory selection
+    void updateItemRotation(InventoryC& inventory);
+    void drawCurItem(Atlas& atlas, Camera2D& camera, InventoryC& inventory);
+    void update(Scene& scene);
 };
