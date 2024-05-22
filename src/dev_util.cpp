@@ -228,6 +228,14 @@ Vector2 getMinimapGridPos(Camera2D& camera, Vector2 screenMousePos, float tileSi
     return mousePos;
 }
 
+float CosineInterpolate(float y1, float y2, float mu)
+{
+    float mu2;
+
+    mu2 = (1 - cos(mu * PI)) / 2;
+    return (y1 * (1 - mu2) + y2 * mu2);
+}
+
 Vector2 getMouseChunkPosition(Camera2D& camera)
 {
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);

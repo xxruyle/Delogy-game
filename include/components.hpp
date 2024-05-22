@@ -100,10 +100,15 @@ struct PlayerC {
 
 struct PathC {
   Vector2 target;
-  bool isPathing;
-  bool atTarget;
+  bool targetAvailable;          // target is ready
   std::deque<Vector2> destQueue; // the destinations in queue
   unsigned int targetID;
+
+  void setTarget(Vector2 dest) {
+    target.x = dest.x;
+    target.y = dest.y;
+    targetAvailable = true;
+  }
 };
 
 struct TimerC {
@@ -111,7 +116,15 @@ struct TimerC {
 };
 
 enum needType { SATIATION, ENERGY, SOCIAL, ENTERTAINMENT, SAFETY };
-enum actionType { EATING, RESTING, SOCIALIZING, PLAY, DEFENSE, SEARCHING };
+enum actionType {
+  EATING,
+  RESTING,
+  SOCIALIZING,
+  PLAY,
+  DEFENSE,
+  SEARCHING,
+  NONE
+};
 
 struct GenesC {
   float maxDesires[5];     // range rn: (70 - 100)   // the most a desire can be
@@ -128,6 +141,8 @@ struct NeedsC {
   // states (graph nodes)
   int currentDesire = ENERGY;
   int currentAction = RESTING;
+  int currentSubAction = NONE; // the action that the entity can do while doing
+                               // something else!
 
   // action states (graph edges), managed by npc system
   bool leisure = false;

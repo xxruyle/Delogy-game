@@ -1,7 +1,5 @@
 #pragma once
-#include "components.hpp"
 #include "dev_util.hpp"
-#include "entt/entity/fwd.hpp"
 #include "entt/entity/registry.hpp"
 #include "lua/lualoader.hpp"
 #include "scene.hpp"
@@ -41,15 +39,13 @@ public:
 
   // handle functions
   void update(Scene &scene);
-  void handleActions();
   bool astar(entt::entity id);
   void moveNPC(entt::entity id); // move particular npc
 
   // querying cache
   bool entityAtPosition(Vector2 pos); // returns true if entity at position
-  BoolVec2Pair searchItem(entt::entity id, int itemID);
-  bool nearEntity(entt::entity id);
-  bool npcAtItem(entt::entity id, int itemID);
+  BoolVec2Pair searchItem(entt::entity id, int itemID, int radius);
+  bool nearEntity(entt::entity id, int radius);
 
   // cache handling
   void cachePosition(Vector2 pos, entt::entity id);
@@ -65,8 +61,9 @@ private:
   void reconstructPath(PathMap cameFrom, Vector2 current, entt::entity id);
 
   // actions
+  void handleActions();
+  void giveRandomPath(entt::entity id);
   void checkSearching(entt::entity id);
-  void randomPath(entt::entity id);
   void handleEating(entt::entity id);
   void handleLeisure(entt::entity id);
   void handleSocial(entt::entity id);

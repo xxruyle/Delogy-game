@@ -35,9 +35,10 @@ int main()
     /* SetTargetFPS(60); */
 
     InitWindow(LuaGetInt("WINDOW_WIDTH", "scripts/game_settings.lua"), LuaGetInt("WINDOW_HEIGHT", "scripts/game_settings.lua"), "Delogy Indev");
-    SetRandomSeed(LuaGetInt("WORLD_SEED", "scripts/game_settings.lua"));
+    int randomSeed = LuaGetInt("WORLD_SEED", "scripts/game_settings.lua");
+    SetRandomSeed(randomSeed);
 
-    TileManager tileManager(LuaGetInt("WORLD_SEED", "scripts/game_settings.lua"));
+    TileManager tileManager(randomSeed);
 
     MiniMap miniMap(LuaGetInt("MINIMAP_WIDTH", "scripts/game_settings.lua"), LuaGetInt("MINIMAP_HEIGHT", "scripts/game_settings.lua"), &tileManager);
     UI userInterface;

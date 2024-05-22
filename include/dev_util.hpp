@@ -31,6 +31,7 @@ struct PathNodeComparison {
   }
 };
 
+float CosineInterpolate(float y1, float y2, float mu);
 std::string getVector2String(Vector2 vec);
 int Vector2Manhattan(Vector2 vec1, Vector2 vec2);
 

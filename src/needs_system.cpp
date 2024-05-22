@@ -1,19 +1,15 @@
 #include "needs_system.hpp"
 #include "components.hpp"
+#include "raymath.h"
 #include <iostream>
 
 NeedsSystem::NeedsSystem(entt::basic_registry<>* EntityRegistry) { sRegistry = EntityRegistry; }
 
 void NeedsSystem::clampDesires(NeedsC& need, GenesC& genes)
 {
+    // clamp values
     for (int desireType = 0; desireType < 5; desireType++) {
-        // clamp values
-        if (need.desires[desireType] <= 0.0f) {
-            need.desires[desireType] = 0.0f;
-        }
-        else if (need.desires[desireType] >= genes.maxDesires[desireType]) {
-            need.desires[desireType] = genes.maxDesires[desireType];
-        }
+        need.desires[desireType] = Clamp(need.desires[desireType], 0.0f, genes.maxDesires[desireType]);
     }
 }
 
@@ -26,6 +22,12 @@ void NeedsSystem::handleCurrentAction(NeedsC& need, GenesC& genes)
         break;
     case EATING:
         need.desires[SATIATION] += genes.desireIncrements[SATIATION];
+        need.desires[ENERGY] += genes.desireIncrements[ENERGY];
+
+        if (need.currentSubAction == SOCIALIZING) {
+            need.desires[SOCIAL] += genes.desireIncrements[SOCIAL];
+        }
+
         break;
     case SOCIALIZING:
         need.desires[SOCIAL] += genes.desireIncrements[SOCIAL];

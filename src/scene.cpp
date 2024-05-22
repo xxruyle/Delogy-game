@@ -1,6 +1,7 @@
 #include "scene.hpp"
 #include "animation_system.hpp"
 #include "components.hpp"
+#include "dev_util.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
 #include "raymath.h"
@@ -30,17 +31,18 @@ void Scene::updateCamera(UI& ui)
         }
 
         if (isZooming) {
-            camera.zoom = Lerp(camera.zoom, targetZoom, 0.07f);
-            if (abs(camera.zoom - targetZoom) < 0.1f) {
+            camera.zoom = Lerp(camera.zoom, targetZoom, 0.04f);
+            if (abs(camera.zoom - targetZoom) < 0.001f) {
                 isZooming = false;
             }
 
-            // clamping zoom
-            if (camera.zoom > 10.0f) // Zoom in limit
-                camera.zoom = 10.0f;
+            // zoom in: 10.0f
+            // zoom out limit: 0.05f
+            // debug mode
+            camera.zoom = Clamp(camera.zoom, 0.05f, 10.0f);
 
-            if (camera.zoom < 0.05f) // Zoom out limit
-                camera.zoom = 0.05f;
+            // actual game mode
+            /* camera.zoom = Clamp(camera.zoom, 1.3f, 6.0f); */
         }
     }
 

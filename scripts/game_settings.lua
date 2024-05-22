@@ -21,7 +21,6 @@ AtlasType = {
 }
 
 
-
 -- Window Info
 WINDOW_WIDTH = 1260
 WINDOW_HEIGHT = 780
@@ -30,7 +29,7 @@ WINDOW_HEIGHT = 780
 WORLD_SIZE = 20
 TILE_SIZE = 16
 RENDER_DISTANCE = 2 -- the amount of chunks near the player the tile manager will render
--- WORLD_SEED = 649
+-- WORLD_SEED = 144
 WORLD_SEED = math.random(0, 1000)
 
 -- MINI Map Info
@@ -38,22 +37,22 @@ MINIMAP_WIDTH = 200
 MINIMAP_HEIGHT = 200
 
 -- Player Info
-PLAYER_SPEED = 100
+PLAYER_SPEED = 150
 PLAYER_SPRITE_SIZE = 32
 NUM_INVENTORY = 50
 NUM_HOTBAR = 6
 COLLISION_ENABLED = false
 
 -- NPC Info
-MAX_NPCS = 2000
+MAX_NPCS = 10
 DRAW_NPC_DEBUG = true -- draw npc info (e.g path arrows)
-NPC_SPAWN_RADIUS = 20
+NPC_SPAWN_RADIUS = 10
 
 -- NPC Genes
 NPC_GENE_MAX_DESIRE = math.random(70, 100)
 NPC_GENE_MIN_DESIRE = math.random(50, 60)
 NPC_GENE_INCREMENT = math.random(30, 40)
-NPC_GENE_DECREMENT = 8.0
+NPC_GENE_DECREMENT = 20.0
 -- NPC_GENE_DECREMENT = math.random()
 
 
