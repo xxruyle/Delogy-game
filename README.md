@@ -1,7 +1,8 @@
 # Delogy 
-Delogy is an underground survival sandbox focused on automation 
+Delogy is an underground RPG Civ Sim 
 
-![](res/showcase.png)
+
+![](res/npc_testing.png)
 
 ## Libraries Used 
 - <a href="https://github.com/skypjack/entt">entt</a>
