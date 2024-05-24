@@ -6,7 +6,7 @@ CommentPragmas:  '^ IWYU pragma:'
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
-ColumnLimit: 200
+ColumnLimit: 10000
 Cpp11BracedListStyle: true
 IncludeBlocks:   Preserve
 IncludeCategories:
@@ -31,7 +31,9 @@ IndentExternBlock: AfterExternBlock
 IndentGotoLabels: true
 IndentPPDirectives: None
 IndentRequiresClause: true
+UseTab: Always
 IndentWidth:     4
+TabWidth: 4 
 IndentWrappedFunctionNames: false
 InsertBraces:    false
 InsertNewlineAtEOF: false

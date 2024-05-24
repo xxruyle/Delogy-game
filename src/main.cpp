@@ -9,11 +9,11 @@
 #include "dev_util.hpp"
 #include "draw_system.hpp"
 #include "input_system.hpp"
+#include "inventory_system.hpp"
 #include "minimap.hpp"
 #include "movement_system.hpp"
 #include "needs_system.hpp"
 #include "npc_system.hpp"
-#include "player_inventory_system.hpp"
 #include "raylib.h"
 #include "scene.hpp"
 #include "tile_manager.hpp"
@@ -26,84 +26,85 @@
 
 int main()
 {
-    SetConfigFlags(FLAG_WINDOW_ALWAYS_RUN);
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
+	SetConfigFlags(FLAG_WINDOW_ALWAYS_RUN);
+	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+	SetConfigFlags(FLAG_MSAA_4X_HINT);
 
-    InitLua(); // intialize lua before calling lualoader functions
+	InitLua(); // intialize lua before calling lualoader functions
 
-    /* SetTargetFPS(60); */
+	/* SetTargetFPS(60); */
 
-    InitWindow(LuaGetInt("WINDOW_WIDTH", "scripts/game_settings.lua"), LuaGetInt("WINDOW_HEIGHT", "scripts/game_settings.lua"), "Delogy Indev");
-    int randomSeed = LuaGetInt("WORLD_SEED", "scripts/game_settings.lua");
-    SetRandomSeed(randomSeed);
+	InitWindow(LuaGetInt("WINDOW_WIDTH", "scripts/game_settings.lua"), LuaGetInt("WINDOW_HEIGHT", "scripts/game_settings.lua"), "Delogy Indev");
+	int randomSeed = LuaGetInt("WORLD_SEED", "scripts/game_settings.lua");
+	SetRandomSeed(randomSeed);
 
-    TileManager tileManager(randomSeed);
+	TileManager tileManager(randomSeed);
 
-    MiniMap miniMap(LuaGetInt("MINIMAP_WIDTH", "scripts/game_settings.lua"), LuaGetInt("MINIMAP_HEIGHT", "scripts/game_settings.lua"), &tileManager);
-    UI userInterface;
+	MiniMap miniMap(LuaGetInt("MINIMAP_WIDTH", "scripts/game_settings.lua"), LuaGetInt("MINIMAP_HEIGHT", "scripts/game_settings.lua"), &tileManager);
+	UI userInterface;
 
-    CartManager cartManager;
+	CartManager cartManager;
 
-    SpriteDrawSystem drawSystem;
-    AnimationSystem animationSystem;
-    PlayerInventorySystem inventorySystem;
+	SpriteDrawSystem drawSystem;
+	AnimationSystem animationSystem;
+	InventorySystem inventorySystem;
+	Scene scene;
 
-    Scene scene;
-    scene.addPlayer(AtlasType::MEDIUM, {1 * 16, 1 * 16}, {4, 4, 32, 32}, 4, 4);
+	scene.addPlayer(AtlasType::MEDIUM, {1 * 16, 1 * 16}, {4, 4, 32, 32}, 4, 4);
 
-    NPCSystem npcSystem(&tileManager, &scene.EntityRegistry, scene.player);
+	NPCSystem npcSystem(&tileManager, &scene.EntityRegistry, scene.player);
 
-    NeedsSystem needsSystem(&scene.EntityRegistry);
+	NeedsSystem needsSystem(&scene.EntityRegistry);
 
-    MovementSystem movementSystem;
+	MovementSystem movementSystem;
 
-    tileManager.generateChunks();
+	tileManager.generateChunks();
 
-    /* npcSystem.update(scene); */
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(BLACK);
-        scene.updateCamera(userInterface);
-        BeginMode2D(scene.camera);
-        {
-            /* Handle Tile Manager */
-            tileManager.update(drawSystem.smallAtlas, userInterface, scene);
+	/* npcSystem.update(scene); */
+	while (!WindowShouldClose()) {
+		BeginDrawing();
+		ClearBackground(BLACK);
+		scene.updateCamera(userInterface);
+		BeginMode2D(scene.camera);
+		{
+			/* Handle Tile Manager */
+			tileManager.update(drawSystem.smallAtlas, userInterface, scene);
 
-            /* Handle Carts */
-            cartManager.update(tileManager, scene);
+			/* Handle Carts */
+			cartManager.update(tileManager, scene);
 
-            /* Systems */
-            inventorySystem.update(scene);
-            needsSystem.update();
-            npcSystem.update(scene);
-            npcSystem.clearCacheBefore(); // clear cache before movement starts
-            movementSystem.update(scene.player, scene.EntityRegistry, tileManager);
-            npcSystem.updateCacheAfter(); // update cache after movement is finished
-            animationSystem.update(scene.EntityRegistry, scene.player);
+			/* Systems */
+			inventorySystem.update(scene);
+			needsSystem.update();
+			npcSystem.update(scene);
+			npcSystem.clearCacheBefore(); // clear cache before movement starts
+			movementSystem.update(scene.player, scene.EntityRegistry, tileManager);
+			npcSystem.updateCacheAfter(); // update cache after movement is finished
+			animationSystem.update(scene.EntityRegistry, scene.player);
 
-            /* Draw */
-            drawSystem.drawSprites(scene.EntityRegistry);
+			/* Draw */
+			drawSystem.drawSprites(scene.EntityRegistry);
 
-            inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera, scene.EntityRegistry.get<InventoryC>(scene.player));
+			inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera, scene.EntityRegistry.get<InventoryC>(scene.player), scene.EntityRegistry.get<HotBarC>(scene.player));
 
-            WireFrame::draw(scene.EntityRegistry);
+			WireFrame::draw(scene.EntityRegistry);
 
-            drawMouseGridOutline(scene.camera, Color{255, 255, 255, 180});
-            npcSystem.showEntityInfo(scene.camera);
-        }
-        EndMode2D();
+			drawMouseGridOutline(scene.camera, Color{255, 255, 255, 180});
+			npcSystem.showEntityInfo(scene.camera);
+		}
+		EndMode2D();
 
-        /* Draw UI */
-        PhysicsC physicsComponent = scene.EntityRegistry.get<PhysicsC>(scene.player);
-        drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
-        userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player));
+		/* Draw UI */
+		PhysicsC physicsComponent = scene.EntityRegistry.get<PhysicsC>(scene.player);
+		drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
+		userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player), scene.EntityRegistry.get<HotBarC>(scene.player), 48, 48);
+		userInterface.inventory(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player), scene.EntityRegistry.get<HotBarC>(scene.player), 50, 50, 5);
 
-        miniMap.update(userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16}, drawSystem);
+		miniMap.update(userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16}, drawSystem);
 
-        EndDrawing();
-    }
-    CloseWindow();
+		EndDrawing();
+	}
+	CloseWindow();
 
-    CloseLua();
+	CloseLua();
 }

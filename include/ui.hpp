@@ -10,6 +10,9 @@ public:
 
   bool mouseOutOfBounds(); // check if mouse is not in the ui bound space
   const float gridSpacing = 2.0f;
-  void hotBar(Atlas &atlas, InventoryC &inventory);
+  void hotBar(Atlas &atlas, InventoryC &inventory, HotBarC &hotBar, int width,
+              int height);
+  void inventory(Atlas &atlas, InventoryC &inventory, HotBarC &hotBar,
+                 int width, int height, int cellsPerRow);
   void miniMap(Rectangle mapSrc);
 };

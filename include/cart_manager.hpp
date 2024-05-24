@@ -17,8 +17,8 @@ public:
   void changeCartVelocity(PhysicsC &physics, OrecartC &orecart);
   void changeCartPosition(PositionC &position, PhysicsC &physics);
   void updateCarts(entt::basic_registry<> &registry, TileManager &tileManager);
-  void getPlayerInteraction(InventoryC &inventory, Camera2D &camera,
-                            entt::basic_registry<> &registry);
+  void getPlayerInteraction(InventoryC &inventory, HotBarC &hotBar,
+                            Camera2D &camera, entt::basic_registry<> &registry);
   void update(TileManager &tileManager, Scene &scene);
 
 private:
