@@ -43,6 +43,7 @@
     - volcano, lava
     - talus  
     - jungle 
+
 ## World Idea
 - there is a world underground but people underground don't know anything about the above 
 - there are stations where work turns into rewards (food, items) (perhaps this powers the above ground?)
@@ -59,12 +60,14 @@
 - reaction to player 
 - animations
 
+- different biomes should lead to different NPC stats over time through natural selection
+
 ## Main Game loop idea 
 
 1) Player gather resources 
 2) Trade with NPCs 
 3) Get reputation with NPCs 
-4) Rule NPCs 
+4) Rule NPCs with this reputation 
 5) Order NPCs for more resources 
 6) Take over communities 
-7) Become rich 
+7) Become rich  and build 

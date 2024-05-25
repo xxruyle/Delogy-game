@@ -2,9 +2,10 @@
 #include "macros_util.hpp"
 #include "raylib.h"
 #include "raymath.h"
+#include <deque>
 #include <entt/entity/registry.hpp>
 
-#define NUM_KEYS 11
+#define NUM_KEYS 13
 enum KeyBindings {
   NULL_PRESS,
   MOVE_RIGHT,
@@ -16,15 +17,37 @@ enum KeyBindings {
   ITEM_ROTATION,
   OPEN_MINIMAP,
   SHOW_INFO,
+  CLICK_HOLD,
+  CLICK_RELEASE,
   DEBUG_WIREFRAME
 };
 
-static int Keys[NUM_KEYS] = {
-    KEY_NULL,           KEY_D, KEY_A, KEY_W,          KEY_S, MOUSE_BUTTON_LEFT,
-    MOUSE_BUTTON_RIGHT, KEY_R, KEY_M, KEY_LEFT_SHIFT, KEY_C};
+static int Keys[NUM_KEYS] = {KEY_NULL,
+                             KEY_D,
+                             KEY_A,
+                             KEY_W,
+                             KEY_S,
+                             MOUSE_BUTTON_LEFT,
+                             MOUSE_BUTTON_RIGHT,
+                             KEY_R,
+                             KEY_M,
+                             KEY_LEFT_SHIFT,
+                             MOUSE_BUTTON_LEFT,
+                             MOUSE_BUTTON_LEFT,
+                             KEY_C};
+
+struct ClickEvent {
+  Vector2 screenPos;
+  int clickID;
+};
+
+extern std::deque<ClickEvent> clickQueue; // global click queue
 
 class InputSystem {
 public:
+  static void pollClickEvents();
+  static bool getClickEvent(int polledClickID);
+
   static int getUserKeypress();
   static int getUserKeydown();
   static int getUserMouseInteraction();

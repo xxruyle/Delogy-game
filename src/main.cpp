@@ -94,6 +94,9 @@ int main()
 		}
 		EndMode2D();
 
+		/* Handle Input*/
+		InputSystem::pollClickEvents();
+
 		/* Draw UI */
 		PhysicsC physicsComponent = scene.EntityRegistry.get<PhysicsC>(scene.player);
 		drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
