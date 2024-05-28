@@ -7,21 +7,38 @@
 #include "ui_util.hpp"
 #include <cstddef>
 
-void UI::hotBar(Atlas& atlas, InventoryC& inventory, HotBarC& hotBar, int width, int height)
+UI::UI(SpriteDrawSystem* spriteDrawSystem) { drawSystem = spriteDrawSystem; }
+
+void UI::hotBar(InventoryC& inventory, HotBarC& hotBar, Vector2 src, int width, int height)
 {
 
 	float cellThickness = 1.0f;
-	UIRowGridRec({0, (float)(GetScreenHeight() - height), width, height}, cellThickness, gridSpacing, hotBar.capacity, hotBar.curItem, RAYWHITE, Color{255, 255, 255, 32});
-	Rectangle iconSrc = {0, (float)(GetScreenHeight() - height), width, height};
-	inventoryRowSlots(atlas, inventory, 0, 5, iconSrc);
+	int selection = UIRowGridRec({src.x, src.y, width, height}, cellThickness, gridSpacing, hotBar.capacity, hotBar.curItem, RAYWHITE, Color{255, 255, 255, 32});
+	Rectangle iconSrc = {src.x, src.y, width, height};
+	inventoryRowSlots(inventory, 0, hotBar.capacity, iconSrc);
 
 	int xNumsOffset = 5;
 	int yNumsOffset = 17;
-	UIRowGridNumbers({xNumsOffset, (float)(GetScreenHeight() - height - yNumsOffset), width, height}, gridSpacing, hotBar.capacity);
+	UIRowGridNumbers({src.x, src.y - 18, width, height}, gridSpacing, hotBar.capacity);
 
 	Rectangle bound = {0, (float)(GetScreenHeight() - height), (hotBar.capacity * width) + (gridSpacing * hotBar.capacity), hotBar.capacity * 48};
 	bounds[HOTBAR] = bound;
-	/* DrawRectangle(bounds.x, bounds.y, bounds.width, bounds.height, PURPLE); */
+
+	bool cellHovered = false;
+	if (selection != -1) {
+		cellHovered = true;
+	}
+
+	checkDragAndDrop(selection, selection); // updates dragAndDropper
+	checkResetDrop(cellHovered);			// reset if invalid drop
+
+	if (dragAndDrop.holdActive) {
+		Vector2 mousePos = GetMousePosition();
+		Rectangle itemRec = {mousePos.x - 16, mousePos.y - 16, 40, 40};
+		UIIcon(drawSystem->smallAtlas, dragAndDrop.iconAtlasSrc, itemRec);
+	}
+
+	handleDropEvent(inventory); // handle behavior of a valid drop event
 }
 
 void UI::miniMap(Rectangle mapSrc)
@@ -30,10 +47,11 @@ void UI::miniMap(Rectangle mapSrc)
 	bounds[MINIMAP] = mapSrc;
 }
 
-void UI::inventoryRowSlots(Atlas& atlas, InventoryC& inventory, int curRow, int numCells, Rectangle rowCellSrc)
+void UI::inventoryRowSlots(InventoryC& inventory, int curRow, int numCells, Rectangle rowCellSrc)
 {
 	int iconSize = 40;
 	rowCellSrc.x -= rowCellSrc.width;
+	/*std::cout << numCells << std::endl;*/
 	for (int j = 0; j < numCells; j++) {
 		int inventoryIndex = j + (curRow * numCells);
 		rowCellSrc.x += rowCellSrc.width + gridSpacing;
@@ -48,18 +66,16 @@ void UI::inventoryRowSlots(Atlas& atlas, InventoryC& inventory, int curRow, int 
 			}
 			else {
 				Rectangle itemRec = {rowCellSrc.x + 4, rowCellSrc.y + 4, iconSize, iconSize};
-				UIIcon(atlas, itemTexture, itemRec);
+				UIIcon(drawSystem->smallAtlas, itemTexture, itemRec);
 				DrawText(std::to_string(inventory.stacks[inventoryIndex]).c_str(), itemRec.x + 5, itemRec.y + itemRec.height - 15, 20, RAYWHITE);
 			}
 		}
 	}
 }
 
-void UI::inventory(Atlas& atlas, InventoryC& inventory, HotBarC& hotBar, int width, int height, int cellsPerRow)
+void UI::inventory(InventoryC& inventory, Vector2 src, int width, int height, int cellsPerRow)
 {
 	int iconSize = 40;
-	Rectangle hotBarRec = bounds[HOTBAR];
-	Rectangle windowRec = Rectangle{hotBarRec.x, hotBarRec.y - 300, width, height};
 
 	/*UIWindowOutline(windowRec);*/
 
@@ -68,8 +84,8 @@ void UI::inventory(Atlas& atlas, InventoryC& inventory, HotBarC& hotBar, int wid
 
 	bool cellHovered = false;
 	for (int row = 0; row < numRows; row++) {
-		Rectangle iconSrc = {0, windowRec.y - (row * 48), 48, 48};
-		int selection = UIRowGridRec({0, windowRec.y - (row * 48), 48, 48}, 1.0f, gridSpacing, cellsPerRow, -1, RAYWHITE, Color{255, 255, 255, 32});
+		Rectangle iconSrc = {src.x, src.y - (row * height), width, height};
+		int selection = UIRowGridRec({src.x, src.y - (row * height), width, height}, 1.0f, gridSpacing, cellsPerRow, -1, RAYWHITE, Color{255, 255, 255, 32});
 
 		// if at least one cell was hovered over, set to true
 		if (selection != -1) {
@@ -79,7 +95,7 @@ void UI::inventory(Atlas& atlas, InventoryC& inventory, HotBarC& hotBar, int wid
 		int inventoryIndex = selection + (row * cellsPerRow);
 		checkDragAndDrop(inventoryIndex, selection); // updates dragAndDropper
 
-		inventoryRowSlots(atlas, inventory, row, cellsPerRow, iconSrc);
+		inventoryRowSlots(inventory, row, cellsPerRow, iconSrc);
 	}
 
 	checkResetDrop(cellHovered); // reset if invalid drop
@@ -87,7 +103,7 @@ void UI::inventory(Atlas& atlas, InventoryC& inventory, HotBarC& hotBar, int wid
 	if (dragAndDrop.holdActive) {
 		Vector2 mousePos = GetMousePosition();
 		Rectangle itemRec = {mousePos.x - 16, mousePos.y - 16, 40, 40};
-		UIIcon(atlas, dragAndDrop.iconAtlasSrc, itemRec);
+		UIIcon(drawSystem->smallAtlas, dragAndDrop.iconAtlasSrc, itemRec);
 	}
 
 	handleDropEvent(inventory); // handle behavior of a valid drop event

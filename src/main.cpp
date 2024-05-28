@@ -32,7 +32,7 @@ int main()
 
 	InitLua(); // intialize lua before calling lualoader functions
 
-	/* SetTargetFPS(60); */
+	/*SetTargetFPS(60);*/
 
 	InitWindow(LuaGetInt("WINDOW_WIDTH", "scripts/game_settings.lua"), LuaGetInt("WINDOW_HEIGHT", "scripts/game_settings.lua"), "Delogy Indev");
 	int randomSeed = LuaGetInt("WORLD_SEED", "scripts/game_settings.lua");
@@ -41,13 +41,13 @@ int main()
 	TileManager tileManager(randomSeed);
 
 	MiniMap miniMap(LuaGetInt("MINIMAP_WIDTH", "scripts/game_settings.lua"), LuaGetInt("MINIMAP_HEIGHT", "scripts/game_settings.lua"), &tileManager);
-	UI userInterface;
 
 	CartManager cartManager;
 
 	SpriteDrawSystem drawSystem;
 	AnimationSystem animationSystem;
-	InventorySystem inventorySystem;
+	UI userInterface(&drawSystem);
+	InventorySystem inventorySystem(&userInterface);
 	Scene scene;
 
 	scene.addPlayer(AtlasType::MEDIUM, {1 * 16, 1 * 16}, {4, 4, 32, 32}, 4, 4);
@@ -64,6 +64,7 @@ int main()
 	while (!WindowShouldClose()) {
 		BeginDrawing();
 		ClearBackground(BLACK);
+
 		scene.updateCamera(userInterface);
 		BeginMode2D(scene.camera);
 		{
@@ -74,7 +75,6 @@ int main()
 			cartManager.update(tileManager, scene);
 
 			/* Systems */
-			inventorySystem.update(scene);
 			needsSystem.update();
 			npcSystem.update(scene);
 			npcSystem.clearCacheBefore(); // clear cache before movement starts
@@ -95,13 +95,11 @@ int main()
 		EndMode2D();
 
 		/* Handle Input*/
-		InputSystem::pollClickEvents();
+		inventorySystem.update(scene);
 
 		/* Draw UI */
 		PhysicsC physicsComponent = scene.EntityRegistry.get<PhysicsC>(scene.player);
 		drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
-		userInterface.hotBar(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player), scene.EntityRegistry.get<HotBarC>(scene.player), 48, 48);
-		userInterface.inventory(drawSystem.smallAtlas, scene.EntityRegistry.get<InventoryC>(scene.player), scene.EntityRegistry.get<HotBarC>(scene.player), 50, 50, 5);
 
 		miniMap.update(userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16}, drawSystem);
 

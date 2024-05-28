@@ -69,5 +69,6 @@ void Scene::addPlayer(AtlasType atlasid, Vector2 spawnPos, Rectangle frameSrc, i
 
 	EntityRegistry.emplace<CollisionC>(entity, Rectangle{15 - ATLAS_SPRITE_MARGIN, 29 - ATLAS_SPRITE_MARGIN, 11, 7});
 	EntityRegistry.emplace<InventoryC>(entity, 20);
-	EntityRegistry.emplace<HotBarC>(entity, 5);
+	EntityRegistry.emplace<HotBarC>(entity, 5, 0);
+	EntityRegistry.emplace<UIInventoryC>(entity, false, Vector2{0, GetScreenHeight() - 51});
 }

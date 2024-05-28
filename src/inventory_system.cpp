@@ -7,12 +7,16 @@
 #include "raylib.h"
 #include <iostream>
 
+InventorySystem::InventorySystem(UI* userInterface) { ui = userInterface; }
+
 void InventorySystem::updateInventorySelection(InventoryC& inventory, HotBarC& hotBar)
 {
-	int key = InputSystem::getUserKeypress();
+	int key = InputSystem::getUserCharpress();
 
-	if (key > 0 && key <= hotBar.capacity && key < inventory.slots.size()) { // make sure keys are not negative
-		hotBar.curItem = key - 1;											 // set cur hot bar item
+	if (key != NULL_PRESS) {
+		if (key > 0 && key <= hotBar.capacity && key < inventory.slots.size()) { // make sure keys are not negative
+			hotBar.curItem = key - 1;											 // set cur hot bar item
+		}
 	}
 }
 
@@ -59,9 +63,42 @@ void InventorySystem::swapItem(InventoryC& inventory, int index1, int index2)
 
 void InventorySystem::update(Scene& scene)
 {
+	auto view = scene.EntityRegistry.view<InventoryC>();
+
+	for (auto& entity : view) {
+
+		if (entity == scene.player) {
+			updatePlayerInventory(scene);
+		}
+		else {
+			auto& inv = view.get<InventoryC>(entity);
+			UIInventoryC& invUI = scene.EntityRegistry.get<UIInventoryC>(entity);
+			if (invUI.active) {
+				ui->inventory(inv, invUI.srcPos, 50, 50, 5);
+			}
+		}
+	}
+
+	// player hide UI
+	if (InputSystem::getUserKeypress() == OPEN_INVENTORY) {
+		UIInventoryC& playerInvUI = scene.EntityRegistry.get<UIInventoryC>(scene.player);
+		playerInvUI.active ? playerInvUI.active = false : playerInvUI.active = true;
+	}
+}
+
+void InventorySystem::updatePlayerInventory(Scene& scene)
+{
 	InventoryC& inv = scene.EntityRegistry.get<InventoryC>(scene.player);
 	HotBarC& hotBar = scene.EntityRegistry.get<HotBarC>(scene.player);
+	UIInventoryC& invUI = scene.EntityRegistry.get<UIInventoryC>(scene.player);
 
-	updateInventorySelection(inv, hotBar);
-	updateItemRotation(inv, hotBar);
+	if (invUI.active) {
+		ui->inventory(inv, invUI.srcPos, 50, 50, 7);
+	}
+	else {
+		updateItemRotation(inv, hotBar);
+		updateInventorySelection(inv, hotBar);
+		HotBarC& hBar = scene.EntityRegistry.get<HotBarC>(scene.player);
+		ui->hotBar(inv, hBar, invUI.srcPos, 50, 50);
+	}
 }

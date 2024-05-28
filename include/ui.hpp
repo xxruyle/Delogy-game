@@ -1,5 +1,6 @@
 #include "atlas.hpp"
 #include "components.hpp"
+#include "draw_system.hpp"
 #include "ui_util.hpp"
 
 enum BoundType { HOTBAR, MINIMAP };
@@ -14,6 +15,8 @@ struct DragAndDropper {
 
 class UI {
   public:
+    SpriteDrawSystem* drawSystem;
+    UI(SpriteDrawSystem* spriteDrawSystem);
     Rectangle bounds[2];
 
     // drag and drop behavior tracker
@@ -21,12 +24,12 @@ class UI {
 
     bool mouseOutOfBounds(); // check if mouse is not in the ui bound space
     const float gridSpacing = 2.0f;
-    void hotBar(Atlas& atlas, InventoryC& inventory, HotBarC& hotBar, int width, int height);
-    void inventory(Atlas& atlas, InventoryC& inventory, HotBarC& hotBar, int width, int height, int cellsPerRow);
+    void hotBar(InventoryC& inventory, HotBarC& hotBar, Vector2 src, int width, int height);
+    void inventory(InventoryC& inventory, Vector2 src, int width, int height, int cellsPerRow);
     void miniMap(Rectangle mapSrc);
 
   private:
-    void inventoryRowSlots(Atlas& atlas, InventoryC& inventory, int curRow, int numCells, Rectangle rowCellSrc);
+    void inventoryRowSlots(InventoryC& inventory, int curRow, int numCells, Rectangle rowCellSrc);
     void handleDropEvent(InventoryC& inventory);
     void checkDragAndDrop(int inventoryIndex, int gridValidity);
     void checkResetDrop(bool cellFound); // player dropped and item on an invalid location

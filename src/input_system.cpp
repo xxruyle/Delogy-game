@@ -3,8 +3,6 @@
 #include "raylib.h"
 #include <deque>
 
-std::deque<ClickEvent> clickQueue;
-
 int InputSystem::getUserKeypress()
 {
 	int key = GetKeyPressed();
@@ -24,6 +22,10 @@ int InputSystem::getUserKeypress()
 		return OPEN_MINIMAP;
 	}
 
+	if (IsKeyPressed(Keys[OPEN_INVENTORY])) {
+		return OPEN_INVENTORY;
+	}
+
 	return NULL_PRESS;
 }
 
@@ -34,6 +36,15 @@ int InputSystem::getUserKeydown()
 	}
 
 	return NULL_PRESS;
+}
+
+int InputSystem::getUserCharpress()
+{
+	int key = GetCharPressed();
+
+	if (key) {
+		return key - 48;
+	}
 }
 
 bool InputSystem::getMoveRight() { return IsKeyDown(Keys[MOVE_RIGHT]); }
@@ -109,26 +120,3 @@ int InputSystem::getUserMouseInteraction()
 	return NULL_PRESS;
 }
 void InputSystem::changeKeyBinding(int keybindID, int newKey) { Keys[keybindID] = newKey; }
-
-void InputSystem::pollClickEvents()
-{
-	clickQueue.clear(); // clear queue first
-	int clickID = getUserMouseInteraction();
-	if (clickID != NULL_PRESS) {
-		Vector2 mousePos = GetMousePosition();
-		clickQueue.push_front(ClickEvent{mousePos, clickID});
-	}
-}
-
-bool InputSystem::getClickEvent(int polledClickID)
-{
-	// awdawd
-	if (!clickQueue.empty()) {
-		ClickEvent cEvent = clickQueue.front();
-		if (cEvent.clickID == polledClickID) {
-			clickQueue.pop_front();
-			return true;
-		}
-	}
-	return false;
-}
