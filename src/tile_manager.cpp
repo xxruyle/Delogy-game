@@ -409,5 +409,3 @@ void TileManager::drunkardGenerateAll()
 		}
 	}
 }
-
-void TileManager::clearEntityPositionCache() { entityPositionCache.clear(); }

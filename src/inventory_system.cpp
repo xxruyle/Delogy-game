@@ -78,12 +78,6 @@ void InventorySystem::update(Scene& scene)
 			}
 		}
 	}
-
-	// player hide UI
-	if (InputSystem::getUserKeypress() == OPEN_INVENTORY) {
-		UIInventoryC& playerInvUI = scene.EntityRegistry.get<UIInventoryC>(scene.player);
-		playerInvUI.active ? playerInvUI.active = false : playerInvUI.active = true;
-	}
 }
 
 void InventorySystem::updatePlayerInventory(Scene& scene)
@@ -91,6 +85,11 @@ void InventorySystem::updatePlayerInventory(Scene& scene)
 	InventoryC& inv = scene.EntityRegistry.get<InventoryC>(scene.player);
 	HotBarC& hotBar = scene.EntityRegistry.get<HotBarC>(scene.player);
 	UIInventoryC& invUI = scene.EntityRegistry.get<UIInventoryC>(scene.player);
+
+	// player hide UI
+	if (InputSystem::getUserKeypress() == OPEN_INVENTORY) {
+		invUI.active ? invUI.active = false : invUI.active = true;
+	}
 
 	if (invUI.active) {
 		ui->inventory(inv, invUI.srcPos, 50, 50, 7);

@@ -22,6 +22,7 @@
 #include "entity_data.hpp"
 #include "entt/entity/registry.hpp"
 
+#include "cache_manager.hpp"
 #include "lua/lualoader.hpp"
 
 int main()
