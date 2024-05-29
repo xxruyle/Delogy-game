@@ -11,6 +11,7 @@ namespace CacheManager {
 extern CacheMap entityCache;
 
 bool entityAtPosition(Vector2 pos);
+entt::entity getItemAtPosition(Vector2 pos); // returns the first item found at position
 void cacheEntity(Vector2 pos, entt::entity id);
 void clearCachePosition(Vector2 pos, entt::entity id);
 } // namespace CacheManager

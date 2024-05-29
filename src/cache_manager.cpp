@@ -1,4 +1,7 @@
 #include "cache_manager.hpp"
+#include "components.hpp"
+#include "ecs_registry.hpp"
+#include "entt/entity/entity.hpp"
 
 namespace CacheManager {
 CacheMap entityCache;
@@ -11,6 +14,19 @@ bool entityAtPosition(Vector2 pos)
 	}
 
 	return false;
+}
+
+entt::entity getItemAtPosition(Vector2 pos)
+{
+	if (entityAtPosition(pos)) {
+		for (entt::entity id : entityCache[pos]) {
+			if (ECS::registry.all_of<ItemC>(id)) {
+				return id;
+			}
+		}
+	}
+
+	return entt::null;
 }
 
 void cacheEntity(Vector2 pos, entt::entity id) { entityCache[pos].push_back(id); }

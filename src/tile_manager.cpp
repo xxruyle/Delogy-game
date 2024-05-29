@@ -1,11 +1,14 @@
 #include "tile_manager.hpp"
 #include "FastNoiseLite.h"
+#include "cache_manager.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
 #include "ecs_registry.hpp"
+#include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "input_system.hpp"
 #include "item_data.hpp"
+#include "item_manager.hpp"
 #include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
@@ -90,6 +93,13 @@ void TileChunk::drawItem(Atlas& atlas, int x, int y)
 		loc.y = (float)(((float)y + ((float)srcCoordinate.y * (float)CHUNK_SIZE)) * 16.0f);
 		Rectangle tileDest = {loc.x, loc.y, 16.0f, 16.0f};
 		DrawTexturePro(atlas.texture, tileAtlasPos, tileDest, {0, 0}, 0.0f, WHITE);
+
+		// just for debugging
+		/*Vector2 worldPos = {x + srcCoordinate.x * CHUNK_SIZE, y + srcCoordinate.y * CHUNK_SIZE};*/
+		/*entt::entity id = CacheManager::getItemAtPosition(worldPos);*/
+		/*if (id != entt::null) {*/
+		/*	DrawText(std::to_string((unsigned int)id).c_str(), (int)loc.x, (int)loc.y, 5, RAYWHITE);*/
+		/*}*/
 	}
 }
 
@@ -126,8 +136,9 @@ void TileChunk::updateItem(int x, int y, int playerItemID)
 	int curItemID = itemID[index];
 	Item newItem = itemids[playerItemID];
 
-	if (curItemID == 0 and tileZ[index] == 0) { // if there is no existing item here
+	if (curItemID == 0 && tileZ[index] == 0) { // if there is no existing item here
 		itemID[index] = newItem.id;
+		ItemManager::addItem(Vector2{x + srcCoordinate.x * CHUNK_SIZE, y + srcCoordinate.y * CHUNK_SIZE}, newItem.id, 1);
 	}
 }
 
@@ -191,6 +202,7 @@ void TileManager::generateVegetation()
 					IndexPair index = getGridIndexPair(curTile.x, curTile.y);
 					if (chunks[index.chunk].tileID[index.tile] == DIRT_FLOOR_MIDDLE) { // if a dirt tile
 						chunks[index.chunk].itemID[index.tile] = MUSHROOM_PURPLE;
+						ItemManager::addItem(curTile, MUSHROOM_PURPLE, 1);
 						randSize--;
 					}
 					else if (chunks[index.chunk].tileID[index.tile] == WALL_FRONT) {
