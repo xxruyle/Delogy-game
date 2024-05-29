@@ -91,6 +91,11 @@ struct HotBarC {
     int curItem;
 };
 
+struct ItemC {
+    int id;
+    int capacity; // number of items at position
+};
+
 struct UIInventoryC {
     bool active;
     Vector2 srcPos;

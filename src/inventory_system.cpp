@@ -1,6 +1,7 @@
 #include "inventory_system.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
+#include "ecs_registry.hpp"
 #include "input_system.hpp"
 #include "item_data.hpp"
 #include "lua/lualoader.hpp"
@@ -63,7 +64,7 @@ void InventorySystem::swapItem(InventoryC& inventory, int index1, int index2)
 
 void InventorySystem::update(Scene& scene)
 {
-	auto view = scene.EntityRegistry.view<InventoryC>();
+	auto view = ECS::registry.view<InventoryC>();
 
 	for (auto& entity : view) {
 
@@ -72,7 +73,7 @@ void InventorySystem::update(Scene& scene)
 		}
 		else {
 			auto& inv = view.get<InventoryC>(entity);
-			UIInventoryC& invUI = scene.EntityRegistry.get<UIInventoryC>(entity);
+			UIInventoryC& invUI = ECS::registry.get<UIInventoryC>(entity);
 			if (invUI.active) {
 				ui->inventory(inv, invUI.srcPos, 50, 50, 5);
 			}
@@ -82,9 +83,9 @@ void InventorySystem::update(Scene& scene)
 
 void InventorySystem::updatePlayerInventory(Scene& scene)
 {
-	InventoryC& inv = scene.EntityRegistry.get<InventoryC>(scene.player);
-	HotBarC& hotBar = scene.EntityRegistry.get<HotBarC>(scene.player);
-	UIInventoryC& invUI = scene.EntityRegistry.get<UIInventoryC>(scene.player);
+	InventoryC& inv = ECS::registry.get<InventoryC>(scene.player);
+	HotBarC& hotBar = ECS::registry.get<HotBarC>(scene.player);
+	UIInventoryC& invUI = ECS::registry.get<UIInventoryC>(scene.player);
 
 	// player hide UI
 	if (InputSystem::getUserKeypress() == OPEN_INVENTORY) {
@@ -97,7 +98,7 @@ void InventorySystem::updatePlayerInventory(Scene& scene)
 	else {
 		updateItemRotation(inv, hotBar);
 		updateInventorySelection(inv, hotBar);
-		HotBarC& hBar = scene.EntityRegistry.get<HotBarC>(scene.player);
+		HotBarC& hBar = ECS::registry.get<HotBarC>(scene.player);
 		ui->hotBar(inv, hBar, invUI.srcPos, 50, 50);
 	}
 }

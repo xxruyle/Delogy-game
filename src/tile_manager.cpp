@@ -1,8 +1,8 @@
 #include "tile_manager.hpp"
-
 #include "FastNoiseLite.h"
 #include "components.hpp"
 #include "dev_util.hpp"
+#include "ecs_registry.hpp"
 #include "entt/entity/fwd.hpp"
 #include "input_system.hpp"
 #include "item_data.hpp"
@@ -227,7 +227,7 @@ void TileManager::checkDevInput()
 	}
 }
 
-void TileManager::checkPlayerInteraction(Camera2D& camera, UI& ui, InventoryC& playerInventory, HotBarC& hotBar, entt::basic_registry<>& registry)
+void TileManager::checkPlayerInteraction(Camera2D& camera, UI& ui, InventoryC& playerInventory, HotBarC& hotBar)
 {
 	int interactKey = InputSystem::getUserMouseInteraction();
 	if (interactKey) {
@@ -303,11 +303,11 @@ void TileManager::drawAllChunks(Atlas& atlas, Vector2& playerPos)
 
 void TileManager::update(Atlas& atlas, UI& ui, Scene& scene)
 {
-	PositionC& position = scene.EntityRegistry.get<PositionC>(scene.player);
-	InventoryC& inventory = scene.EntityRegistry.get<InventoryC>(scene.player);
-	HotBarC& hotBar = scene.EntityRegistry.get<HotBarC>(scene.player);
+	PositionC& position = ECS::registry.get<PositionC>(scene.player);
+	InventoryC& inventory = ECS::registry.get<InventoryC>(scene.player);
+	HotBarC& hotBar = ECS::registry.get<HotBarC>(scene.player);
 	drawAllChunks(atlas, position.pos);
-	checkPlayerInteraction(scene.camera, ui, inventory, hotBar, scene.EntityRegistry);
+	checkPlayerInteraction(scene.camera, ui, inventory, hotBar);
 	checkDevInput();
 }
 

@@ -25,13 +25,13 @@ class NPCSystem {
     entt::basic_registry<>* sRegistry;
     entt::entity playerID;
 
-    // entities that need cache updates
-    std::queue<entt::entity> entities_marked_for_cache;
+    // npcs that need cache updates
+    std::queue<entt::entity> npcs_marked_for_cache;
 
     bool NPC_DEBUG_INFO = LuaGetBool("DRAW_NPC_DEBUG", "scripts/game_settings.lua");
 
     // initialization
-    NPCSystem(TileManager* tileManager, entt::basic_registry<>* EntityRegistry, entt::entity player);
+    NPCSystem(TileManager* tileManager, entt::entity player);
     void addNPCs();
 
     // handle functions

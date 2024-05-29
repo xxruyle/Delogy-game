@@ -11,25 +11,19 @@ class InputSystem;
 
 // includes collision detection
 class MovementSystem {
-public:
-  Color collisionColor = WHITE;
-  bool collisionEnabled =
-      LuaGetBool("COLLISION_ENABLED", "scripts/game_settings.lua");
-  void updatePhysics(PhysicsC &physics, PositionC &position);
-  void updateNPCPhysics(PhysicsC &physics, PositionC &position);
-  void updatePosition(PhysicsC &physics, CollisionC &collision,
-                      PositionC &position, TileManager &tileManager);
+  public:
+    Color collisionColor = WHITE;
+    bool collisionEnabled = LuaGetBool("COLLISION_ENABLED", "scripts/game_settings.lua");
+    void updatePhysics(PhysicsC& physics, PositionC& position);
+    void updateNPCPhysics(PhysicsC& physics, PositionC& position);
+    void updatePosition(PhysicsC& physics, CollisionC& collision, PositionC& position, TileManager& tileManager);
 
-  void updateNPCPositions(PhysicsC &physics, CollisionC &collision,
-                          PositionC &position, TileManager &tileManager);
-  float moveX(int amount, PhysicsC &physics, CollisionC &collision,
-              PositionC &position, TileManager &tileManager);
+    void updateNPCPositions(PhysicsC& physics, CollisionC& collision, PositionC& position, TileManager& tileManager);
+    float moveX(int amount, PhysicsC& physics, CollisionC& collision, PositionC& position, TileManager& tileManager);
 
-  float moveY(int amount, PhysicsC &physics, CollisionC &collision,
-              PositionC &position, TileManager &tileManager);
+    float moveY(int amount, PhysicsC& physics, CollisionC& collision, PositionC& position, TileManager& tileManager);
 
-  bool isCollided(PhysicsC &physics, CollisionC &collision,
-                  Vector2 futurePosition, TileManager &tileManager);
-  void update(entt::entity player, entt::basic_registry<> &sceneRegistry,
-              TileManager &tileManager);
+    bool isCollided(PhysicsC& physics, CollisionC& collision, Vector2 futurePosition, TileManager& tileManager);
+
+    void update(entt::entity player, TileManager& tileManager);
 };

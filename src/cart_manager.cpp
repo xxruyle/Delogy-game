@@ -1,5 +1,6 @@
 #include "cart_manager.hpp"
 #include "dev_util.hpp"
+#include "ecs_registry.hpp"
 #include "entity_data.hpp"
 #include "input_system.hpp"
 #include "item_data.hpp"
@@ -130,13 +131,13 @@ Vector2 CartManager::getNearSideCartBorder(PositionC& position, int direction)
 	return cartPos;
 }
 
-void CartManager::getPlayerInteraction(InventoryC& inventory, HotBarC& hotBar, Camera2D& camera, entt::basic_registry<>& registry)
+void CartManager::getPlayerInteraction(InventoryC& inventory, HotBarC& hotBar, Camera2D& camera)
 {
 	if (InputSystem::getUserMouseInteraction() == PLAYER_CREATE) {
 		int inventoryItem = inventory.slots[hotBar.curItem];
 		if (inventoryItem == CART) {
 			Vector2 mouseGridPos = getMouseGridPosition(camera);
-			createCart(mouseGridPos, registry);
+			createCart(mouseGridPos);
 		};
 	}
 }
@@ -280,9 +281,9 @@ void CartManager::changeCartVelocity(PhysicsC& physics, OrecartC& orecart)
 
 void CartManager::changeCartPosition(PositionC& position, PhysicsC& physics) {}
 
-void CartManager::updateCarts(entt::basic_registry<>& registry, TileManager& tileManager)
+void CartManager::updateCarts(TileManager& tileManager)
 {
-	auto view = registry.view<SpriteC, PhysicsC, PositionC, OrecartC, CollisionC>();
+	auto view = ECS::registry.view<SpriteC, PhysicsC, PositionC, OrecartC, CollisionC>();
 
 	for (auto entity : view) {
 		auto& sprite = view.get<SpriteC>(entity);
@@ -306,20 +307,20 @@ void CartManager::updateCarts(entt::basic_registry<>& registry, TileManager& til
 	}
 }
 
-void CartManager::createCart(Vector2 position, entt::basic_registry<>& registry)
+void CartManager::createCart(Vector2 position)
 {
-	entt::entity entity = registry.create();
-	registry.emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{67, 88, 16, 16});
-	registry.emplace<PositionC>(entity, Vector2{position.x * 16, position.y * 16});
-	registry.emplace<OrecartC>(entity, CART_H, EAST, NULL_ITEM, position);
-	registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 30, true);
-	registry.emplace<CollisionC>(entity, Rectangle{4, 4, 8, 8});
+	entt::entity entity = ECS::registry.create();
+	ECS::registry.emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{67, 88, 16, 16});
+	ECS::registry.emplace<PositionC>(entity, Vector2{position.x * 16, position.y * 16});
+	ECS::registry.emplace<OrecartC>(entity, CART_H, EAST, NULL_ITEM, position);
+	ECS::registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 30, true);
+	ECS::registry.emplace<CollisionC>(entity, Rectangle{4, 4, 8, 8});
 
 	cartCount++;
 }
 void CartManager::update(TileManager& tileManager, Scene& scene)
 
 {
-	getPlayerInteraction(scene.EntityRegistry.get<InventoryC>(scene.player), scene.EntityRegistry.get<HotBarC>(scene.player), scene.camera, scene.EntityRegistry);
-	updateCarts(scene.EntityRegistry, tileManager);
+	getPlayerInteraction(ECS::registry.get<InventoryC>(scene.player), ECS::registry.get<HotBarC>(scene.player), scene.camera);
+	updateCarts(tileManager);
 }

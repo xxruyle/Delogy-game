@@ -29,6 +29,7 @@ class TileChunk {
 
     int itemID[CHUNK_SIZE * CHUNK_SIZE] = {0}; // the item ids, they always have
                                                // the highest implicit z level
+
     void wallGeneration();
 
     void drawTile(Atlas& atlas, int x, int y); // draw  an existing tile
@@ -62,8 +63,7 @@ class TileManager {
 
     void drunkardGenerateAll();
 
-    void checkPlayerInteraction(Camera2D& camera, UI& ui, InventoryC& playerInventory, HotBarC& hotBar,
-                                entt::basic_registry<>& registry); // change player state based on player interaction
+    void checkPlayerInteraction(Camera2D& camera, UI& ui, InventoryC& playerInventory, HotBarC& hotBar); // change player state based on player interaction
 
     void checkDevInput();
 

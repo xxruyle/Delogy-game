@@ -2,6 +2,7 @@
 #include "animation_system.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
+#include "ecs_registry.hpp"
 #include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
@@ -10,7 +11,7 @@
 void Scene::setPlayerFocus()
 {
 
-	PositionC& p1 = EntityRegistry.get<PositionC>(player);
+	PositionC& p1 = ECS::registry.get<PositionC>(player);
 	playerPosition = p1.pos;
 	curTarget = Vector2Add(playerPosition, Vector2{16.0f, 16.0f});
 }
@@ -53,22 +54,22 @@ void Scene::updateCamera(UI& ui)
 
 void Scene::addPlayer(AtlasType atlasid, Vector2 spawnPos, Rectangle frameSrc, int numFrames, int framesPerRow)
 {
-	entt::entity entity = EntityRegistry.create();
+	entt::entity entity = ECS::registry.create();
 	player = entity;
 
-	EntityRegistry.emplace<PlayerC>(entity, 0);
-	EntityRegistry.emplace<SpriteC>(entity, atlasid, frameSrc);
-	EntityRegistry.emplace<PositionC>(entity, spawnPos);
-	EntityRegistry.emplace<AnimationC>(entity, frameSrc, (unsigned int)numFrames, (unsigned int)framesPerRow);
+	ECS::registry.emplace<PlayerC>(entity, 0);
+	ECS::registry.emplace<SpriteC>(entity, atlasid, frameSrc);
+	ECS::registry.emplace<PositionC>(entity, spawnPos);
+	ECS::registry.emplace<AnimationC>(entity, frameSrc, (unsigned int)numFrames, (unsigned int)framesPerRow);
 
 	int playerSpeed = LuaGetInt("PLAYER_SPEED", "scripts/game_settings.lua");
-	EntityRegistry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, playerSpeed, false);
+	ECS::registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, playerSpeed, false);
 
 	float ATLAS_SPRITE_PADDING = LuaGetInt("ATLAS_SPRITE_PADDING", "scripts/game_settings.lua");
 	float ATLAS_SPRITE_MARGIN = LuaGetInt("ATLAS_SPRITE_MARGIN", "scripts/game_settings.lua");
 
-	EntityRegistry.emplace<CollisionC>(entity, Rectangle{15 - ATLAS_SPRITE_MARGIN, 29 - ATLAS_SPRITE_MARGIN, 11, 7});
-	EntityRegistry.emplace<InventoryC>(entity, 20);
-	EntityRegistry.emplace<HotBarC>(entity, 5, 0);
-	EntityRegistry.emplace<UIInventoryC>(entity, false, Vector2{0, GetScreenHeight() - 51});
+	ECS::registry.emplace<CollisionC>(entity, Rectangle{15 - ATLAS_SPRITE_MARGIN, 29 - ATLAS_SPRITE_MARGIN, 11, 7});
+	ECS::registry.emplace<InventoryC>(entity, 20);
+	ECS::registry.emplace<HotBarC>(entity, 5, 0);
+	ECS::registry.emplace<UIInventoryC>(entity, false, Vector2{0, GetScreenHeight() - 51});
 }

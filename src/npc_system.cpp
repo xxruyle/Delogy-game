@@ -2,6 +2,7 @@
 #include "cache_manager.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
+#include "ecs_registry.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/registry.hpp"
 #include "input_system.hpp"
@@ -11,10 +12,9 @@
 #include "raymath.h"
 #include "tile_manager.hpp"
 
-NPCSystem::NPCSystem(TileManager* tileManager, entt::basic_registry<>* EntityRegistry, entt::entity player)
+NPCSystem::NPCSystem(TileManager* tileManager, entt::entity player)
 {
 	tManager = tileManager;
-	sRegistry = EntityRegistry;
 	playerID = player;
 	addNPCs();
 }
@@ -29,14 +29,14 @@ void NPCSystem::addNPCs()
 	float geneDecr = LuaGetFloat("NPC_GENE_DECREMENT", "scripts/game_settings.lua");
 
 	for (int i = 0; i < LuaGetInt("MAX_NPCS", "scripts/game_settings.lua"); i++) {
-		entt::entity entity = sRegistry->create();
+		entt::entity entity = ECS::registry.create();
 		Vector2 pos = {GetRandomValue(-npcSpawnRadius, npcSpawnRadius), GetRandomValue(-npcSpawnRadius, npcSpawnRadius)};
 		/* Vector2 pos = {1, 1}; */
-		sRegistry->emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{4, 4, 16, 16});
-		sRegistry->emplace<AnimationC>(entity, Rectangle{4, 4, 16, 16}, 4, 4);
-		sRegistry->emplace<PositionC>(entity, getGridToScreenPos(pos));
-		sRegistry->emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 45, false);
-		sRegistry->emplace<CollisionC>(entity, Rectangle{0, 0, 16, 16});
+		ECS::registry.emplace<SpriteC>(entity, AtlasType::SMALL, Rectangle{4, 4, 16, 16});
+		ECS::registry.emplace<AnimationC>(entity, Rectangle{4, 4, 16, 16}, 4, 4);
+		ECS::registry.emplace<PositionC>(entity, getGridToScreenPos(pos));
+		ECS::registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 45, false);
+		ECS::registry.emplace<CollisionC>(entity, Rectangle{0, 0, 16, 16});
 
 		GenesC geneSet = {
 			{geneMax, geneMax, geneMax, geneMax},
@@ -45,11 +45,11 @@ void NPCSystem::addNPCs()
 			{geneDecr, geneDecr, geneDecr, geneDecr},
 		};
 
-		sRegistry->emplace<GenesC>(entity, geneSet);
-		sRegistry->emplace<NeedsC>(entity, NeedsC{{(float)GetRandomValue(1, 10) / 10.0f, 0.3f, 0.1f, 0.1f, 0.3f}, {geneMax, geneMax, geneMax, geneMax, geneMax}});
-		sRegistry->emplace<TimerC>(entity);
+		ECS::registry.emplace<GenesC>(entity, geneSet);
+		ECS::registry.emplace<NeedsC>(entity, NeedsC{{(float)GetRandomValue(1, 10) / 10.0f, 0.3f, 0.1f, 0.1f, 0.3f}, {geneMax, geneMax, geneMax, geneMax, geneMax}});
+		ECS::registry.emplace<TimerC>(entity);
 
-		sRegistry->emplace<PathC>(entity);
+		ECS::registry.emplace<PathC>(entity);
 
 		CacheManager::cacheEntity(pos, entity);
 	}
@@ -64,10 +64,10 @@ void NPCSystem::update(Scene& scene)
 // set npc velocity if there are new paths in its path queue
 void NPCSystem::moveNPC(entt::entity id)
 {
-	auto& path = sRegistry->get<PathC>(id);
-	auto& physics = sRegistry->get<PhysicsC>(id);
-	auto& position = sRegistry->get<PositionC>(id);
-	auto& need = sRegistry->get<NeedsC>(id);
+	auto& path = ECS::registry.get<PathC>(id);
+	auto& physics = ECS::registry.get<PhysicsC>(id);
+	auto& position = ECS::registry.get<PositionC>(id);
+	auto& need = ECS::registry.get<NeedsC>(id);
 	Vector2 centeredPos = {position.pos.x + 8, position.pos.y + 8};
 	if (!path.destQueue.empty()) {
 
@@ -94,9 +94,9 @@ void NPCSystem::moveNPC(entt::entity id)
 
 BoolVec2Pair NPCSystem::searchItem(entt::entity id, int itemID, int radius)
 {
-	auto& path = sRegistry->get<PathC>(id);
-	auto& position = sRegistry->get<PositionC>(id);
-	auto& physics = sRegistry->get<PhysicsC>(id);
+	auto& path = ECS::registry.get<PathC>(id);
+	auto& position = ECS::registry.get<PositionC>(id);
+	auto& physics = ECS::registry.get<PhysicsC>(id);
 	Vector2 initPos = getGridPosition(Vector2{position.pos.x + 8, position.pos.y + 8});
 
 	IndexPair indexPair = tManager->getIndexPair(initPos.x * 16, initPos.y * 16);
@@ -129,8 +129,8 @@ BoolVec2Pair NPCSystem::searchItem(entt::entity id, int itemID, int radius)
 bool NPCSystem::nearEntity(entt::entity id, int radius)
 {
 
-	auto& path = sRegistry->get<PathC>(id);
-	auto& position = sRegistry->get<PositionC>(id);
+	auto& path = ECS::registry.get<PathC>(id);
+	auto& position = ECS::registry.get<PositionC>(id);
 	Vector2 initPos = getGridPosition(Vector2{position.pos.x + 8, position.pos.y + 8});
 
 	IndexPair indexPair = tManager->getIndexPair(initPos.x * 16, initPos.y * 16);
@@ -161,8 +161,8 @@ bool NPCSystem::nearEntity(entt::entity id, int radius)
 // astar algorithm to path towards npc's path target, return true boolean if path is found
 bool NPCSystem::astar(entt::entity id)
 {
-	auto& path = sRegistry->get<PathC>(id);
-	auto& need = sRegistry->get<NeedsC>(id);
+	auto& path = ECS::registry.get<PathC>(id);
+	auto& need = ECS::registry.get<NeedsC>(id);
 
 	if (path.destQueue.empty() && path.targetAvailable) {
 		IndexPair indexPair = tManager->getIndexPair(path.target.x * 16, path.target.y * 16);
@@ -177,7 +177,7 @@ bool NPCSystem::astar(entt::entity id)
 		PathVisited visited;
 		PathQueue fringe;
 
-		auto& position = sRegistry->get<PositionC>(id);
+		auto& position = ECS::registry.get<PositionC>(id);
 		Vector2 gridPos = getGridPosition(Vector2{position.pos.x + 8, position.pos.y + 8});
 		PathNode initialNode = {gridPos, 0};
 		fringe.push(initialNode); // initialize first node
@@ -228,7 +228,7 @@ bool NPCSystem::astar(entt::entity id)
 // reconstruct path given a node's previous min cost node
 void NPCSystem::reconstructPath(PathMap cameFrom, Vector2 current, entt::entity id)
 {
-	auto& path = sRegistry->get<PathC>(id);
+	auto& path = ECS::registry.get<PathC>(id);
 
 	path.destQueue.push_front(current);
 	while (cameFrom.count(current)) {
@@ -244,7 +244,7 @@ void NPCSystem::reconstructPath(PathMap cameFrom, Vector2 current, entt::entity 
 // given a desire, determine the action
 void NPCSystem::handleActions()
 {
-	auto view = sRegistry->view<GenesC, NeedsC, PathC>();
+	auto view = ECS::registry.view<GenesC, NeedsC, PathC>();
 
 	for (auto id : view) {
 		auto& need = view.get<NeedsC>(id);
@@ -277,8 +277,8 @@ void NPCSystem::handleActions()
 void NPCSystem::giveRandomPath(entt::entity id)
 {
 
-	auto& path = sRegistry->get<PathC>(id);
-	auto& position = sRegistry->get<PositionC>(id);
+	auto& path = ECS::registry.get<PathC>(id);
+	auto& position = ECS::registry.get<PositionC>(id);
 	Vector2 gridPos = getGridPosition(position.pos);
 
 	// random distance
@@ -299,9 +299,9 @@ void NPCSystem::giveRandomPath(entt::entity id)
 
 void NPCSystem::checkSearching(entt::entity id)
 {
-	auto& physics = sRegistry->get<PhysicsC>(id);
-	auto& path = sRegistry->get<PathC>(id);
-	auto& need = sRegistry->get<NeedsC>(id);
+	auto& physics = ECS::registry.get<PhysicsC>(id);
+	auto& path = ECS::registry.get<PathC>(id);
+	auto& need = ECS::registry.get<NeedsC>(id);
 	if (physics.moving()) {
 		need.currentAction = SEARCHING;
 
@@ -323,10 +323,10 @@ void NPCSystem::checkSearching(entt::entity id)
 
 void NPCSystem::handleEating(entt::entity id)
 {
-	auto& need = sRegistry->get<NeedsC>(id);
-	auto& path = sRegistry->get<PathC>(id);
-	auto& position = sRegistry->get<PositionC>(id);
-	auto& physics = sRegistry->get<PhysicsC>(id);
+	auto& need = ECS::registry.get<NeedsC>(id);
+	auto& path = ECS::registry.get<PathC>(id);
+	auto& position = ECS::registry.get<PositionC>(id);
+	auto& physics = ECS::registry.get<PhysicsC>(id);
 
 	if (!physics.moving()) {
 		/* bool atItem = npcAtItem(id, MUSHROOM_PURPLE); */
@@ -358,9 +358,9 @@ void NPCSystem::handleEating(entt::entity id)
 
 void NPCSystem::handleLeisure(entt::entity id)
 {
-	auto& need = sRegistry->get<NeedsC>(id);
-	auto& physics = sRegistry->get<PhysicsC>(id);
-	auto& path = sRegistry->get<PathC>(id);
+	auto& need = ECS::registry.get<NeedsC>(id);
+	auto& physics = ECS::registry.get<PhysicsC>(id);
+	auto& path = ECS::registry.get<PathC>(id);
 	physics.stop();
 	path.destQueue.clear();
 
@@ -369,10 +369,10 @@ void NPCSystem::handleLeisure(entt::entity id)
 
 void NPCSystem::handleSocial(entt::entity id)
 {
-	auto& need = sRegistry->get<NeedsC>(id);
-	auto& path = sRegistry->get<PathC>(id);
-	auto& position = sRegistry->get<PositionC>(id);
-	auto& physics = sRegistry->get<PhysicsC>(id);
+	auto& need = ECS::registry.get<NeedsC>(id);
+	auto& path = ECS::registry.get<PathC>(id);
+	auto& position = ECS::registry.get<PositionC>(id);
+	auto& physics = ECS::registry.get<PhysicsC>(id);
 	if (nearEntity(id, 10)) {
 		physics.stop();
 		path.destQueue.clear();
@@ -388,10 +388,10 @@ void NPCSystem::handleSocial(entt::entity id)
 
 void NPCSystem::showDebugInfo(entt::entity id)
 {
-	PathC& path = sRegistry->get<PathC>(id);
-	NeedsC& need = sRegistry->get<NeedsC>(id);
-	PositionC& position = sRegistry->get<PositionC>(id);
-	PhysicsC& physics = sRegistry->get<PhysicsC>(id);
+	PathC& path = ECS::registry.get<PathC>(id);
+	NeedsC& need = ECS::registry.get<NeedsC>(id);
+	PositionC& position = ECS::registry.get<PositionC>(id);
+	PhysicsC& physics = ECS::registry.get<PhysicsC>(id);
 
 	// get potential new path
 	if (NPC_DEBUG_INFO) {
@@ -459,7 +459,7 @@ void NPCSystem::showDebugInfo(entt::entity id)
 // clear npcs from the cache manager if they are moving and add them to the npc cache queue
 void NPCSystem::clearCacheBefore()
 {
-	auto view = sRegistry->view<GenesC, NeedsC, PathC, PhysicsC, PositionC>();
+	auto view = ECS::registry.view<GenesC, NeedsC, PathC, PhysicsC, PositionC>();
 
 	for (auto& id : view) {
 		auto& physics = view.get<PhysicsC>(id);
@@ -472,7 +472,7 @@ void NPCSystem::clearCacheBefore()
 			/*clearCachePosition(gridPos, id);*/
 			CacheManager::clearCachePosition(gridPos, id);
 
-			entities_marked_for_cache.push(id);
+			npcs_marked_for_cache.push(id);
 		}
 	}
 }
@@ -480,15 +480,15 @@ void NPCSystem::clearCacheBefore()
 // cache npcs that are marked for cache
 void NPCSystem::updateCacheAfter()
 {
-	while (!entities_marked_for_cache.empty()) {
-		entt::entity id = entities_marked_for_cache.front();
-		auto& position = sRegistry->get<PositionC>(id);
+	while (!npcs_marked_for_cache.empty()) {
+		entt::entity id = npcs_marked_for_cache.front();
+		auto& position = ECS::registry.get<PositionC>(id);
 		Vector2 gridPos = getGridPosition({position.pos.x + 8, position.pos.y + 8});
 
 		/*cachePosition(gridPos, id);*/
 
 		CacheManager::cacheEntity(gridPos, id);
-		entities_marked_for_cache.pop();
+		npcs_marked_for_cache.pop();
 	}
 }
 
@@ -503,14 +503,14 @@ bool NPCSystem::showEntityInfo(Camera2D& camera)
 				/* std::cout << getVector2String(nearPos) << std::endl; */
 				if (CacheManager::entityCache.count(nearPos)) {
 					for (entt::entity id : CacheManager::entityCache[nearPos]) {
-						PositionC& position = sRegistry->get<PositionC>(id);
-						PathC& path = sRegistry->get<PathC>(id);
-						CollisionC& coll = sRegistry->get<CollisionC>(id);
+						PositionC& position = ECS::registry.get<PositionC>(id);
+						PathC& path = ECS::registry.get<PathC>(id);
+						CollisionC& coll = ECS::registry.get<CollisionC>(id);
 
 						Rectangle absoluteAABB = {coll.aabb.x + position.pos.x, coll.aabb.y + position.pos.y, coll.aabb.width, coll.aabb.height};
 
 						if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), absoluteAABB)) {
-							NeedsC& needs = sRegistry->get<NeedsC>(id);
+							NeedsC& needs = ECS::registry.get<NeedsC>(id);
 							Vector2 infoPos = GetScreenToWorld2D(GetMousePosition(), camera);
 
 							std::string satiationInfo = std::to_string(needs.desires[needType::SATIATION]);

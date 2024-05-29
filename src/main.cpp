@@ -1,4 +1,5 @@
 #include "components.hpp"
+#include "ecs_registry.hpp"
 #include "macros_util.hpp"
 #include "tile_data.hpp"
 #include <iostream>
@@ -53,9 +54,9 @@ int main()
 
 	scene.addPlayer(AtlasType::MEDIUM, {1 * 16, 1 * 16}, {4, 4, 32, 32}, 4, 4);
 
-	NPCSystem npcSystem(&tileManager, &scene.EntityRegistry, scene.player);
+	NPCSystem npcSystem(&tileManager, scene.player);
 
-	NeedsSystem needsSystem(&scene.EntityRegistry);
+	NeedsSystem needsSystem;
 
 	MovementSystem movementSystem;
 
@@ -78,17 +79,19 @@ int main()
 			/* Systems */
 			needsSystem.update();
 			npcSystem.update(scene);
+
 			npcSystem.clearCacheBefore(); // clear cache before movement starts
-			movementSystem.update(scene.player, scene.EntityRegistry, tileManager);
+			movementSystem.update(scene.player, tileManager);
 			npcSystem.updateCacheAfter(); // update cache after movement is finished
-			animationSystem.update(scene.EntityRegistry, scene.player);
+
+			animationSystem.update(scene.player);
 
 			/* Draw */
-			drawSystem.drawSprites(scene.EntityRegistry);
+			drawSystem.drawSprites();
 
-			inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera, scene.EntityRegistry.get<InventoryC>(scene.player), scene.EntityRegistry.get<HotBarC>(scene.player));
+			inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera, ECS::registry.get<InventoryC>(scene.player), ECS::registry.get<HotBarC>(scene.player));
 
-			WireFrame::draw(scene.EntityRegistry);
+			WireFrame::draw();
 
 			drawMouseGridOutline(scene.camera, Color{255, 255, 255, 180});
 			npcSystem.showEntityInfo(scene.camera);
@@ -99,8 +102,8 @@ int main()
 		inventorySystem.update(scene);
 
 		/* Draw UI */
-		PhysicsC physicsComponent = scene.EntityRegistry.get<PhysicsC>(scene.player);
-		drawGameInfo(scene.camera, scene.playerPosition, scene.EntityRegistry.get<PhysicsC>(scene.player).velocity);
+		PhysicsC physicsComponent = ECS::registry.get<PhysicsC>(scene.player);
+		drawGameInfo(scene.camera, scene.playerPosition, ECS::registry.get<PhysicsC>(scene.player).velocity);
 
 		miniMap.update(userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16}, drawSystem);
 

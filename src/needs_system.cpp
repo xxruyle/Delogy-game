@@ -1,9 +1,8 @@
 #include "needs_system.hpp"
 #include "components.hpp"
+#include "ecs_registry.hpp"
 #include "raymath.h"
 #include <iostream>
-
-NeedsSystem::NeedsSystem(entt::basic_registry<>* EntityRegistry) { sRegistry = EntityRegistry; }
 
 void NeedsSystem::clampDesires(NeedsC& need, GenesC& genes)
 {
@@ -70,7 +69,7 @@ void NeedsSystem::updateDesires(NeedsC& need, GenesC& genes)
 
 void NeedsSystem::update()
 {
-	auto view = sRegistry->view<NeedsC, TimerC, GenesC>();
+	auto view = ECS::registry.view<NeedsC, TimerC, GenesC>();
 
 	for (auto id : view) {
 		auto& need = view.get<NeedsC>(id);
