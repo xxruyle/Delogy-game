@@ -37,26 +37,4 @@ enum TileType {
 static Tile tileids[NUM_TILES] = {TILE_WALL_FRONT, TILE_CAVE_FLOOR_MIDDLE,
                                   TILE_DIRT_FLOOR_MIDDLE};
 
-class TileStorage {
-public:
-  Tile TileData[NUM_TILES];
-  Tile ItemData[NUM_TILES];
-  TileStorage() {
-    std::vector<Vector3> tiles =
-        LuaGetAtlasVals("TILES", "scripts/atlas_data.lua");
-
-    for (Vector3 v3 : tiles) {
-      Tile newTile = {v3.z, v3.x, v3.y};
-      TileData[newTile.id] = newTile;
-    }
-
-    std::vector<Vector3> items =
-        LuaGetAtlasVals("ITEM_DATA", "scripts/atlas_data.lua");
-
-    for (Vector3 v3 : items) {
-      Tile newTile = {v3.z, v3.x, v3.y};
-      ItemData[newTile.id] = newTile;
-    }
-  }
-};
 #endif

@@ -23,8 +23,8 @@ AtlasType = {
 
 -- Window Info
 WINDOW_WIDTH = 1260
-WINDOW_HEIGHT = 780
 
+WINDOW_HEIGHT = 780
 -- Game World Info
 WORLD_SIZE = 20
 TILE_SIZE = 16
@@ -45,15 +45,15 @@ COLLISION_ENABLED = false
 SURVIVAL_MODE = false
 
 -- NPC Info
-MAX_NPCS = 0
-DRAW_NPC_DEBUG = false -- draw npc info (e.g path arrows)
+MAX_NPCS = 2
+DRAW_NPC_DEBUG = true -- draw npc info (e.g path arrows)
 NPC_SPAWN_RADIUS = 10
 
 -- NPC Genes
 NPC_GENE_MAX_DESIRE = math.random(70, 100)
 NPC_GENE_MIN_DESIRE = math.random(50, 60)
 NPC_GENE_INCREMENT = math.random(30, 40)
-NPC_GENE_DECREMENT = 20.0
+NPC_GENE_DECREMENT = 30.0
 -- NPC_GENE_DECREMENT = math.random()
 
 

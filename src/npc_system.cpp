@@ -22,13 +22,13 @@ NPCSystem::NPCSystem(TileManager* tileManager, entt::entity player)
 // spawn NPCs for debugging
 void NPCSystem::addNPCs()
 {
-	int npcSpawnRadius = LuaGetInt("NPC_SPAWN_RADIUS", "scripts/game_settings.lua");
-	int geneMax = LuaGetInt("NPC_GENE_MAX_DESIRE", "scripts/game_settings.lua");
-	int geneMin = LuaGetInt("NPC_GENE_MIN_DESIRE", "scripts/game_settings.lua");
-	float geneIncr = LuaGetFloat("NPC_GENE_INCREMENT", "scripts/game_settings.lua");
-	float geneDecr = LuaGetFloat("NPC_GENE_DECREMENT", "scripts/game_settings.lua");
+	int npcSpawnRadius = Slua::lua["NPC_SPAWN_RADIUS"].get_or(0);
+	int geneMax = Slua::lua["NPC_GENE_MAX_DESIRE"].get_or(0);
+	int geneMin = Slua::lua["NPC_GENE_MIN_DESIRE"].get_or(0);
+	float geneIncr = Slua::lua["NPC_GENE_INCREMENT"].get_or(0.0f);
+	float geneDecr = Slua::lua["NPC_GENE_DECREMENT"].get_or(0.0f);
 
-	for (int i = 0; i < LuaGetInt("MAX_NPCS", "scripts/game_settings.lua"); i++) {
+	for (int i = 0; i < Slua::lua["MAX_NPCS"].get_or(0); i++) {
 		entt::entity entity = ECS::registry.create();
 		Vector2 pos = {GetRandomValue(-npcSpawnRadius, npcSpawnRadius), GetRandomValue(-npcSpawnRadius, npcSpawnRadius)};
 		/* Vector2 pos = {1, 1}; */

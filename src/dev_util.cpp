@@ -87,7 +87,7 @@ std::vector<Vector2> getSpiralNeighbors(Vector2 curPos, int radius)
 
 void drawGameInfo(Camera2D& camera, Vector2 playerPos, Vector2& playerVelocity)
 {
-	int UI_FONT_SIZE = LuaGetInt("UI_FONT_SIZE", "scripts/game_settings.lua");
+	int UI_FONT_SIZE = Slua::lua["UI_FONT_SIZE"].get_or(5); // NOTE: Probably not very fast
 	DrawText("Delogy Indev 1.0", 3, 0, UI_FONT_SIZE, RAYWHITE);
 	DrawFPS(2, 25);
 	drawMouseChunkPosition(camera);
@@ -100,7 +100,7 @@ void drawGameInfo(Camera2D& camera, Vector2 playerPos, Vector2& playerVelocity)
 
 void drawCounter(const char* text, int count)
 {
-	int UI_FONT_SIZE = LuaGetInt("UI_FONT_SIZE", "scripts/game_settings.lua");
+	int UI_FONT_SIZE = Slua::lua["UI_FONT_SIZE"].get_or(5); // NOTE: Probably not very fast
 	std::string strCount = std::to_string(count);
 	std::string final = text + strCount;
 	DrawText(final.c_str(), 3, 145, UI_FONT_SIZE, RAYWHITE);
@@ -130,7 +130,7 @@ void drawMouseGridOutline(Camera2D& camera, Color color)
 
 void drawMouseChunkPosition(Camera2D& camera)
 {
-	int UI_FONT_SIZE = LuaGetInt("UI_FONT_SIZE", "scripts/game_settings.lua");
+	int UI_FONT_SIZE = Slua::lua["UI_FONT_SIZE"].get_or(5); // NOTE: Probably not very fast
 	Vector2 mouseChunkPos = getMouseChunkPosition(camera);
 	std::string chunkPosStr = "ChunkPos: " + std::to_string((int)mouseChunkPos.x) + " " + std::to_string((int)mouseChunkPos.y);
 	DrawText(chunkPosStr.c_str(), 3, 75, UI_FONT_SIZE, RAYWHITE);
@@ -142,7 +142,7 @@ void drawMouseGridPosition(Camera2D& camera)
 
 	std::string gridPosStr = "Pos: " + std::to_string((int)mouseGridPos.x) + " " + std::to_string((int)mouseGridPos.y);
 
-	int UI_FONT_SIZE = LuaGetInt("UI_FONT_SIZE", "scripts/game_settings.lua");
+	int UI_FONT_SIZE = Slua::lua["UI_FONT_SIZE"].get_or(5); // NOTE: Probably not very fast
 	DrawText(gridPosStr.c_str(), 3, 50, UI_FONT_SIZE, RAYWHITE);
 }
 void drawPlayerGridPosition(Vector2 playerPos)
@@ -150,7 +150,7 @@ void drawPlayerGridPosition(Vector2 playerPos)
 	playerPos = getGridPosition(playerPos);
 	std::string playerPosStr = "Player: (" + std::to_string((int)playerPos.x) + ", " + std::to_string((int)playerPos.y) + ")";
 
-	int UI_FONT_SIZE = LuaGetInt("UI_FONT_SIZE", "scripts/game_settings.lua");
+	int UI_FONT_SIZE = Slua::lua["UI_FONT_SIZE"].get_or(5); // NOTE: Probably not very fast
 	DrawText(playerPosStr.c_str(), 3, 100, UI_FONT_SIZE, WHITE);
 }
 

@@ -80,7 +80,7 @@ void AnimationSystem::updateNPCAnimations(AnimationC& animation, PhysicsC& physi
 void AnimationSystem::updateSprites()
 {
 	auto view = ECS::registry.view<AnimationC, SpriteC>();
-	float ATLAS_SPRITE_PADDING = LuaGetInt("ATLAS_SPRITE_PADDING", "scripts/game_settings.lua");
+	float ATLAS_SPRITE_PADDING = Slua::lua["ATLAS_SPRITE_PADDING"].get_or(0.0f);
 
 	for (auto entity : view) {
 		auto& animation = view.get<AnimationC>(entity);

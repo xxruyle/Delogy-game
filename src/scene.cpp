@@ -62,13 +62,13 @@ void Scene::addPlayer(AtlasType atlasid, Vector2 spawnPos, Rectangle frameSrc, i
 	ECS::registry.emplace<PositionC>(entity, spawnPos);
 	ECS::registry.emplace<AnimationC>(entity, frameSrc, (unsigned int)numFrames, (unsigned int)framesPerRow);
 
-	int playerSpeed = LuaGetInt("PLAYER_SPEED", "scripts/game_settings.lua");
-	ECS::registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, playerSpeed, false);
+	int playerSpeed = Slua::lua["PLAYER_SPEED"].get_or(0);
+	ECS::registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, playerSpeed, true);
 
-	float ATLAS_SPRITE_PADDING = LuaGetInt("ATLAS_SPRITE_PADDING", "scripts/game_settings.lua");
-	float ATLAS_SPRITE_MARGIN = LuaGetInt("ATLAS_SPRITE_MARGIN", "scripts/game_settings.lua");
-
+	float ATLAS_SPRITE_PADDING = Slua::lua["ATLAS_SPRITE_PADDING"].get_or(0.0f);
+	float ATLAS_SPRITE_MARGIN = Slua::lua["ATLAS_SPRITE_MARGIN"].get_or(0.0f);
 	ECS::registry.emplace<CollisionC>(entity, Rectangle{15 - ATLAS_SPRITE_MARGIN, 29 - ATLAS_SPRITE_MARGIN, 11, 7});
+
 	ECS::registry.emplace<InventoryC>(entity, 20);
 	ECS::registry.emplace<HotBarC>(entity, 5, 0);
 	ECS::registry.emplace<UIInventoryC>(entity, false, Vector2{0, GetScreenHeight() - 51});

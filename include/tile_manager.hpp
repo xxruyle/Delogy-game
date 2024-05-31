@@ -48,10 +48,9 @@ public:
 class TileManager {
 public:
   int world_seed;
-  int worldSize = LuaGetInt("WORLD_SIZE", "scripts/game_settings.lua");
+  int worldSize = Slua::lua.get<int>("WORLD_SIZE");
 
-  int renderDistance =
-      LuaGetInt("RENDER_DISTANCE", "scripts/game_settings.lua");
+  int renderDistance = Slua::lua.get<int>("RENDER_DISTANCE");
 
   TileManager(int random_seed) : world_seed(random_seed) {
     std::cout << "World seed: " << random_seed << std::endl;

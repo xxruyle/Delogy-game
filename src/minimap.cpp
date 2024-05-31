@@ -16,7 +16,7 @@ MiniMap::MiniMap(int init_width, int init_height, TileManager* tileManager) : wi
 	position = Rectangle{GetScreenWidth() - width - padding, padding, (float)init_width, (float)init_height};
 	tManager = tileManager;
 
-	int worldSize = LuaGetInt("WORLD_SIZE", "scripts/game_settings.lua");
+	int worldSize = Slua::lua["WORLD_SIZE"].get_or(0);
 	worldSize = worldSize * 2 * worldSize * 2;
 	visitedChunks.resize(worldSize);
 	mapChunks.resize(worldSize);
@@ -166,7 +166,7 @@ void MiniMap::storeNewChunkTextures(Vector2 playerPos)
 
 void MiniMap::drawVisitedChunks(std::vector<Vector2>& chunkBuffer)
 {
-	int worldSize = LuaGetInt("WORLD_SIZE", "scripts/game_settings.lua");
+	int worldSize = Slua::lua["WORLD_SIZE"].get_or(0); // NOTE: This seems really unsafe
 	for (int index = 0; index < worldSize * 2 * worldSize * 2; index++) {
 		if (visitedChunks[index] == 1) {
 			Rectangle src = {0.0f, 0.0f, mapChunks[index].texture.width, -mapChunks[index].texture.height};
@@ -264,7 +264,7 @@ void MiniMap::update(UI& ui, Vector2 playerPos, SpriteDrawSystem& drawSystem)
 MiniMap::~MiniMap()
 {
 	UnloadTexture(map.texture);
-	int worldSize = LuaGetInt("WORLD_SIZE", "scripts/game_settings.lua");
+	int worldSize = Slua::lua["WORLD_SIZE"].get_or(0); // NOTE: This seems really unsafe
 	for (int i = 0; i < worldSize * 2 * worldSize * 2; i++) {
 		if (visitedChunks[i] == 1) {
 			UnloadRenderTexture(mapChunks[i]);

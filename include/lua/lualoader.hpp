@@ -1,4 +1,5 @@
 #pragma once
+#include "sol/sol.hpp"
 #include <inttypes.h>
 #include <iostream>
 #include <raylib.h >
@@ -14,21 +15,8 @@ extern "C" {
 #include "lualib.h"
 }
 
-void InitLua();
-void CloseLua();
+namespace Slua {
+extern sol::state lua;
+void init(std::string fileName);
 
-std::string LuaGetString(const char *varName, const char *filePath);
-int LuaGetInt(const char *varName, const char *filePath);
-float LuaGetFloat(const char *varName, const char *filePath);
-bool LuaGetBool(const char *varName, const char *filePath);
-
-std::string LuaGetTableString(const char *tableName, const char *tableKey,
-                              const char *filePath);
-
-int LuaGetTableInt(const char *tableName, const char *tableKey,
-                   const char *filePath);
-
-std::vector<Vector3> LuaGetAtlasVals(const char *tableName,
-                                     const char *filePath);
-
-bool CheckLua(lua_State *L, int response);
+} // namespace Slua

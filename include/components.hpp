@@ -53,11 +53,9 @@ struct AnimationC {
    * * padding to get to that frame  */
   std::vector<unsigned int> atFrame; // the number each animation state is on
 
-  float animationSpeed =
-      LuaGetFloat("ANIMATION_SPEED", "scripts/game_settings.lua");
+  float animationSpeed = Slua::lua["ANIMATION_SPEED"].get_or(0.0f);
 
-  float ATLAS_SPRITE_PADDING =
-      LuaGetInt("ATLAS_SPRITE_PADDING", "scripts/game_settings.lua");
+  float ATLAS_SPRITE_PADDING = Slua::lua["ATLAS_SPRITE_PADDING"].get_or(0.0f);
 
   float animationUpdateTime = 1.0f / animationSpeed;
   float timeSinceLastFrameSwap = 0.0f;

@@ -34,17 +34,16 @@ int main()
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	SetConfigFlags(FLAG_MSAA_4X_HINT);
 
-	InitLua(); // intialize lua before calling lualoader functions
+	Slua::init("scripts/game_settings.lua");
 
 	/*SetTargetFPS(60);*/
-
-	InitWindow(LuaGetInt("WINDOW_WIDTH", "scripts/game_settings.lua"), LuaGetInt("WINDOW_HEIGHT", "scripts/game_settings.lua"), "Delogy Indev");
-	int randomSeed = LuaGetInt("WORLD_SEED", "scripts/game_settings.lua");
+	InitWindow(Slua::lua["WINDOW_WIDTH"].get_or(0), Slua::lua["WINDOW_HEIGHT"].get_or(0), "Delogy Indev");
+	int randomSeed = Slua::lua["WORLD_SEED"].get_or(0);
 	SetRandomSeed(randomSeed);
 
 	TileManager tileManager(randomSeed);
 
-	MiniMap miniMap(LuaGetInt("MINIMAP_WIDTH", "scripts/game_settings.lua"), LuaGetInt("MINIMAP_HEIGHT", "scripts/game_settings.lua"), &tileManager);
+	MiniMap miniMap(Slua::lua["MINIMAP_WIDTH"].get_or(0), Slua::lua["MINIMAP_HEIGHT"].get_or(0), &tileManager);
 
 	CartManager cartManager;
 
@@ -114,6 +113,4 @@ int main()
 		EndDrawing();
 	}
 	CloseWindow();
-
-	CloseLua();
 }
