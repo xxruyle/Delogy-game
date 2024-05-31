@@ -22,6 +22,10 @@ int InputSystem::getUserKeypress()
 		return OPEN_MINIMAP;
 	}
 
+	if (IsKeyPressed(Keys[PLAYER_INTERACT])) {
+		return PLAYER_INTERACT;
+	}
+
 	if (IsKeyPressed(Keys[OPEN_INVENTORY])) {
 		return OPEN_INVENTORY;
 	}

@@ -1,11 +1,11 @@
 #include "ui.hpp"
 #include "components.hpp"
+#include "entt/entity/entity.hpp"
 #include "item_data.hpp"
 #include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
 #include "ui_util.hpp"
-#include <cstddef>
 
 UI::UI(SpriteDrawSystem* spriteDrawSystem) { drawSystem = spriteDrawSystem; }
 
@@ -15,7 +15,7 @@ void UI::hotBar(InventoryC& inventory, HotBarC& hotBar, Vector2 src, int width, 
 	float cellThickness = 1.0f;
 	int selection = UIRowGridRec({src.x, src.y, width, height}, cellThickness, gridSpacing, hotBar.capacity, hotBar.curItem, RAYWHITE, Color{255, 255, 255, 32});
 	Rectangle iconSrc = {src.x, src.y, width, height};
-	inventoryRowSlots(inventory, 0, hotBar.capacity, iconSrc);
+	inventoryRowSlots(inventory, 0, width, hotBar.capacity, iconSrc);
 
 	int xNumsOffset = 5;
 	int yNumsOffset = 17;
@@ -29,8 +29,8 @@ void UI::hotBar(InventoryC& inventory, HotBarC& hotBar, Vector2 src, int width, 
 		cellHovered = true;
 	}
 
-	checkDragAndDrop(selection, selection); // updates dragAndDropper
-	checkResetDrop(cellHovered);			// reset if invalid drop
+	checkDragAndDrop(inventory, selection, selection); // updates dragAndDropper
+	checkResetDrop(cellHovered);					   // reset if invalid drop
 
 	if (dragAndDrop.holdActive) {
 		Vector2 mousePos = GetMousePosition();
@@ -47,11 +47,9 @@ void UI::miniMap(Rectangle mapSrc)
 	bounds[MINIMAP] = mapSrc;
 }
 
-void UI::inventoryRowSlots(InventoryC& inventory, int curRow, int numCells, Rectangle rowCellSrc)
+void UI::inventoryRowSlots(InventoryC& inventory, int curRow, int iconSize, int numCells, Rectangle rowCellSrc)
 {
-	int iconSize = 40;
 	rowCellSrc.x -= rowCellSrc.width;
-	/*std::cout << numCells << std::endl;*/
 	for (int j = 0; j < numCells; j++) {
 		int inventoryIndex = j + (curRow * numCells);
 		rowCellSrc.x += rowCellSrc.width + gridSpacing;
@@ -61,11 +59,12 @@ void UI::inventoryRowSlots(InventoryC& inventory, int curRow, int numCells, Rect
 			Rectangle itemTexture = {(float)curItem.x, (float)curItem.y, 16, 16};
 
 			// if drag and dropper is active we just set the icon texture atlas src for it
-			if (dragAndDrop.holdActive && (inventoryIndex == dragAndDrop.holdedSlotIndex)) {
+			if (dragAndDrop.holdActive && (inventoryIndex == dragAndDrop.holdedSlotIndex) && &inventory == dragAndDrop.inventoryHeld) {
 				dragAndDrop.iconAtlasSrc = itemTexture;
 			}
 			else {
-				Rectangle itemRec = {rowCellSrc.x + 4, rowCellSrc.y + 4, iconSize, iconSize};
+				int centeredOffset = (iconSize / 10);
+				Rectangle itemRec = {rowCellSrc.x + centeredOffset, rowCellSrc.y + centeredOffset, iconSize - (centeredOffset * 2), iconSize - (centeredOffset * 2)};
 				UIIcon(drawSystem->smallAtlas, itemTexture, itemRec);
 				DrawText(std::to_string(inventory.stacks[inventoryIndex]).c_str(), itemRec.x + 5, itemRec.y + itemRec.height - 15, 20, RAYWHITE);
 			}
@@ -75,8 +74,6 @@ void UI::inventoryRowSlots(InventoryC& inventory, int curRow, int numCells, Rect
 
 void UI::inventory(InventoryC& inventory, Vector2 src, int width, int height, int cellsPerRow)
 {
-	int iconSize = 40;
-
 	/*UIWindowOutline(windowRec);*/
 
 	// lower rows in the inventory are drawn first
@@ -93,12 +90,12 @@ void UI::inventory(InventoryC& inventory, Vector2 src, int width, int height, in
 		}
 
 		int inventoryIndex = selection + (row * cellsPerRow);
-		checkDragAndDrop(inventoryIndex, selection); // updates dragAndDropper
+		checkDragAndDrop(inventory, inventoryIndex, selection); // updates dragAndDropper
 
-		inventoryRowSlots(inventory, row, cellsPerRow, iconSrc);
+		inventoryRowSlots(inventory, row, width, cellsPerRow, iconSrc);
 	}
 
-	checkResetDrop(cellHovered); // reset if invalid drop
+	/*checkResetDrop(cellHovered); // reset if invalid drop*/
 
 	if (dragAndDrop.holdActive) {
 		Vector2 mousePos = GetMousePosition();
@@ -112,23 +109,25 @@ void UI::inventory(InventoryC& inventory, Vector2 src, int width, int height, in
 void UI::checkResetDrop(bool cellFound)
 {
 	if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && !cellFound) {
-		dragAndDrop = {0, 0, Rectangle{0, 0, 0, 0}, false, false};
+		dragAndDrop = {nullptr, nullptr, 0, 0, Rectangle{0, 0, 0, 0}, false, false};
 	}
 }
 
-void UI::checkDragAndDrop(int inventoryIndex, int gridValidity)
+void UI::checkDragAndDrop(InventoryC& inventory, int inventoryIndex, int gridValidity)
 {
 	if (gridValidity != -1) {
 		// holding icon
 		if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !dragAndDrop.holdActive) {
 			dragAndDrop.holdActive = true;
 			dragAndDrop.holdedSlotIndex = inventoryIndex;
+			dragAndDrop.inventoryHeld = &inventory;
 		}
 
 		// dropping icon
 		if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && dragAndDrop.holdActive) {
 			dragAndDrop.droppedSlotIndex = inventoryIndex;
 			dragAndDrop.dropActive = true;
+			dragAndDrop.inventoryDropped = &inventory;
 			dragAndDrop.holdActive = false;
 		}
 	}
@@ -136,26 +135,23 @@ void UI::checkDragAndDrop(int inventoryIndex, int gridValidity)
 
 void UI::handleDropEvent(InventoryC& inventory)
 {
-	if (dragAndDrop.dropActive) {
+	if (dragAndDrop.dropActive && dragAndDrop.inventoryHeld != nullptr && dragAndDrop.inventoryDropped != nullptr) {
 		int slotIndexDroppedBy = dragAndDrop.holdedSlotIndex;
 		int slotIndexDroppedOn = dragAndDrop.droppedSlotIndex;
 
-		if ((slotIndexDroppedOn != slotIndexDroppedBy)) {
-			if ((inventory.slots[slotIndexDroppedOn] == NULL_ITEM)) { // if slot dropped on is null
-				inventory.slots[slotIndexDroppedOn] = inventory.slots[slotIndexDroppedBy];
-				inventory.stacks[slotIndexDroppedOn] = inventory.stacks[slotIndexDroppedBy];
-
-				inventory.slots[slotIndexDroppedBy] = NULL_ITEM;
-				inventory.slots[slotIndexDroppedBy] = 0;
-			}
-			// if slot dropped on equals the item
-			else if (inventory.slots[slotIndexDroppedOn] == inventory.slots[slotIndexDroppedBy]) {
-				inventory.stacks[slotIndexDroppedOn] += inventory.stacks[slotIndexDroppedBy];
-				inventory.slots[slotIndexDroppedBy] = NULL_ITEM;
-				inventory.stacks[slotIndexDroppedBy] = 0;
-			}
+		if ((dragAndDrop.inventoryDropped->slots[slotIndexDroppedOn] == NULL_ITEM)) { // if slot dropped on is null
+			dragAndDrop.inventoryDropped->slots[slotIndexDroppedOn] = dragAndDrop.inventoryHeld->slots[slotIndexDroppedBy];
+			dragAndDrop.inventoryDropped->stacks[slotIndexDroppedOn] = dragAndDrop.inventoryHeld->stacks[slotIndexDroppedBy];
+			dragAndDrop.inventoryHeld->slots[slotIndexDroppedBy] = NULL_ITEM;
+			dragAndDrop.inventoryHeld->slots[slotIndexDroppedBy] = 0;
 		}
-		dragAndDrop = {0, 0, Rectangle{0, 0, 0, 0}, false, false}; // reset dragAndDrop
+		// if slot dropped on equals the item
+		else if (dragAndDrop.inventoryDropped->slots[slotIndexDroppedOn] == dragAndDrop.inventoryHeld->slots[slotIndexDroppedBy] && (dragAndDrop.inventoryHeld != dragAndDrop.inventoryDropped)) {
+			dragAndDrop.inventoryDropped->stacks[slotIndexDroppedOn] += dragAndDrop.inventoryHeld->stacks[slotIndexDroppedBy];
+			dragAndDrop.inventoryHeld->slots[slotIndexDroppedBy] = NULL_ITEM;
+			dragAndDrop.inventoryHeld->stacks[slotIndexDroppedBy] = 0;
+		}
+		dragAndDrop = {nullptr, nullptr, 0, 0, Rectangle{0, 0, 0, 0}, false, false}; // reset dragAndDrop
 	}
 }
 

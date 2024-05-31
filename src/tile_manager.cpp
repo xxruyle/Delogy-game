@@ -6,6 +6,7 @@
 #include "ecs_registry.hpp"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
+#include "event_manager.hpp"
 #include "input_system.hpp"
 #include "item_data.hpp"
 #include "item_manager.hpp"
@@ -14,6 +15,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "tile_data.hpp"
+#include <cstddef>
 
 int getIndex(int x, int y) { return (CHUNK_SIZE * y) + x; };
 Vector2 getRandomDirection()
@@ -95,20 +97,30 @@ void TileChunk::drawItem(Atlas& atlas, int x, int y)
 		DrawTexturePro(atlas.texture, tileAtlasPos, tileDest, {0, 0}, 0.0f, WHITE);
 
 		// just for debugging
-		/*Vector2 worldPos = {x + srcCoordinate.x * CHUNK_SIZE, y + srcCoordinate.y * CHUNK_SIZE};*/
-		/*entt::entity id = CacheManager::getItemAtPosition(worldPos);*/
+		int amount = itemAmount[index];
+
+		DrawText(std::to_string(amount).c_str(), (int)loc.x, (int)loc.y, 2, RAYWHITE);
+		/*Vector2 worldPos = relativeChunkPosToGrid(Vector2{x, y}, srcCoordinate);*/
 		/*if (id != entt::null) {*/
-		/*	DrawText(std::to_string((unsigned int)id).c_str(), (int)loc.x, (int)loc.y, 5, RAYWHITE);*/
+		/*	ItemC& item = ECS::registry.get<ItemC>(id);*/
+		/**/
+		/*	DrawText(std::to_string((unsigned int)item.capacity).c_str(), (int)loc.x, (int)loc.y, 2, RAYWHITE);*/
 		/*}*/
 	}
 }
 
 // deletes item at tile
-void TileChunk::deleteAtTile(int x, int y)
+ItemType TileChunk::deleteAtTile(int x, int y)
 {
 	int index = getIndex(x, y);
-	if (itemID[index] != 0) { // if an item exists at this spot
-		itemID[index] = 0;
+	if (itemID[index] != 0) {	  // if an item exists at this spot
+		int item = itemID[index]; // get item id copy
+		itemAmount[index] -= 1;
+		if (itemAmount[index] <= 0) {
+			itemID[index] = 0;
+		}
+
+		return (ItemType)item;
 	}
 	else {
 		int zLevel = tileZ[index]; // only delete the tile if z level is > 0
@@ -116,10 +128,8 @@ void TileChunk::deleteAtTile(int x, int y)
 			tileID[index] = TILE_DIRT_FLOOR_MIDDLE.id;
 			tileZ[index] = 0;
 		}
-		else {
-			/* std::cout << "Lowest layer!" << std::endl; */
-		}
 	}
+	return NULL_ITEM;
 }
 
 void TileChunk::updateTile(int x, int y)
@@ -136,9 +146,9 @@ void TileChunk::updateItem(int x, int y, int playerItemID)
 	int curItemID = itemID[index];
 	Item newItem = itemids[playerItemID];
 
-	if (curItemID == 0 && tileZ[index] == 0) { // if there is no existing item here
+	if (tileZ[index] == 0) {
 		itemID[index] = newItem.id;
-		ItemManager::addItem(Vector2{x + srcCoordinate.x * CHUNK_SIZE, y + srcCoordinate.y * CHUNK_SIZE}, newItem.id, 1);
+		itemAmount[index] += 1;
 	}
 }
 
@@ -202,7 +212,7 @@ void TileManager::generateVegetation()
 					IndexPair index = getGridIndexPair(curTile.x, curTile.y);
 					if (chunks[index.chunk].tileID[index.tile] == DIRT_FLOOR_MIDDLE) { // if a dirt tile
 						chunks[index.chunk].itemID[index.tile] = MUSHROOM_PURPLE;
-						ItemManager::addItem(curTile, MUSHROOM_PURPLE, 1);
+						chunks[index.chunk].itemAmount[index.tile] = 1;
 						randSize--;
 					}
 					else if (chunks[index.chunk].tileID[index.tile] == WALL_FRONT) {
@@ -319,8 +329,9 @@ void TileManager::update(Atlas& atlas, UI& ui, Scene& scene)
 	InventoryC& inventory = ECS::registry.get<InventoryC>(scene.player);
 	HotBarC& hotBar = ECS::registry.get<HotBarC>(scene.player);
 	drawAllChunks(atlas, position.pos);
-	checkPlayerInteraction(scene.camera, ui, inventory, hotBar);
+	/*checkPlayerInteraction(scene.camera, ui, inventory, hotBar);*/
 	checkDevInput();
+	handleEvents();
 }
 
 int TileManager::getItemUnder(Vector2 pos)
@@ -418,6 +429,39 @@ void TileManager::drunkardGenerateAll()
 			}
 
 			curTile = Vector2Add(curTile, getRandomDirection());
+		}
+	}
+}
+
+void TileManager::handleEvents()
+{
+	if (!EventManager::itemEventQueue.empty()) {
+		ItemEvent e = EventManager::itemEventQueue.front();
+		switch (e.type) {
+		case ITEM_DELETION: {
+			Vector2 chunkPos = getChunkPosition(e.itemPos);
+			int chunkIndex = getChunkIndex((int)chunkPos.x, (int)chunkPos.y);
+			Vector2 relativeChunkPos = getRelativeChunkGridPosition(chunkPos, e.itemPos);
+			ItemType itemID = chunks[chunkIndex].deleteAtTile(relativeChunkPos.x, relativeChunkPos.y);
+			updatedChunks.push_back(chunkIndex);
+			EventManager::itemEventQueue.pop_front();
+
+			// sending a item_get event to the entity destroying
+			ItemEvent newE = {ITEM_GET, itemID, e.itemPos, e.relatedEntity};
+			EventManager::itemEventQueue.push_back(newE);
+			break;
+		}
+		case ITEM_CREATION: {
+			Vector2 chunkPos = getChunkPosition(e.itemPos);
+			int chunkIndex = getChunkIndex((int)chunkPos.x, (int)chunkPos.y);
+			Vector2 relativeChunkPos = getRelativeChunkGridPosition(chunkPos, e.itemPos);
+			chunks[chunkIndex].updateItem(relativeChunkPos.x, relativeChunkPos.y, e.itemID);
+			updatedChunks.push_back(chunkIndex);
+			EventManager::itemEventQueue.pop_front();
+			break;
+		}
+		default:
+			break;
 		}
 	}
 }

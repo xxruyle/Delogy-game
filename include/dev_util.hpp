@@ -98,3 +98,7 @@ Vector2 chunkToGrid(Vector2 chunkPosition); // convert from chunk coordinates to
 Vector2
 chunkToWorldSpace(Vector2 chunkPosition); // convert from chunk coordinates to
                                           // absolute coordinate space
+
+Vector2 relativeChunkPosToGrid(Vector2 chunkPos,
+                               Vector2 chunkSrc); // convert from coordinates in
+                                                  // chunnk to world coordinates

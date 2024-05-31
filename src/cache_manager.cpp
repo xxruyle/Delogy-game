@@ -41,6 +41,7 @@ void clearCachePosition(Vector2 pos, entt::entity id)
 		if (entID == id) {
 			std::vector<entt::entity>::iterator it = entityCache[pos].begin() + i;
 			entityCache[pos].erase(it);
+			ECS::registry.destroy(entID); // NOTE: could lead to undefined behavior?
 		}
 	}
 

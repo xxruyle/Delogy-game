@@ -6,6 +6,7 @@
 #include "item_data.hpp"
 #include "lua/lualoader.hpp"
 #include "raylib.h"
+#include "raymath.h"
 #include <iostream>
 
 InventorySystem::InventorySystem(UI* userInterface) { ui = userInterface; }
@@ -64,18 +65,29 @@ void InventorySystem::swapItem(InventoryC& inventory, int index1, int index2)
 
 void InventorySystem::update(Scene& scene)
 {
-	auto view = ECS::registry.view<InventoryC>();
+	auto view = ECS::registry.view<InventoryC, UIInventoryC>();
 
 	for (auto& entity : view) {
-
 		if (entity == scene.player) {
 			updatePlayerInventory(scene);
 		}
 		else {
-			auto& inv = view.get<InventoryC>(entity);
-			UIInventoryC& invUI = ECS::registry.get<UIInventoryC>(entity);
-			if (invUI.active) {
-				ui->inventory(inv, invUI.srcPos, 50, 50, 5);
+			if (ECS::registry.any_of<ItemC>(entity)) {
+				InventoryC& inv = ECS::registry.get<InventoryC>(entity);
+				UIInventoryC& invUI = ECS::registry.get<UIInventoryC>(entity);
+				if (invUI.active) {
+					PositionC& playerPos = ECS::registry.get<PositionC>(scene.player);
+					PositionC& itemPos = ECS::registry.get<PositionC>(entity);
+					if (Vector2Distance(playerPos.pos, itemPos.pos) < 100) {
+
+						// transparent background
+						DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), {0, 0, 0, 70});
+						ui->inventory(inv, invUI.srcPos, 40, 40, 5);
+					}
+					else {
+						invUI.active = false;
+					}
+				}
 			}
 		}
 	}

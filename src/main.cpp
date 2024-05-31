@@ -1,5 +1,6 @@
 #include "components.hpp"
 #include "ecs_registry.hpp"
+#include "item_manager.hpp"
 #include "macros_util.hpp"
 #include "tile_data.hpp"
 #include <iostream>
@@ -9,6 +10,7 @@
 #include "cart_manager.hpp"
 #include "dev_util.hpp"
 #include "draw_system.hpp"
+#include "event_manager.hpp"
 #include "input_system.hpp"
 #include "inventory_system.hpp"
 #include "minimap.hpp"
@@ -106,6 +108,8 @@ int main()
 		drawGameInfo(scene.camera, scene.playerPosition, ECS::registry.get<PhysicsC>(scene.player).velocity);
 
 		miniMap.update(userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16}, drawSystem);
+
+		ItemManager::update(scene);
 
 		EndDrawing();
 	}

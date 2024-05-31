@@ -42,12 +42,12 @@ PLAYER_SPRITE_SIZE = 32
 NUM_INVENTORY = 20
 NUM_HOTBAR = 6
 COLLISION_ENABLED = false
-SURVIVAL_MODE = false 
+SURVIVAL_MODE = false
 
 -- NPC Info
-MAX_NPCS = 10
+MAX_NPCS = 0
 DRAW_NPC_DEBUG = false -- draw npc info (e.g path arrows)
-NPC_SPAWN_RADIUS = 100
+NPC_SPAWN_RADIUS = 10
 
 -- NPC Genes
 NPC_GENE_MAX_DESIRE = math.random(70, 100)
