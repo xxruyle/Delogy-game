@@ -30,6 +30,7 @@
 
 int main()
 {
+	SetTraceLogLevel(LOG_ERROR);
 	SetConfigFlags(FLAG_WINDOW_ALWAYS_RUN);
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	SetConfigFlags(FLAG_MSAA_4X_HINT);

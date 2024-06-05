@@ -139,18 +139,27 @@ void UI::handleDropEvent(InventoryC& inventory)
 		int slotIndexDroppedBy = dragAndDrop.holdedSlotIndex;
 		int slotIndexDroppedOn = dragAndDrop.droppedSlotIndex;
 
-		if ((dragAndDrop.inventoryDropped->slots[slotIndexDroppedOn] == NULL_ITEM)) { // if slot dropped on is null
+		if ((dragAndDrop.inventoryHeld == dragAndDrop.inventoryDropped) && (slotIndexDroppedBy == slotIndexDroppedOn)) {
+			// change nothing
+			/*std::cout << "same inventory" << std::endl;*/
+			/*dragAndDrop.inventoryDropped->slots[slotIndexDroppedOn] = dragAndDrop.inventoryHeld->slots[slotIndexDroppedBy];*/
+			/*dragAndDrop.inventoryDropped->stacks[slotIndexDroppedOn] = dragAndDrop.inventoryHeld->stacks[slotIndexDroppedBy];*/
+		}
+		else if ((dragAndDrop.inventoryDropped->slots[slotIndexDroppedOn] == NULL_ITEM)) { // if slot dropped on is null
+			/*std::cout << "null drop" << std::endl;*/
 			dragAndDrop.inventoryDropped->slots[slotIndexDroppedOn] = dragAndDrop.inventoryHeld->slots[slotIndexDroppedBy];
 			dragAndDrop.inventoryDropped->stacks[slotIndexDroppedOn] = dragAndDrop.inventoryHeld->stacks[slotIndexDroppedBy];
 			dragAndDrop.inventoryHeld->slots[slotIndexDroppedBy] = NULL_ITEM;
-			dragAndDrop.inventoryHeld->slots[slotIndexDroppedBy] = 0;
+			dragAndDrop.inventoryHeld->stacks[slotIndexDroppedBy] = 0;
 		}
 		// if slot dropped on equals the item
-		else if (dragAndDrop.inventoryDropped->slots[slotIndexDroppedOn] == dragAndDrop.inventoryHeld->slots[slotIndexDroppedBy] && (dragAndDrop.inventoryHeld != dragAndDrop.inventoryDropped)) {
+		else if (dragAndDrop.inventoryDropped->slots[slotIndexDroppedOn] == dragAndDrop.inventoryHeld->slots[slotIndexDroppedBy]) {
+			/*std::cout << "stack" << std::endl;*/
 			dragAndDrop.inventoryDropped->stacks[slotIndexDroppedOn] += dragAndDrop.inventoryHeld->stacks[slotIndexDroppedBy];
 			dragAndDrop.inventoryHeld->slots[slotIndexDroppedBy] = NULL_ITEM;
 			dragAndDrop.inventoryHeld->stacks[slotIndexDroppedBy] = 0;
 		}
+
 		dragAndDrop = {nullptr, nullptr, 0, 0, Rectangle{0, 0, 0, 0}, false, false}; // reset dragAndDrop
 	}
 }

@@ -1,12 +1,14 @@
 #include "wireframe.hpp"
 #include "ecs_registry.hpp"
 #include "input_system.hpp"
+#include "raylib.h"
 
 bool WireFrame::wireframe_on = false;
 void WireFrame::draw()
 {
 
-	if (InputSystem::getUserKeypress() == DEBUG_WIREFRAME) {
+	/*if (InputSystem::getUserKeypress() == DEBUG_WIREFRAME) {*/
+	if (IsKeyPressed(KEY_C)) {
 		if (wireframe_on) {
 			wireframe_on = false;
 		}

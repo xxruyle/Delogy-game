@@ -446,9 +446,11 @@ void TileManager::handleEvents()
 			updatedChunks.push_back(chunkIndex);
 			EventManager::itemEventQueue.pop_front();
 
-			// sending a item_get event to the entity destroying
-			ItemEvent newE = {ITEM_GET, itemID, e.itemPos, e.relatedEntity};
-			EventManager::itemEventQueue.push_back(newE);
+			if (itemID != NULL_ITEM) {
+				// sending a item_get event to the entity destroying
+				ItemEvent newE = {ITEM_GET, itemID, e.itemPos, e.relatedEntity};
+				EventManager::itemEventQueue.push_back(newE);
+			}
 			break;
 		}
 		case ITEM_CREATION: {

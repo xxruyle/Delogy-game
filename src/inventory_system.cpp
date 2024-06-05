@@ -13,20 +13,18 @@ InventorySystem::InventorySystem(UI* userInterface) { ui = userInterface; }
 
 void InventorySystem::updateInventorySelection(InventoryC& inventory, HotBarC& hotBar)
 {
-	int key = InputSystem::getUserCharpress();
+	int key = GetCharPressed() - 48;
 
-	if (key != NULL_PRESS) {
-		if (key > 0 && key <= hotBar.capacity && key < inventory.slots.size()) { // make sure keys are not negative
-			hotBar.curItem = key - 1;											 // set cur hot bar item
-		}
+	if (key > 0 && key <= hotBar.capacity && key < inventory.slots.size()) { // make sure keys are not negative
+		hotBar.curItem = key - 1;											 // set cur hot bar item
 	}
 }
 
 void InventorySystem::updateItemRotation(InventoryC& inventory, HotBarC& hotBar)
 {
 	if (hotBar.curItem >= 0 && hotBar.curItem <= hotBar.capacity) {
-		int rotationKey = InputSystem::getUserKeypress();
-		if (rotationKey == ITEM_ROTATION) {
+		/*int rotationKey = InputSystem::getUserKeypress();*/
+		if (IsKeyPressed(KEY_R)) {
 			int curItemID = inventory.slots[hotBar.curItem];
 			if (curItemID >= RAIL_NW && curItemID <= RAIL_SW) { // rotatable items
 				if (curItemID == 6) {
@@ -100,7 +98,8 @@ void InventorySystem::updatePlayerInventory(Scene& scene)
 	UIInventoryC& invUI = ECS::registry.get<UIInventoryC>(scene.player);
 
 	// player hide UI
-	if (InputSystem::getUserKeypress() == OPEN_INVENTORY) {
+	/*if (InputSystem::getUserKeypress() == OPEN_INVENTORY) {*/
+	if (IsKeyPressed(KEY_I)) {
 		invUI.active ? invUI.active = false : invUI.active = true;
 	}
 
