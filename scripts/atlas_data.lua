@@ -4,6 +4,8 @@ TILES = {
     DIRT_FLOOR_MIDDLE = { id = 3, x = 67, y = 214 },
 }
 
+test = 3
+
 
 -- Define a table to store item data
 ITEM_DATA = {

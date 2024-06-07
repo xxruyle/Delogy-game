@@ -9,15 +9,19 @@
 namespace Slua {
 sol::state lua;
 
-void init(std::string fileName)
+void init(std::vector<std::string> fileNames)
 {
+
 	lua.open_libraries(sol::lib::base, sol::lib::io, sol::lib::math, sol::lib::table);
-	try {
-		lua.safe_script_file(fileName);
-		std::cout << "Lua file: " << fileName << " loaded" << std::endl;
-	}
-	catch (const sol::error& e) {
-		std::cout << std::string(e.what()) << std::endl;
+	for (std::string& file : fileNames) {
+		try {
+			lua.safe_script_file(file);
+			std::cout << "LUALOADER[SOL]: "
+					  << "Loading script from: [" << file << "]" << std::endl;
+		}
+		catch (const sol::error& e) {
+			std::cout << "LUALOADER[SOL]: " << std::string(e.what()) << std::endl;
+		}
 	}
 }
 

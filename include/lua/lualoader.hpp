@@ -17,6 +17,6 @@ extern "C" {
 
 namespace Slua {
 extern sol::state lua;
-void init(std::string fileName);
+void init(std::vector<std::string> fileNames);
 
 } // namespace Slua

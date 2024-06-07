@@ -35,7 +35,8 @@ int main()
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	SetConfigFlags(FLAG_MSAA_4X_HINT);
 
-	Slua::init("scripts/game_settings.lua");
+	/*Slua::init("scripts/game_settings.lua");*/
+	Slua::init({"scripts/game_settings.lua", "scripts/atlas_data.lua"});
 
 	/*SetTargetFPS(60);*/
 	InitWindow(Slua::lua["WINDOW_WIDTH"].get_or(0), Slua::lua["WINDOW_HEIGHT"].get_or(0), "Delogy Indev");
