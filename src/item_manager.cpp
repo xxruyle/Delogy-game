@@ -5,12 +5,13 @@
 #include "ecs_registry.hpp"
 #include "event_manager.hpp"
 #include "input_system.hpp"
+#include "lua/lualoader.hpp"
 #include "raylib.h"
 #include <cstddef>
 #include <utility>
 
 namespace ItemManager {
-bool survival_mode = false;
+bool survival_mode = Slua::lua.get<bool>("SURVIVAL_MODE");
 
 void placeItem(Vector2 pos, ItemType itemID)
 {
@@ -38,6 +39,7 @@ void deleteItem(Vector2 pos)
 		if (ECS::registry.any_of<ItemC>(id)) {
 			ItemC& item = ECS::registry.get<ItemC>(id);
 			CacheManager::clearCachePosition(pos, id);
+			ECS::registry.destroy(id);
 			/*switch (item.id) {*/
 			/*case STORAGE_BOX: {*/
 			/*	break;*/
@@ -121,9 +123,7 @@ void checkPlayerDeletions(Scene& scene)
 			Vector2 pos = getMouseGridPosition(scene.camera);
 			ItemEvent e = {ITEM_CREATION, inventory.slots[hotBar.curItem], getMouseGridPosition(scene.camera), scene.player};
 
-			if (survival_mode) {
-				inventory.stacks[hotBar.curItem] -= 1;
-			}
+			inventory.stacks[hotBar.curItem] -= 1;
 
 			placeItem(pos, (ItemType)e.itemID);
 			EventManager::itemEventQueue.push_back(e);

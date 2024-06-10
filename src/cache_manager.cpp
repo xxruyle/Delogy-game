@@ -16,6 +16,19 @@ bool entityAtPosition(Vector2 pos)
 	return false;
 }
 
+bool needsAtPosition(Vector2 pos)
+{
+	if (entityAtPosition(pos)) {
+		for (entt::entity id : entityCache[pos]) {
+			if (ECS::registry.all_of<NeedsC>(id)) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 entt::entity getItemAtPosition(Vector2 pos)
 {
 	if (entityAtPosition(pos)) {

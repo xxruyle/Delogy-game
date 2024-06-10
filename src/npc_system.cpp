@@ -149,7 +149,7 @@ bool NPCSystem::nearEntity(entt::entity id, int radius)
 		}
 
 		// need to check if found entity is not the current entity
-		if (CacheManager::entityAtPosition(n) && ((CacheManager::entityCache[n][0] != id) && CacheManager::entityCache[n].size() == 1)) {
+		if (CacheManager::needsAtPosition(n) && ((CacheManager::entityCache[n][0] != id) && CacheManager::entityCache[n].size() == 1)) {
 			return true;
 		}
 	}
@@ -502,40 +502,42 @@ bool NPCSystem::showEntityInfo(Camera2D& camera)
 				/* std::cout << getVector2String(nearPos) << std::endl; */
 				if (CacheManager::entityCache.count(nearPos)) {
 					for (entt::entity id : CacheManager::entityCache[nearPos]) {
-						PositionC& position = ECS::registry.get<PositionC>(id);
-						PathC& path = ECS::registry.get<PathC>(id);
-						CollisionC& coll = ECS::registry.get<CollisionC>(id);
+						if (ECS::registry.any_of<NeedsC>(id)) {
+							PositionC& position = ECS::registry.get<PositionC>(id);
+							PathC& path = ECS::registry.get<PathC>(id);
+							CollisionC& coll = ECS::registry.get<CollisionC>(id);
 
-						Rectangle absoluteAABB = {coll.aabb.x + position.pos.x, coll.aabb.y + position.pos.y, coll.aabb.width, coll.aabb.height};
+							Rectangle absoluteAABB = {coll.aabb.x + position.pos.x, coll.aabb.y + position.pos.y, coll.aabb.width, coll.aabb.height};
 
-						if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), absoluteAABB)) {
-							NeedsC& needs = ECS::registry.get<NeedsC>(id);
-							Vector2 infoPos = GetScreenToWorld2D(GetMousePosition(), camera);
+							if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), absoluteAABB)) {
+								NeedsC& needs = ECS::registry.get<NeedsC>(id);
+								Vector2 infoPos = GetScreenToWorld2D(GetMousePosition(), camera);
 
-							std::string satiationInfo = std::to_string(needs.desires[needType::SATIATION]);
-							satiationInfo.erase(satiationInfo.find_last_not_of('0') + 1, std::string::npos);
-							satiationInfo.erase(satiationInfo.find_last_not_of('.') + 1, std::string::npos);
-							satiationInfo = "satiation: " + satiationInfo;
+								std::string satiationInfo = std::to_string(needs.desires[needType::SATIATION]);
+								satiationInfo.erase(satiationInfo.find_last_not_of('0') + 1, std::string::npos);
+								satiationInfo.erase(satiationInfo.find_last_not_of('.') + 1, std::string::npos);
+								satiationInfo = "satiation: " + satiationInfo;
 
-							std::string socialInfo = std::to_string(needs.desires[needType::SOCIAL]);
-							socialInfo.erase(socialInfo.find_last_not_of('0') + 1, std::string::npos);
-							socialInfo.erase(socialInfo.find_last_not_of('.') + 1, std::string::npos);
-							socialInfo = "social: " + socialInfo;
+								std::string socialInfo = std::to_string(needs.desires[needType::SOCIAL]);
+								socialInfo.erase(socialInfo.find_last_not_of('0') + 1, std::string::npos);
+								socialInfo.erase(socialInfo.find_last_not_of('.') + 1, std::string::npos);
+								socialInfo = "social: " + socialInfo;
 
-							std::string energyInfo = std::to_string(needs.desires[ENERGY]);
-							energyInfo.erase(energyInfo.find_last_not_of('0') + 1, std::string::npos);
-							energyInfo.erase(energyInfo.find_last_not_of('.') + 1, std::string::npos);
-							energyInfo = "energy: " + energyInfo;
+								std::string energyInfo = std::to_string(needs.desires[ENERGY]);
+								energyInfo.erase(energyInfo.find_last_not_of('0') + 1, std::string::npos);
+								energyInfo.erase(energyInfo.find_last_not_of('.') + 1, std::string::npos);
+								energyInfo = "energy: " + energyInfo;
 
-							std::string idInfo = "id: " + std::to_string((unsigned int)id);
-							std::string targetInfo = "ptarget: " + std::to_string(path.targetID);
+								std::string idInfo = "id: " + std::to_string((unsigned int)id);
+								std::string targetInfo = "ptarget: " + std::to_string(path.targetID);
 
-							DrawText(satiationInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 1.2f), 10, RED);
-							DrawText(socialInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 1.8f), 10, RED);
-							DrawText(energyInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 2.4), 10, RED);
-							DrawText(idInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 3.0f), 10, PURPLE);
-							DrawText(targetInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 3.4f), 10, PURPLE);
-							return true;
+								DrawText(satiationInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 1.2f), 10, RED);
+								DrawText(socialInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 1.8f), 10, RED);
+								DrawText(energyInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 2.4), 10, RED);
+								DrawText(idInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 3.0f), 10, PURPLE);
+								DrawText(targetInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 3.4f), 10, PURPLE);
+								return true;
+							}
 						}
 					}
 				}
