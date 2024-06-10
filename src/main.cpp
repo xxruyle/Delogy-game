@@ -1,8 +1,8 @@
+#include "atlas_data.hpp"
 #include "components.hpp"
 #include "ecs_registry.hpp"
 #include "item_manager.hpp"
 #include "macros_util.hpp"
-#include "tile_data.hpp"
 #include <iostream>
 #include <utility>
 #define RAYGUI_IMPLEMENTATION
@@ -30,13 +30,15 @@
 
 int main()
 {
-	SetTraceLogLevel(LOG_ERROR);
+	SetTraceLogLevel(LOG_ERROR); // removes debug info in console
 	SetConfigFlags(FLAG_WINDOW_ALWAYS_RUN);
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	SetConfigFlags(FLAG_MSAA_4X_HINT);
 
-	/*Slua::init("scripts/game_settings.lua");*/
+	// hotloaded lua stuff -----------------------------------------------
 	Slua::init({"scripts/game_settings.lua", "scripts/atlas_data.lua"});
+	AtlasData::init();
+	// -------------------------------------------------------------------
 
 	/*SetTargetFPS(60);*/
 	InitWindow(Slua::lua["WINDOW_WIDTH"].get_or(0), Slua::lua["WINDOW_HEIGHT"].get_or(0), "Delogy Indev");

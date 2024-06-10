@@ -5,7 +5,6 @@
 #include "ecs_registry.hpp"
 #include "event_manager.hpp"
 #include "input_system.hpp"
-#include "item_data.hpp"
 #include "raylib.h"
 #include <cstddef>
 #include <utility>

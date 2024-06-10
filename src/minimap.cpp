@@ -1,12 +1,11 @@
 #include "minimap.hpp"
+#include "atlas_data.hpp"
 #include "dev_util.hpp"
 #include "input_system.hpp"
-#include "item_data.hpp"
 #include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
 #include "raymath.h"
-#include "tile_data.hpp"
 #include "tile_manager.hpp"
 #include <vector>
 

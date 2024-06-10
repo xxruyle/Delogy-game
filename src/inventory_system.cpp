@@ -1,9 +1,9 @@
 #include "inventory_system.hpp"
+#include "atlas_data.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
 #include "ecs_registry.hpp"
 #include "input_system.hpp"
-#include "item_data.hpp"
 #include "lua/lualoader.hpp"
 #include "raylib.h"
 #include "raymath.h"
@@ -41,7 +41,7 @@ void InventorySystem::updateItemRotation(InventoryC& inventory, HotBarC& hotBar)
 void InventorySystem::drawCurItem(Atlas& atlas, Camera2D& camera, InventoryC& inventory, HotBarC& hotBar)
 {
 	int itemID = inventory.slots[hotBar.curItem];
-	Vector2 atlasSrc = {(float)itemids[itemID].x, (float)itemids[itemID].y};
+	Vector2 atlasSrc = {(float)AtlasData::itemids[itemID].x, (float)AtlasData::itemids[itemID].y};
 	Vector2 mousePosition = getMouseGridPosition(camera);
 	mousePosition.x *= 16;
 	mousePosition.y *= 16;

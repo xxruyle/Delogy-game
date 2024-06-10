@@ -1,7 +1,7 @@
 #include "ui.hpp"
+#include "atlas_data.hpp"
 #include "components.hpp"
 #include "entt/entity/entity.hpp"
-#include "item_data.hpp"
 #include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
@@ -55,7 +55,7 @@ void UI::inventoryRowSlots(InventoryC& inventory, int curRow, int iconSize, int 
 		rowCellSrc.x += rowCellSrc.width + gridSpacing;
 		if (inventory.slots[inventoryIndex] != NULL_ITEM) {
 			int itemId = inventory.slots[inventoryIndex];
-			Item curItem = itemids[itemId];
+			Item curItem = AtlasData::itemids[itemId];
 			Rectangle itemTexture = {(float)curItem.x, (float)curItem.y, 16, 16};
 
 			// if drag and dropper is active we just set the icon texture atlas src for it

@@ -1,7 +1,6 @@
 #pragma once
 #include "dev_util.hpp"
 #include "entt/entity/registry.hpp"
-#include "item_data.hpp"
 #include "lua/lualoader.hpp"
 #include "raylib.h"
 #include "scene.hpp"

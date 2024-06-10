@@ -1,5 +1,6 @@
 #include "tile_manager.hpp"
 #include "FastNoiseLite.h"
+#include "atlas_data.hpp"
 #include "cache_manager.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
@@ -8,13 +9,11 @@
 #include "entt/entity/fwd.hpp"
 #include "event_manager.hpp"
 #include "input_system.hpp"
-#include "item_data.hpp"
 #include "item_manager.hpp"
 #include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
 #include "raymath.h"
-#include "tile_data.hpp"
 #include <cstddef>
 
 int getIndex(int x, int y) { return (CHUNK_SIZE * y) + x; };
@@ -46,7 +45,7 @@ void TileChunk::wallGeneration()
 	for (int y = 0; y < CHUNK_SIZE; y++) {
 		for (int x = 0; x < CHUNK_SIZE; x++) {
 			int index = getIndex(x, y);
-			tileID[index] = TILE_WALL_FRONT.id;
+			tileID[index] = AtlasData::tileids[WALL_FRONT].id;
 			tileZ[index] = 1;
 		}
 	}
@@ -67,7 +66,7 @@ void TileChunk::drawTile(Atlas& atlas, int x, int y)
 	int index = getIndex(x, y);
 	int id = tileID[index];
 
-	Tile curTile = tileids[id];
+	Tile curTile = AtlasData::tileids[id];
 	float xAtlasPos = curTile.x;
 	float yAtlasPos = curTile.y;
 
@@ -85,7 +84,7 @@ void TileChunk::drawItem(Atlas& atlas, int x, int y)
 	int itemid = itemID[index];
 	if (itemid != 0) // if an item exists here
 	{
-		Item curItem = itemids[itemid];
+		Item curItem = AtlasData::itemids[itemid];
 		float xAtlasPos = curItem.x;
 		float yAtlasPos = curItem.y;
 
@@ -125,7 +124,7 @@ ItemType TileChunk::deleteAtTile(int x, int y)
 	else {
 		int zLevel = tileZ[index]; // only delete the tile if z level is > 0
 		if (zLevel > 0) {
-			tileID[index] = TILE_DIRT_FLOOR_MIDDLE.id;
+			tileID[index] = AtlasData::tileids[DIRT_FLOOR_MIDDLE].id;
 			tileZ[index] = 0;
 		}
 	}
@@ -135,7 +134,7 @@ ItemType TileChunk::deleteAtTile(int x, int y)
 void TileChunk::updateTile(int x, int y)
 {
 	int index = getIndex(x, y);
-	tileID[index] = TILE_CAVE_FLOOR_MIDDLE.id;
+	tileID[index] = AtlasData::tileids[CAVE_FLOOR_MIDDLE].id;
 	// we don't need to change z level because we are just replacing the highest
 	// block
 }
@@ -144,7 +143,7 @@ void TileChunk::updateItem(int x, int y, int playerItemID)
 {
 	int index = getIndex(x, y);
 	int curItemID = itemID[index];
-	Item newItem = itemids[playerItemID];
+	Item newItem = AtlasData::itemids[playerItemID];
 
 	if (tileZ[index] == 0) {
 		itemID[index] = newItem.id;
@@ -413,7 +412,7 @@ void TileManager::drunkardGenerateAll()
 
 			if (curTile.x >= -worldLength && curTile.y >= -worldLength && curTile.y < worldLength && curTile.x < worldLength) {
 				if (chunks[chunkIndex].tileID[tileIndex] != DIRT_FLOOR_MIDDLE) {
-					chunks[chunkIndex].tileID[tileIndex] = TILE_DIRT_FLOOR_MIDDLE.id;
+					chunks[chunkIndex].tileID[tileIndex] = AtlasData::tileids[DIRT_FLOOR_MIDDLE].id;
 					chunks[chunkIndex].tileZ[tileIndex] = 0;
 					floorCount++;
 				}

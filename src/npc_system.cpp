@@ -6,7 +6,6 @@
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/registry.hpp"
 #include "input_system.hpp"
-#include "item_data.hpp"
 #include "lua/lualoader.hpp"
 #include "raylib.h"
 #include "raymath.h"

@@ -1,7 +1,7 @@
 #pragma once
 #include "atlas.hpp"
+#include "atlas_data.hpp"
 #include "dev_util.hpp"
-#include "item_data.hpp"
 #include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
