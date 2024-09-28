@@ -1,7 +1,9 @@
 #include "input_system.hpp"
 #include "dev_util.hpp"
 #include "raylib.h"
+#include "keybindings.hpp"
 #include <deque>
+
 
 int InputSystem::getUserKeypress()
 {
@@ -10,90 +12,55 @@ int InputSystem::getUserKeypress()
 		return key - 48; // converting from ascii decimal value to actual keyboard values
 	}
 
-	if (IsKeyPressed(Keys[ITEM_ROTATION])) {
-		return ITEM_ROTATION;
-	}
-
-	if (IsKeyPressed(Keys[DEBUG_WIREFRAME])) {
-		return DEBUG_WIREFRAME;
-	}
-
-	if (IsKeyPressed(Keys[OPEN_MINIMAP])) {
-		return OPEN_MINIMAP;
-	}
-
-	if (IsKeyPressed(Keys[PLAYER_INTERACT])) {
-		return PLAYER_INTERACT;
-	}
-
-	if (IsKeyPressed(Keys[OPEN_INVENTORY])) {
-		return OPEN_INVENTORY;
-	}
-
 	return NULL_PRESS;
 }
 
-int InputSystem::getUserKeydown()
-{
-	if (IsKeyDown(Keys[SHOW_INFO])) {
-		return SHOW_INFO;
-	}
 
-	return NULL_PRESS;
-}
 
-int InputSystem::getUserCharpress()
-{
-	int key = GetCharPressed();
-
-	if (key) {
-		return key - 48;
-	}
-}
-
-bool InputSystem::getMoveRight() { return IsKeyDown(Keys[MOVE_RIGHT]); }
-bool InputSystem::getMoveLeft() { return IsKeyDown(Keys[MOVE_LEFT]); }
-bool InputSystem::getMoveUp() { return IsKeyDown(Keys[MOVE_UP]); }
-bool InputSystem::getMoveDown() { return IsKeyDown(Keys[MOVE_DOWN]); }
+bool InputSystem::getMoveRight() { return IsKeyDown(Keybindings::binds[MOVE_RIGHT]); }
+bool InputSystem::getMoveLeft() { return IsKeyDown(Keybindings::binds[MOVE_LEFT]); }
+bool InputSystem::getMoveUp() { return IsKeyDown(Keybindings::binds[MOVE_UP]); }
+bool InputSystem::getMoveDown() { return IsKeyDown(Keybindings::binds[MOVE_DOWN]); }
 
 int InputSystem::getMovementDirection()
 {
 
-	if (IsKeyDown(Keys[MOVE_RIGHT]) && !(IsKeyDown(Keys[MOVE_LEFT]) || IsKeyDown(Keys[MOVE_UP]) || IsKeyDown(Keys[MOVE_DOWN]))) {
+	if (IsKeyDown(Keybindings::binds[MOVE_RIGHT]) && !(IsKeyDown(Keybindings::binds[MOVE_LEFT]) || IsKeyDown(Keybindings::binds[MOVE_UP]) || IsKeyDown(Keybindings::binds[MOVE_DOWN]))) {
 		return MOVE_RIGHT;
 	}
 
-	if (IsKeyDown(Keys[MOVE_LEFT]) && !(IsKeyDown(Keys[MOVE_RIGHT]) || IsKeyDown(Keys[MOVE_UP]) || IsKeyDown(Keys[MOVE_DOWN]))) {
+	if (IsKeyDown(Keybindings::binds[MOVE_LEFT]) && !(IsKeyDown(Keybindings::binds[MOVE_RIGHT]) || IsKeyDown(Keybindings::binds[MOVE_UP]) || IsKeyDown(Keybindings::binds[MOVE_DOWN]))) {
 		return MOVE_LEFT;
 	}
 
-	if (IsKeyDown(Keys[MOVE_UP]) && !(IsKeyDown(Keys[MOVE_LEFT]) || IsKeyDown(Keys[MOVE_RIGHT]) || IsKeyDown(Keys[MOVE_DOWN]))) {
+	if (IsKeyDown(Keybindings::binds[MOVE_UP]) && !(IsKeyDown(Keybindings::binds[MOVE_LEFT]) || IsKeyDown(Keybindings::binds[MOVE_RIGHT]) || IsKeyDown(Keybindings::binds[MOVE_DOWN]))) {
 		return MOVE_UP;
 	}
 
-	if (IsKeyDown(Keys[MOVE_DOWN]) && !(IsKeyDown(Keys[MOVE_LEFT]) || IsKeyDown(Keys[MOVE_RIGHT]) || IsKeyDown(Keys[MOVE_UP]))) {
+	if (IsKeyDown(Keybindings::binds[MOVE_DOWN]) && !(IsKeyDown(Keybindings::binds[MOVE_LEFT]) || IsKeyDown(Keybindings::binds[MOVE_RIGHT]) || IsKeyDown(Keybindings::binds[MOVE_UP]))) {
 		return MOVE_DOWN;
 	}
 
 	return NULL_PRESS;
 }
+
 Vector2 InputSystem::getDirectionVector()
 {
 	Vector2 direction = {0, 0};
 
-	if (IsKeyDown(Keys[MOVE_LEFT])) {
+	if (IsKeyDown(Keybindings::binds[MOVE_LEFT])) {
 		direction.x -= 1;
 	}
 
-	if (IsKeyDown(Keys[MOVE_RIGHT])) {
+	if (IsKeyDown(Keybindings::binds[MOVE_RIGHT])) {
 		direction.x += 1;
 	}
 
-	if (IsKeyDown(Keys[MOVE_UP])) {
+	if (IsKeyDown(Keybindings::binds[MOVE_UP])) {
 		direction.y -= 1;
 	}
 
-	if (IsKeyDown(Keys[MOVE_DOWN])) {
+	if (IsKeyDown(Keybindings::binds[MOVE_DOWN])) {
 		direction.y += 1;
 	}
 
@@ -105,22 +72,22 @@ float InputSystem::getScrollAmount() { return GetMouseWheelMove(); }
 int InputSystem::getUserMouseInteraction()
 {
 
-	if (IsMouseButtonPressed(Keys[PLAYER_DESTROY])) {
+	if (IsMouseButtonPressed(Keybindings::binds[PLAYER_DESTROY])) {
 		return PLAYER_DESTROY;
 	}
 
-	if (IsMouseButtonPressed(Keys[PLAYER_CREATE])) {
+	if (IsMouseButtonPressed(Keybindings::binds[PLAYER_CREATE])) {
 		return PLAYER_CREATE;
 	}
 
-	if (IsMouseButtonDown(Keys[CLICK_HOLD])) {
+	if (IsMouseButtonDown(Keybindings::binds[CLICK_HOLD])) {
 		return CLICK_HOLD;
 	}
 
-	if (IsMouseButtonReleased(Keys[MOVE_RIGHT])) {
+	if (IsMouseButtonReleased(Keybindings::binds[MOVE_RIGHT])) {
 		return MOVE_RIGHT;
 	}
 
 	return NULL_PRESS;
 }
-void InputSystem::changeKeyBinding(int keybindID, int newKey) { Keys[keybindID] = newKey; }
+void InputSystem::changeKeyBinding(int keybindID, int newKey) { Keybindings::binds[keybindID] = newKey; }

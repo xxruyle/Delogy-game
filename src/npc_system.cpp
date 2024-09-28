@@ -10,6 +10,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "tile_manager.hpp"
+#include "keybindings.hpp"
 
 NPCSystem::NPCSystem(TileManager* tileManager, entt::entity player)
 {
@@ -493,7 +494,7 @@ void NPCSystem::updateCacheAfter()
 
 bool NPCSystem::showEntityInfo(Camera2D& camera)
 {
-	if (InputSystem::getUserKeydown() == SHOW_INFO) {
+	if (IsKeyDown(Keybindings::binds[SHOW_INFO])) {
 		Vector2 pos = getMouseGridPosition(camera);
 
 		for (int x = pos.x - 1; x <= pos.x + 1; x++) {

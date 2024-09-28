@@ -45,9 +45,9 @@ COLLISION_ENABLED = false
 SURVIVAL_MODE = false
 
 -- NPC Info
-MAX_NPCS = 2
+MAX_NPCS = 1000
 DRAW_NPC_DEBUG = true -- draw npc info (e.g path arrows)
-NPC_SPAWN_RADIUS = 10
+NPC_SPAWN_RADIUS = 100
 
 -- NPC Genes
 NPC_GENE_MAX_DESIRE = math.random(70, 100)

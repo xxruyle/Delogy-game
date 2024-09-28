@@ -2,6 +2,7 @@
 #include "cache_manager.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
+#include "keybindings.hpp"
 #include "ecs_registry.hpp"
 #include "event_manager.hpp"
 #include "input_system.hpp"
@@ -123,7 +124,9 @@ void checkPlayerDeletions(Scene& scene)
 			Vector2 pos = getMouseGridPosition(scene.camera);
 			ItemEvent e = {ITEM_CREATION, inventory.slots[hotBar.curItem], getMouseGridPosition(scene.camera), scene.player};
 
-			inventory.stacks[hotBar.curItem] -= 1;
+			if (survival_mode) {
+				inventory.stacks[hotBar.curItem] -= 1;
+			}
 
 			placeItem(pos, (ItemType)e.itemID);
 			EventManager::itemEventQueue.push_back(e);

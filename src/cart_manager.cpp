@@ -5,6 +5,7 @@
 #include "input_system.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
+#include "keybindings.hpp"
 #include <iostream>
 
 std::unordered_set<int> CartManager::getValidRails(int rail, int direction)
@@ -132,7 +133,7 @@ Vector2 CartManager::getNearSideCartBorder(PositionC& position, int direction)
 
 void CartManager::getPlayerInteraction(InventoryC& inventory, HotBarC& hotBar, Camera2D& camera)
 {
-	if (InputSystem::getUserMouseInteraction() == PLAYER_CREATE) {
+	if (IsMouseButtonDown(Keybindings::binds[PLAYER_CREATE])) {
 		int inventoryItem = inventory.slots[hotBar.curItem];
 		if (inventoryItem == CART) {
 			Vector2 mouseGridPos = getMouseGridPosition(camera);

@@ -8,6 +8,7 @@
 #include "raymath.h"
 #include "tile_manager.hpp"
 #include <vector>
+#include "keybindings.hpp"
 
 MiniMap::MiniMap(int init_width, int init_height, TileManager* tileManager) : width(init_width), height(init_height)
 {
@@ -49,7 +50,8 @@ void MiniMap::deleteWaypoint()
 void MiniMap::getMapChangeInput(UI& ui, Vector2 playerPos)
 {
 
-	if (InputSystem::getUserKeypress() == OPEN_MINIMAP) {
+
+	if (IsKeyPressed(Keybindings::binds[OPEN_MINIMAP])) {
 		if (fullScreen) { // switch to minimap
 			UnloadRenderTexture(map);
 			fullScreen = false;

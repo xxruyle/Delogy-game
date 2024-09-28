@@ -2,6 +2,7 @@
 #include "FastNoiseLite.h"
 #include "atlas_data.hpp"
 #include "cache_manager.hpp"
+#include "keybindings.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
 #include "ecs_registry.hpp"
@@ -172,7 +173,7 @@ void TileManager::generateOres()
 {
 	for (int y = -worldSize * CHUNK_SIZE; y < worldSize * CHUNK_SIZE; y++) {
 		for (int x = -worldSize * CHUNK_SIZE; x < worldSize * CHUNK_SIZE; x++) {
-			int rand = GetRandomValue(0, 32627);
+			int rand = GetRandomValue(0, 10000);
 			if (rand < 2) {
 				int randOreSize = GetRandomValue(5, 15);
 

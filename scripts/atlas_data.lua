@@ -1,6 +1,6 @@
 TILES = {
     WALL_FRONT = { id = 1, x = 4, y = 214 },
-    CAVE_FLOOR_MIDDLE = { id = 2, x = 4, y = 251 },
+    CAVE_FLOOR_MIDDLE = { id = 2, x = 4, y = 151 },
     DIRT_FLOOR_MIDDLE = { id = 3, x = 67, y = 214 },
 }
 
