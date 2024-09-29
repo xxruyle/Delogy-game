@@ -47,13 +47,13 @@ SURVIVAL_MODE = false
 -- NPC Info
 MAX_NPCS = 1000
 DRAW_NPC_DEBUG = true -- draw npc info (e.g path arrows)
-NPC_SPAWN_RADIUS = 100
+NPC_SPAWN_RADIUS = 50
 
 -- NPC Genes
 NPC_GENE_MAX_DESIRE = math.random(70, 100)
 NPC_GENE_MIN_DESIRE = math.random(50, 60)
 NPC_GENE_INCREMENT = math.random(30, 40)
-NPC_GENE_DECREMENT = 10.0
+NPC_GENE_DECREMENT = 20.0
 -- NPC_GENE_DECREMENT = math.random()
 
 

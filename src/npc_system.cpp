@@ -1,16 +1,19 @@
 #include "npc_system.hpp"
+#include "atlas_data.hpp"
 #include "cache_manager.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
 #include "ecs_registry.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/registry.hpp"
+#include "event_manager.hpp"
 #include "input_system.hpp"
+#include "item_manager.hpp"
+#include "keybindings.hpp"
 #include "lua/lualoader.hpp"
 #include "raylib.h"
 #include "raymath.h"
 #include "tile_manager.hpp"
-#include "keybindings.hpp"
 
 NPCSystem::NPCSystem(TileManager* tileManager, entt::entity player)
 {
@@ -37,6 +40,8 @@ void NPCSystem::addNPCs()
 		ECS::registry.emplace<PositionC>(entity, getGridToScreenPos(pos));
 		ECS::registry.emplace<PhysicsC>(entity, Vector2{0.0f, 0.0f}, 45, false);
 		ECS::registry.emplace<CollisionC>(entity, Rectangle{0, 0, 16, 16});
+		ECS::registry.emplace<InventoryC>(entity, 5); // inventory with size of 5
+		ECS::registry.emplace<UIInventoryC>(entity, false, Vector2{0.0f, 0.0f});
 
 		GenesC geneSet = {
 			{geneMax, geneMax, geneMax, geneMax},
@@ -327,13 +332,19 @@ void NPCSystem::handleEating(entt::entity id)
 	auto& path = ECS::registry.get<PathC>(id);
 	auto& position = ECS::registry.get<PositionC>(id);
 	auto& physics = ECS::registry.get<PhysicsC>(id);
+	auto& timer = ECS::registry.get<TimerC>(id);
 
 	if (!physics.moving()) {
 		/* bool atItem = npcAtItem(id, MUSHROOM_PURPLE); */
 		bool atItem = tManager->getItemUnder(Vector2{position.pos.x + 8.0f, position.pos.y + 8.0f}) == MUSHROOM_PURPLE;
 		if (atItem) {
-
 			need.currentAction = EATING;
+			if (need.canPickup) {
+				Vector2 pos = getGridPosition(Vector2{position.pos.x + 8.0f, position.pos.y + 8.0f});
+				EventManager::addItemDeletionEvent(pos, MUSHROOM_PURPLE, id);
+				need.canPickup = false;
+			}
+
 			path.destQueue.clear();
 
 			if (nearEntity(id, 3)) {
@@ -492,54 +503,69 @@ void NPCSystem::updateCacheAfter()
 	}
 }
 
+BoolVec2Pair NPCSystem::getEntityPosOnMouse(Camera2D& camera)
+{
+	Vector2 pos = getMouseGridPosition(camera);
+
+	for (int x = pos.x - 1; x <= pos.x + 1; x++) {
+		for (int y = pos.y - 1; y <= pos.y + 1; y++) {
+			Vector2 nearPos = {(float)x, (float)y};
+
+			if (CacheManager::entityCache.count(nearPos)) {
+				return {true, pos};
+			}
+		}
+	}
+
+	return {false, Vector2{0, 0}};
+}
+
 bool NPCSystem::showEntityInfo(Camera2D& camera)
 {
 	if (IsKeyDown(Keybindings::binds[SHOW_INFO])) {
-		Vector2 pos = getMouseGridPosition(camera);
+		BoolVec2Pair res = getEntityPosOnMouse(camera);
+		if (res.confirm) {
+			for (entt::entity id : CacheManager::entityCache[res.pos]) {
+				if (ECS::registry.any_of<NeedsC>(id)) {
+					PositionC& position = ECS::registry.get<PositionC>(id);
+					PathC& path = ECS::registry.get<PathC>(id);
+					CollisionC& coll = ECS::registry.get<CollisionC>(id);
+					UIInventoryC& uiInv = ECS::registry.get<UIInventoryC>(id);
 
-		for (int x = pos.x - 1; x <= pos.x + 1; x++) {
-			for (int y = pos.y - 1; y <= pos.y + 1; y++) {
-				Vector2 nearPos = {(float)x, (float)y};
-				/* std::cout << getVector2String(nearPos) << std::endl; */
-				if (CacheManager::entityCache.count(nearPos)) {
-					for (entt::entity id : CacheManager::entityCache[nearPos]) {
-						if (ECS::registry.any_of<NeedsC>(id)) {
-							PositionC& position = ECS::registry.get<PositionC>(id);
-							PathC& path = ECS::registry.get<PathC>(id);
-							CollisionC& coll = ECS::registry.get<CollisionC>(id);
+					Rectangle absoluteAABB = {coll.aabb.x + position.pos.x, coll.aabb.y + position.pos.y, coll.aabb.width, coll.aabb.height};
 
-							Rectangle absoluteAABB = {coll.aabb.x + position.pos.x, coll.aabb.y + position.pos.y, coll.aabb.width, coll.aabb.height};
+					if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), absoluteAABB)) {
 
-							if (CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), absoluteAABB)) {
-								NeedsC& needs = ECS::registry.get<NeedsC>(id);
-								Vector2 infoPos = GetScreenToWorld2D(GetMousePosition(), camera);
+						NeedsC& needs = ECS::registry.get<NeedsC>(id);
+						Vector2 infoPos = GetScreenToWorld2D(GetMousePosition(), camera);
 
-								std::string satiationInfo = std::to_string(needs.desires[needType::SATIATION]);
-								satiationInfo.erase(satiationInfo.find_last_not_of('0') + 1, std::string::npos);
-								satiationInfo.erase(satiationInfo.find_last_not_of('.') + 1, std::string::npos);
-								satiationInfo = "satiation: " + satiationInfo;
+						uiInv.active ? uiInv.active = false : uiInv.active = true;
+						uiInv.srcPos = {GetScreenWidth() / 2, GetScreenHeight() / 2};
 
-								std::string socialInfo = std::to_string(needs.desires[needType::SOCIAL]);
-								socialInfo.erase(socialInfo.find_last_not_of('0') + 1, std::string::npos);
-								socialInfo.erase(socialInfo.find_last_not_of('.') + 1, std::string::npos);
-								socialInfo = "social: " + socialInfo;
+						std::string satiationInfo = std::to_string(needs.desires[needType::SATIATION]);
+						satiationInfo.erase(satiationInfo.find_last_not_of('0') + 1, std::string::npos);
+						satiationInfo.erase(satiationInfo.find_last_not_of('.') + 1, std::string::npos);
+						satiationInfo = "satiation: " + satiationInfo;
 
-								std::string energyInfo = std::to_string(needs.desires[ENERGY]);
-								energyInfo.erase(energyInfo.find_last_not_of('0') + 1, std::string::npos);
-								energyInfo.erase(energyInfo.find_last_not_of('.') + 1, std::string::npos);
-								energyInfo = "energy: " + energyInfo;
+						std::string socialInfo = std::to_string(needs.desires[needType::SOCIAL]);
+						socialInfo.erase(socialInfo.find_last_not_of('0') + 1, std::string::npos);
+						socialInfo.erase(socialInfo.find_last_not_of('.') + 1, std::string::npos);
+						socialInfo = "social: " + socialInfo;
 
-								std::string idInfo = "id: " + std::to_string((unsigned int)id);
-								std::string targetInfo = "ptarget: " + std::to_string(path.targetID);
+						std::string energyInfo = std::to_string(needs.desires[ENERGY]);
+						energyInfo.erase(energyInfo.find_last_not_of('0') + 1, std::string::npos);
+						energyInfo.erase(energyInfo.find_last_not_of('.') + 1, std::string::npos);
+						energyInfo = "energy: " + energyInfo;
 
-								DrawText(satiationInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 1.2f), 10, RED);
-								DrawText(socialInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 1.8f), 10, RED);
-								DrawText(energyInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 2.4), 10, RED);
-								DrawText(idInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 3.0f), 10, PURPLE);
-								DrawText(targetInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 3.4f), 10, PURPLE);
-								return true;
-							}
-						}
+						std::string idInfo = "id: " + std::to_string((unsigned int)id);
+						std::string targetInfo = "ptarget: " + std::to_string(path.targetID);
+
+						DrawText(satiationInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 1.2f), 10, RED);
+						DrawText(socialInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 1.8f), 10, RED);
+						DrawText(energyInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 2.4), 10, RED);
+						DrawText(idInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 3.0f), 10, PURPLE);
+						DrawText(targetInfo.c_str(), (int)(infoPos.x - coll.aabb.width * 1.2f), (int)(infoPos.y - coll.aabb.height * 3.4f), 10, PURPLE);
+						return true;
 					}
 				}
 			}

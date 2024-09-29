@@ -93,11 +93,8 @@ int main()
 
 			/* Draw */
 			drawSystem.drawSprites();
-
 			inventorySystem.drawCurItem(drawSystem.smallAtlas, scene.camera, ECS::registry.get<InventoryC>(scene.player), ECS::registry.get<HotBarC>(scene.player));
-
 			WireFrame::draw();
-
 			drawMouseGridOutline(scene.camera, Color{255, 255, 255, 180});
 			npcSystem.showEntityInfo(scene.camera);
 		}

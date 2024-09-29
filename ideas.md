@@ -44,6 +44,10 @@
     - talus  
     - jungle 
 
+- horde event combat (like terraria)
+- combat 
+    - place turret type stuff, companion, hire mercenaries
+
 ## World Idea
 - there is a world underground but people underground don't know anything about the above 
 - there are stations where work turns into rewards (food, items) (perhaps this powers the above ground?)

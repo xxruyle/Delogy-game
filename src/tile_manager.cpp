@@ -2,7 +2,6 @@
 #include "FastNoiseLite.h"
 #include "atlas_data.hpp"
 #include "cache_manager.hpp"
-#include "keybindings.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
 #include "ecs_registry.hpp"
@@ -11,6 +10,7 @@
 #include "event_manager.hpp"
 #include "input_system.hpp"
 #include "item_manager.hpp"
+#include "keybindings.hpp"
 #include "lua/lualoader.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
@@ -100,12 +100,6 @@ void TileChunk::drawItem(Atlas& atlas, int x, int y)
 		int amount = itemAmount[index];
 
 		DrawText(std::to_string(amount).c_str(), (int)loc.x, (int)loc.y, 2, RAYWHITE);
-		/*Vector2 worldPos = relativeChunkPosToGrid(Vector2{x, y}, srcCoordinate);*/
-		/*if (id != entt::null) {*/
-		/*	ItemC& item = ECS::registry.get<ItemC>(id);*/
-		/**/
-		/*	DrawText(std::to_string((unsigned int)item.capacity).c_str(), (int)loc.x, (int)loc.y, 2, RAYWHITE);*/
-		/*}*/
 	}
 }
 
@@ -212,7 +206,7 @@ void TileManager::generateVegetation()
 					IndexPair index = getGridIndexPair(curTile.x, curTile.y);
 					if (chunks[index.chunk].tileID[index.tile] == DIRT_FLOOR_MIDDLE) { // if a dirt tile
 						chunks[index.chunk].itemID[index.tile] = MUSHROOM_PURPLE;
-						chunks[index.chunk].itemAmount[index.tile] = 1;
+						chunks[index.chunk].itemAmount[index.tile] = 5;
 						randSize--;
 					}
 					else if (chunks[index.chunk].tileID[index.tile] == WALL_FRONT) {
@@ -246,40 +240,6 @@ void TileManager::checkDevInput()
 	}
 	else if (IsKeyDown(KEY_DOWN)) {
 		renderDistance--;
-	}
-}
-
-void TileManager::checkPlayerInteraction(Camera2D& camera, UI& ui, InventoryC& playerInventory, HotBarC& hotBar)
-{
-	int interactKey = InputSystem::getUserMouseInteraction();
-	if (interactKey) {
-		Vector2 mousePos = getMouseGridPosition(camera);
-
-		Vector2 chunkPos = getMouseChunkPosition(camera);
-
-		int chunkIndex = getChunkIndex(chunkPos.x, chunkPos.y);
-		Vector2 relativeGridPos = getRelativeChunkGridPosition(chunkPos, mousePos);
-
-		if (chunkExists(chunkPos) && ui.mouseOutOfBounds()) { // player can interact if chunk exists and
-			// mouse is not over ui
-			switch (interactKey) {
-			case PLAYER_DESTROY: {
-				chunks[chunkIndex].deleteAtTile(relativeGridPos.x, relativeGridPos.y);
-				updatedChunks.push_back(chunkIndex);
-				break;
-			}
-			case PLAYER_CREATE: {
-				int selectedItem = playerInventory.slots[hotBar.curItem];
-				if (selectedItem >= RAIL_NW && selectedItem <= MUSHROOM_PURPLE) {
-					chunks[chunkIndex].updateItem(relativeGridPos.x, relativeGridPos.y, selectedItem);
-					updatedChunks.push_back(chunkIndex);
-				}
-				break;
-			}
-			default:
-				break;
-			}
-		}
 	}
 }
 
@@ -329,7 +289,6 @@ void TileManager::update(Atlas& atlas, UI& ui, Scene& scene)
 	InventoryC& inventory = ECS::registry.get<InventoryC>(scene.player);
 	HotBarC& hotBar = ECS::registry.get<HotBarC>(scene.player);
 	drawAllChunks(atlas, position.pos);
-	/*checkPlayerInteraction(scene.camera, ui, inventory, hotBar);*/
 	checkDevInput();
 	handleEvents();
 }

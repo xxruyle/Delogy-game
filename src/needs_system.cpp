@@ -77,6 +77,9 @@ void NeedsSystem::update()
 		auto& timer = view.get<TimerC>(id);
 
 		if (GetTime() - timer.lastTime >= 3.0f) {
+			if (!need.canPickup)
+				need.canPickup = true;
+
 			updateDesires(need, gene);
 			timer.lastTime = GetTime();
 		}

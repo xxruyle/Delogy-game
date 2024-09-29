@@ -4,6 +4,7 @@
 #include "dev_util.hpp"
 #include "ecs_registry.hpp"
 #include "input_system.hpp"
+#include "keybindings.hpp"
 #include "lua/lualoader.hpp"
 #include "raylib.h"
 #include "raymath.h"
@@ -23,8 +24,7 @@ void InventorySystem::updateInventorySelection(InventoryC& inventory, HotBarC& h
 void InventorySystem::updateItemRotation(InventoryC& inventory, HotBarC& hotBar)
 {
 	if (hotBar.curItem >= 0 && hotBar.curItem <= hotBar.capacity) {
-		/*int rotationKey = InputSystem::getUserKeypress();*/
-		if (IsKeyPressed(KEY_R)) {
+		if (IsKeyPressed(Keybindings::binds[ITEM_ROTATION])) {
 			int curItemID = inventory.slots[hotBar.curItem];
 			if (curItemID >= RAIL_NW && curItemID <= RAIL_SW) { // rotatable items
 				if (curItemID == 6) {
@@ -70,21 +70,19 @@ void InventorySystem::update(Scene& scene)
 			updatePlayerInventory(scene);
 		}
 		else {
-			if (ECS::registry.any_of<ItemC>(entity)) {
-				InventoryC& inv = ECS::registry.get<InventoryC>(entity);
-				UIInventoryC& invUI = ECS::registry.get<UIInventoryC>(entity);
-				if (invUI.active) {
-					PositionC& playerPos = ECS::registry.get<PositionC>(scene.player);
-					PositionC& itemPos = ECS::registry.get<PositionC>(entity);
-					if (Vector2Distance(playerPos.pos, itemPos.pos) < 100) {
+			InventoryC& inv = ECS::registry.get<InventoryC>(entity);
+			UIInventoryC& invUI = ECS::registry.get<UIInventoryC>(entity);
+			if (invUI.active) {
+				PositionC& playerPos = ECS::registry.get<PositionC>(scene.player);
+				PositionC& itemPos = ECS::registry.get<PositionC>(entity);
+				if (Vector2Distance(playerPos.pos, itemPos.pos) < 100) {
+					// transparent background
 
-						// transparent background
-						DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), {0, 0, 0, 70});
-						ui->inventory(inv, invUI.srcPos, 40, 40, 5);
-					}
-					else {
-						invUI.active = false;
-					}
+					DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), {0, 0, 0, 70});
+					ui->inventory(inv, invUI.srcPos, 40, 40, 5);
+				}
+				else {
+					invUI.active = false;
 				}
 			}
 		}
@@ -98,8 +96,7 @@ void InventorySystem::updatePlayerInventory(Scene& scene)
 	UIInventoryC& invUI = ECS::registry.get<UIInventoryC>(scene.player);
 
 	// player hide UI
-	/*if (InputSystem::getUserKeypress() == OPEN_INVENTORY) {*/
-	if (IsKeyPressed(KEY_I)) {
+	if (IsKeyPressed(Keybindings::binds[OPEN_INVENTORY])) {
 		invUI.active ? invUI.active = false : invUI.active = true;
 	}
 

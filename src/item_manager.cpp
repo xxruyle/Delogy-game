@@ -1,11 +1,12 @@
 #include "item_manager.hpp"
+#include "atlas_data.hpp"
 #include "cache_manager.hpp"
 #include "components.hpp"
 #include "dev_util.hpp"
-#include "keybindings.hpp"
 #include "ecs_registry.hpp"
 #include "event_manager.hpp"
 #include "input_system.hpp"
+#include "keybindings.hpp"
 #include "lua/lualoader.hpp"
 #include "raylib.h"
 #include <cstddef>
@@ -16,7 +17,6 @@ bool survival_mode = Slua::lua.get<bool>("SURVIVAL_MODE");
 
 void placeItem(Vector2 pos, ItemType itemID)
 {
-
 	switch (itemID) {
 	case STORAGE_BOX: {
 		entt::entity entity = ECS::registry.create();
@@ -79,7 +79,7 @@ void checkItemGets()
 	if (!EventManager::itemEventQueue.empty()) {
 		ItemEvent e = EventManager::itemEventQueue.front();
 		if (e.type == ITEM_GET) {
-			std::cout << "GET: " << e.itemID << std::endl;
+			std::cout << "ID: " << std::to_string((int)e.relatedEntity) << "; GET: " << e.itemID << std::endl;
 			addItemToInventory(e.itemID, e.relatedEntity);
 			EventManager::itemEventQueue.pop_front();
 		}
@@ -93,12 +93,12 @@ void addItemToInventory(int itemID, entt::entity id)
 		if (inventory.slots[i] == NULL_ITEM) {
 			inventory.slots[i] = itemID;
 			inventory.stacks[i] += 1;
-			std::cout << "null: " << inventory.stacks[i] << std::endl;
+			// std::cout << "null: " << inventory.stacks[i] << std::endl;
 			break;
 		}
 		else if (inventory.slots[i] == itemID) {
 			inventory.stacks[i] += 1;
-			std::cout << "existing: " << inventory.stacks[i] << std::endl;
+			// std::cout << "existing: " << inventory.stacks[i] << std::endl;
 			break;
 		}
 	}
@@ -106,30 +106,22 @@ void addItemToInventory(int itemID, entt::entity id)
 
 void checkPlayerDeletions(Scene& scene)
 {
-
-	int key = InputSystem::getUserMouseInteraction();
-
-	if (key == PLAYER_DESTROY) {
-		Vector2 pos = getMouseGridPosition(scene.camera);
-		ItemEvent e = {ITEM_DELETION, NULL_ITEM, getMouseGridPosition(scene.camera), scene.player};
-
-		deleteItem(pos);
-		std::cout << "item event queue push" << std::endl;
-		EventManager::itemEventQueue.push_back(e);
+	if (IsMouseButtonPressed(Keybindings::binds[PLAYER_DESTROY])) {
+		EventManager::addItemDeletionEvent(getMouseGridPosition(scene.camera), NULL_ITEM, scene.player);
 	}
-	else if (key == PLAYER_CREATE) {
+}
+
+void checkPlayerCreations(Scene& scene)
+{
+
+	if (IsMouseButtonPressed(Keybindings::binds[PLAYER_CREATE])) {
 		HotBarC& hotBar = ECS::registry.get<HotBarC>(scene.player);
 		InventoryC& inventory = ECS::registry.get<InventoryC>(scene.player);
 		if (inventory.stacks[hotBar.curItem] > 0 && inventory.stacks[hotBar.curItem] != NULL_ITEM) {
-			Vector2 pos = getMouseGridPosition(scene.camera);
-			ItemEvent e = {ITEM_CREATION, inventory.slots[hotBar.curItem], getMouseGridPosition(scene.camera), scene.player};
-
+			EventManager::addItemCreationEvent(getMouseGridPosition(scene.camera), inventory.slots[hotBar.curItem], scene.player);
 			if (survival_mode) {
 				inventory.stacks[hotBar.curItem] -= 1;
 			}
-
-			placeItem(pos, (ItemType)e.itemID);
-			EventManager::itemEventQueue.push_back(e);
 		}
 
 		if (inventory.stacks[hotBar.curItem] <= 0) {
@@ -141,7 +133,7 @@ void checkPlayerDeletions(Scene& scene)
 
 void checkPlayerInteractions(Scene& scene)
 {
-	if (IsKeyPressed(KEY_E)) {
+	if (IsKeyPressed(Keybindings::binds[PLAYER_INTERACT])) {
 		Vector2 mouseGridPos = getMouseGridPosition(scene.camera);
 		entt::entity id = CacheManager::getItemAtPosition(mouseGridPos);
 		interactWithItem(id);
@@ -151,6 +143,7 @@ void checkPlayerInteractions(Scene& scene)
 void update(Scene& scene)
 {
 	checkPlayerDeletions(scene);
+	checkPlayerCreations(scene);
 	checkPlayerInteractions(scene);
 	checkItemGets();
 }
