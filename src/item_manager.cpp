@@ -41,14 +41,6 @@ void deleteItem(Vector2 pos)
 			ItemC& item = ECS::registry.get<ItemC>(id);
 			CacheManager::clearCachePosition(pos, id);
 			ECS::registry.destroy(id);
-			/*switch (item.id) {*/
-			/*case STORAGE_BOX: {*/
-			/*	break;*/
-			/*}*/
-			/*default: {*/
-			/*	break;*/
-			/*}*/
-			/*}*/
 		}
 	}
 }
@@ -79,7 +71,7 @@ void checkItemGets()
 	if (!EventManager::itemEventQueue.empty()) {
 		ItemEvent e = EventManager::itemEventQueue.front();
 		if (e.type == ITEM_GET) {
-			std::cout << "ID: " << std::to_string((int)e.relatedEntity) << "; GET: " << e.itemID << std::endl;
+			// std::cout << "ID: " << std::to_string((int)e.relatedEntity) << "; GET: " << e.itemID << std::endl;
 			addItemToInventory(e.itemID, e.relatedEntity);
 			EventManager::itemEventQueue.pop_front();
 		}
@@ -93,12 +85,10 @@ void addItemToInventory(int itemID, entt::entity id)
 		if (inventory.slots[i] == NULL_ITEM) {
 			inventory.slots[i] = itemID;
 			inventory.stacks[i] += 1;
-			// std::cout << "null: " << inventory.stacks[i] << std::endl;
 			break;
 		}
 		else if (inventory.slots[i] == itemID) {
 			inventory.stacks[i] += 1;
-			// std::cout << "existing: " << inventory.stacks[i] << std::endl;
 			break;
 		}
 	}

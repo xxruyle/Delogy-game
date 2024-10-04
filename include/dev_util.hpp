@@ -49,6 +49,7 @@ void drawGameInfo(
                               // color); // draw the outline of a grid depending
                               // on
                               // // the coordinate the mouse is hovering over
+void drawHistory();
 
 void drawCounter(const char *text, int count);
 void drawMouseChunkPosition(Camera2D &camera);

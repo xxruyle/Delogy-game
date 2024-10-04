@@ -1,6 +1,7 @@
 #include "atlas_data.hpp"
 #include "components.hpp"
 #include "ecs_registry.hpp"
+#include "history.hpp"
 #include "item_manager.hpp"
 #include "macros_util.hpp"
 #include <iostream>
@@ -110,6 +111,7 @@ int main()
 		miniMap.update(userInterface, Vector2{scene.playerPosition.x + 6, scene.playerPosition.y + 16}, drawSystem);
 
 		ItemManager::update(scene);
+		History::update();
 
 		EndDrawing();
 	}

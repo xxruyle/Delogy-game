@@ -1,4 +1,5 @@
 #include "dev_util.hpp"
+#include "history.hpp"
 #include "macros_util.hpp"
 #include "raylib.h"
 #include <math.h>
@@ -85,6 +86,21 @@ std::vector<Vector2> getSpiralNeighbors(Vector2 curPos, int radius)
 	return neighbors;
 }
 
+void drawHistory()
+{
+	int UI_FONT_SIZE = Slua::lua["UI_FONT_SIZE"].get_or(5); // NOTE: Probably not very fast
+	std::string era = "Era: " + std::to_string(History::era);
+	std::string year = "Year: " + std::to_string(History::year);
+	std::string month = "Month: " + std::to_string(History::month);
+	std::string day = "Day: " + std::to_string(History::day);
+	std::string hour = "Hour: " + std::to_string(History::hour);
+	DrawText(era.c_str(), 3, 145, UI_FONT_SIZE, RAYWHITE);
+	DrawText(year.c_str(), 3, 165, UI_FONT_SIZE, RAYWHITE);
+	DrawText(month.c_str(), 3, 185, UI_FONT_SIZE, RAYWHITE);
+	DrawText(day.c_str(), 3, 205, UI_FONT_SIZE, RAYWHITE);
+	DrawText(hour.c_str(), 3, 225, UI_FONT_SIZE, RAYWHITE);
+}
+
 void drawGameInfo(Camera2D& camera, Vector2 playerPos, Vector2& playerVelocity)
 {
 	int UI_FONT_SIZE = Slua::lua["UI_FONT_SIZE"].get_or(5); // NOTE: Probably not very fast
@@ -96,6 +112,7 @@ void drawGameInfo(Camera2D& camera, Vector2 playerPos, Vector2& playerVelocity)
 
 	std::string playerVelocityStr = "Velocity: (" + std::to_string((int)playerVelocity.x) + ", " + std::to_string((int)playerVelocity.y) + ")";
 	DrawText(playerVelocityStr.c_str(), 3, 125, UI_FONT_SIZE, RAYWHITE);
+	drawHistory();
 }
 
 void drawCounter(const char* text, int count)
